@@ -137,11 +137,12 @@ export default function Page() {
             zeroWidths.push(
               <img
                 key={`zw-${i}`}
-                className={`ck-emote${emotes[nextIdx].upscale ? ' ck-upscale' : ''} m-auto row-[1] col-[1]`}
+                className={`ck-emote${emotes[nextIdx].upscale ? ' ck-upscale' : ''}`}
                 src={emotes[nextIdx].image}
                 alt={emotes[nextIdx].name}
                 height={emotes[nextIdx].height}
                 width={emotes[nextIdx].width}
+                style={{ display:'block', maxWidth:'100%', maxHeight:'100%' }}
               />
             );
             i++;
@@ -162,9 +163,11 @@ export default function Page() {
             );
           } else {
             nodes.push(
-              <span key={`zws-${i}`} className="inline-grid align-middle pr-1">
-                <img className={`ck-emote${emote.upscale ? ' ck-upscale' : ''} m-auto row-[1] col-[1]`} src={emote.image} alt={emote.name} height={emote.height} width={emote.width} />
-                {zeroWidths}
+              <span key={`zws-${i}`} style={{ display:'inline-block', position:'relative', verticalAlign:'middle' }}>
+                <img className={`ck-emote${emote.upscale ? ' ck-upscale' : ''}`} src={emote.image} alt={emote.name} height={emote.height} width={emote.width} style={{ display:'block' }} />
+                {zeroWidths.map((zw, zi) => (
+                  <span key={zi} style={{ position:'absolute', top:0, left:0, width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center' }}>{zw}</span>
+                ))}
               </span>
             );
           }
