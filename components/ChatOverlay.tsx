@@ -253,6 +253,10 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
           .ck-bw img:last-of-type,
           .ck-bw img.ck-badge-img:last-of-type { margin-right: ${sz.badgeLastMR}; }
 
+          .ck-body {
+            display: inline;
+          }
+
           /* Emote sizing — exact from size_*.css .emote */
           .ck-body img,
           .ck-body img.ck-emote {
@@ -260,7 +264,9 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
             max-height:     ${emoteMaxH};
             height:         auto;
             width:          auto;
-            display:        block;
+            margin-right:   ${sz.emoteMR};
+            vertical-align: middle;
+            display:        inline-block;
           }
 
           /* Upscale emotes — fill full line-height (chatis upscale class) */
@@ -276,10 +282,6 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
           @keyframes ckPin {
             from { opacity:0; transform:translateY(-6px); }
             to   { opacity:1; transform:translateY(0); }
-          }
-          @keyframes ckPinOut {
-            from { opacity:1; transform:translateY(0); }
-            to   { opacity:0; transform:translateY(-6px); }
           }
           @keyframes ckSpin {
             from { transform: rotate(0deg); }
@@ -347,7 +349,7 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
   );
 }
 
-/* PinBanner — shows pinned message, auto-hides after 5s, no scrollbar */
+/* PinBanner — shows pinned message, auto-hides after 10s, no scrollbar */
 function PinBanner({ msg, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strokeVal, smallCaps, nlAfterName, hideNames }: {
   msg: ParsedMessage; sz: typeof SIZE[SzKey];
   emoteMaxH:string; emoteMaxW:string; fontFamily:string;
@@ -355,23 +357,14 @@ function PinBanner({ msg, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strok
   smallCaps:boolean; nlAfterName:boolean; hideNames:boolean;
 }) {
   const [visible, setVisible] = useState(true);
-  const [leaving, setLeaving] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>|null>(null);
 
   useEffect(() => {
     setVisible(true);
-    setLeaving(false);
     if (timerRef.current) clearTimeout(timerRef.current);
-    // Total = 5000ms: 150ms in + 4700ms hold + 150ms out
-    timerRef.current = setTimeout(() => setLeaving(true), 4850);
+    timerRef.current = setTimeout(() => setVisible(false), 7000);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [msg.id]);
-
-  useEffect(() => {
-    if (!leaving) return;
-    const t = setTimeout(() => setVisible(false), 150);
-    return () => clearTimeout(t);
-  }, [leaving]);
 
   if (!visible) return null;
 
@@ -380,7 +373,7 @@ function PinBanner({ msg, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strok
       position:'absolute', top:0, left:0, right:0, zIndex:10,
       background:'rgba(0,0,0,0.75)', backdropFilter:'blur(4px)',
       padding:'6px 10px 8px', borderRadius:'0 0 6px 6px',
-      animation: leaving ? 'ckPinOut 150ms ease-in forwards' : 'ckPin 150ms ease-out',
+      animation:'ckPin 150ms ease-out',
       fontFamily, fontWeight:800, fontSize:sz.fontSize,
       color:'white',
       wordBreak:'break-word', overflowWrap:'break-word',
@@ -412,9 +405,9 @@ function MsgLine({ msg, sz, emoteMaxH, emoteMaxW, stroke, smallCaps, nlAfterName
     : { color:msg.identity.color, ...(smallCaps?{fontVariant:'small-caps'}:{}) };
 
   return (
-    <div style={{ lineHeight:sz.lineHeight }}>
+    <div style={{ lineHeight:sz.lineHeight, wordBreak:'break-word' }}>
       {!hideNames && (
-        <span style={{ display:'inline-block' }}>
+        <span style={{ display:'inline' }}>
           {msg.identity.badges.length > 0 && (
             <span className="ck-bw">
               {msg.identity.badges.map((b,i) => <Fragment key={i}>{b}</Fragment>)}
