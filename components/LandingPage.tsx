@@ -101,7 +101,6 @@ export default function LandingPage() {
   const [fadeBool,    setFadeBool]    = useState(true);
   const [showPin,     setShowPin]     = useState(true);
   const [emoteScale,  setEmoteScale]  = useState('');
-  const [ttsVolume,   setTtsVolume]   = useState('0.5');
   const [smallCaps,   setSmallCaps]   = useState(false);
   const [nlAfterName, setNlAfterName] = useState(false);
   const [hideNames,   setHideNames]   = useState(false);
@@ -120,7 +119,6 @@ export default function LandingPage() {
     ...(fadeBool && fade !== '' ? { fade } : {}),
     showPinEnabled:        String(showPin),
     ...(emoteScale !== '' ? { emoteScale } : {}),
-    ttsVolume,
     smallCaps:   String(smallCaps),
     nlAfterName: String(nlAfterName),
     hideNames:   String(hideNames),
@@ -338,11 +336,6 @@ export default function LandingPage() {
                 <input type="text" placeholder="1.0" style={{ width: 80 }}
                   value={emoteScale} onChange={e => setEmoteScale(e.target.value)} />
                 <label>Emote scale (0–3)</label>
-              </div>
-              <div className="form_row left">
-                <input type="text" placeholder="0.5" style={{ width: 80 }}
-                  value={ttsVolume} onChange={e => setTtsVolume(e.target.value)} />
-                <label>TTS volume (0–1)</label>
               </div>
             </div>
 
