@@ -51,6 +51,7 @@ const QuerySchema = z.object({
   nlAfterName: z.string().optional().transform(v => v === 'true'),
   hideNames: z.string().optional().transform(v => v === 'true'),
   botNames: z.string().optional().transform(v => v ?? ''),
+  ttsVolume: z.string().optional().transform(v => { const n = parseFloat(v ?? ''); return isNaN(n) ? 0.5 : Math.min(1, Math.max(0, n)); }),
 });
 
 export type OverlayConfig = z.infer<typeof QuerySchema>;
@@ -105,24 +106,6 @@ export default function Page() {
       const kickEmoteRe = /\[(emote|emoji):(\w+):[^\]]*\]/g;
       const words = content.split(' ');
 
-      // Wrap any emote img in an inline-flex span so wide emotes never get
-      // clipped, flex-shrink:0 ensures they don't compress, and the span
-      // participates in the text flow cleanly like chatis does.
-      const emoteSpan = (key: string, inner: React.ReactNode, grid = false) => (
-        <span
-          key={key}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            verticalAlign: 'middle',
-            flexShrink: 0,
-            ...(grid ? { display: 'inline-grid' } : {}),
-          }}
-        >
-          {inner}
-        </span>
-      );
-
       for (let i = 0; i < words.length; i++) {
         const word = words[i];
         const emoteIdx = emotes.findIndex(e => e.name === word);
@@ -131,15 +114,14 @@ export default function Page() {
           if (kickMatches.length) {
             for (const m of kickMatches) {
               nodes.push(
-                emoteSpan(`ke-${i}-${m[2]}`,
-                  <img
-                    className="ck-emote"
-                    src={`https://files.kick.com/emotes/${m[2]}/fullsize`}
-                    alt="emote"
-                    height={28}
-                    width={28}
-                  />
-                )
+                <img
+                  key={`ke-${i}-${m[2]}`}
+                  className="ck-emote"
+                  src={`https://files.kick.com/emotes/${m[2]}/fullsize`}
+                  alt="emote"
+                  height={28}
+                  width={28}
+                />
               );
             }
             if (i !== words.length - 1) nodes.push(' ');
@@ -164,28 +146,29 @@ export default function Page() {
             );
             i++;
           }
+          // Check if next token is also an emote — if not, we need a space after this emote
+          const nextIsEmote = i + 1 < words.length && emotes.findIndex(e => e.name === words[i + 1]) !== -1;
+          const needsSpace = i !== words.length - 1 && !nextIsEmote;
           if (zeroWidths.length === 0) {
             nodes.push(
-              emoteSpan(`em-${i}`,
-                <img
-                  className={`ck-emote${emote.upscale ? ' ck-upscale' : ''}`}
-                  src={emote.image}
-                  alt={emote.name}
-                  height={emote.height}
-                  width={emote.width}
-                />
-              )
+              <img
+                key={`em-${i}`}
+                className={`ck-emote${emote.upscale ? ' ck-upscale' : ''}`}
+                src={emote.image}
+                alt={emote.name}
+                height={emote.height}
+                width={emote.width}
+              />
             );
           } else {
             nodes.push(
-              <span key={`zws-${i}`} style={{ display:'inline-grid', alignItems:'center', verticalAlign:'middle', flexShrink:0 }}>
+              <span key={`zws-${i}`} className="inline-grid align-middle pr-1">
                 <img className={`ck-emote${emote.upscale ? ' ck-upscale' : ''} m-auto row-[1] col-[1]`} src={emote.image} alt={emote.name} height={emote.height} width={emote.width} />
                 {zeroWidths}
               </span>
             );
           }
-          // Always add a space after every emote token (mirrors chatis behaviour)
-          if (i !== words.length - 1) nodes.push(' ');
+          if (needsSpace) nodes.push(' ');
         }
       }
       return nodes;
@@ -609,15 +592,14 @@ export default function Page() {
           }
 
           case 'tts': {
-            const volMatch = text.match(/-v\s+([\d.]+)/);
-            const volume = parseFloat((volMatch || [])[1] ?? '') || 0.5;
-            let ttsText = text.replace(/^!kickchat\s+tts\s+/i, '').replace(/-v\s+[\d.]+/, '').trim();
+            // Volume is set once via URL param (ttsVolume=0.8) — edit in OBS browser source
+            const ttsText = text.replace(/^!kickchat\s+tts\s*/i, '').trim();
             if (!ttsText) break;
-            // StreamElements TTS (free, no key needed)
+            const volume = s.config?.ttsVolume ?? 0.5;
             const voice = 'Brian';
             const ttsUrl = `https://api.streamelements.com/kappa/v2/speech?voice=${voice}&text=${encodeURIComponent(ttsText)}`;
             const audio = new Audio(ttsUrl);
-            audio.volume = Math.min(1, Math.max(0, volume));
+            audio.volume = volume;
             audio.play().catch(() => {});
             break;
           }
