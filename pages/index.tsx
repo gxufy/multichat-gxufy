@@ -596,14 +596,40 @@ export default function Page() {
           case 'tts': {
             const ttsText = text.replace(/^!kickchat\s+tts\s*/i, '').trim();
             if (!ttsText) break;
-            // Proxy through our own Vercel API route — avoids CORS, uses Brian (StreamElements/Polly)
-            const ttsUrl = `/api/tts?voice=Brian&text=${encodeURIComponent(ttsText)}`;
-            const audio = new Audio(ttsUrl);
-            audio.volume = 1.0;
-            audio.addEventListener('canplaythrough', () => {
-              audio.play().catch(() => {});
-            });
-            audio.load();
+            // Try lazypy.ro proxy (same Brian/StreamElements voice, no CORS restrictions)
+            fetch('https://lazypy.ro/tts/request_tts.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: `service=StreamElements&voice=Brian&text=${encodeURIComponent(ttsText)}`,
+            })
+              .then(r => r.json())
+              .then(data => {
+                const speakUrl = data?.speak_url || data?.url;
+                if (!speakUrl) throw new Error('no url');
+                const audio = new Audio(speakUrl);
+                audio.volume = 1.0;
+                audio.addEventListener('canplaythrough', () => audio.play().catch(() => {}));
+                audio.load();
+              })
+              .catch(() => {
+                // Fallback to Web Speech API if lazypy fails
+                if (!window.speechSynthesis) return;
+                window.speechSynthesis.cancel();
+                const utt = new SpeechSynthesisUtterance(ttsText);
+                utt.volume = 1.0;
+                const speak = () => {
+                  const voices = window.speechSynthesis.getVoices();
+                  const preferred =
+                    voices.find(v => v.name === 'Google UK English Male') ||
+                    voices.find(v => v.lang === 'en-GB') ||
+                    voices.find(v => v.lang.startsWith('en')) || null;
+                  if (preferred) utt.voice = preferred;
+                  window.speechSynthesis.speak(utt);
+                };
+                window.speechSynthesis.getVoices().length
+                  ? speak()
+                  : window.speechSynthesis.addEventListener('voiceschanged', speak, { once: true });
+              });
             break;
           }
         }
