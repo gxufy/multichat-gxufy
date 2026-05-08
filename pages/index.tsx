@@ -596,23 +596,21 @@ export default function Page() {
           case 'tts': {
             const ttsText = text.replace(/^!kickchat\s+tts\s*/i, '').trim();
             if (!ttsText) break;
-            // POST to chatis TTS proxy (same as chatis does) — returns {speak_url}
-            fetch('https://chatis.is2511.com/v2/tts/', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-              body: JSON.stringify({ voice: 'Brian', text: ttsText }),
-            })
-              .then(r => r.json())
-              .then(data => {
-                const speakUrl = (data || {}).speak_url;
-                if (!speakUrl) return;
-                const audio = new Audio(speakUrl);
-                audio.addEventListener('canplaythrough', () => {
-                  audio.volume = 1.0;
-                  audio.play().catch(() => {});
-                });
-              })
-              .catch(() => {});
+            // Use Web Speech API — built into OBS browser (CEF), no external calls, no CORS
+            if (!window.speechSynthesis) break;
+            window.speechSynthesis.cancel(); // stop any current TTS
+            const utt = new SpeechSynthesisUtterance(ttsText);
+            utt.volume = 1.0;
+            utt.rate = 1.0;
+            utt.pitch = 1.0;
+            utt.lang = 'en-US';
+            // Pick a good English voice if available
+            const voices = window.speechSynthesis.getVoices();
+            const preferred = voices.find(v =>
+              v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Microsoft') || v.name.includes('Natural'))
+            ) || voices.find(v => v.lang.startsWith('en')) || null;
+            if (preferred) utt.voice = preferred;
+            window.speechSynthesis.speak(utt);
             break;
           }
         }
