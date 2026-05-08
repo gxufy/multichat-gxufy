@@ -596,40 +596,38 @@ export default function Page() {
           case 'tts': {
             const ttsText = text.replace(/^!kickchat\s+tts\s*/i, '').trim();
             if (!ttsText) break;
-            // Try lazypy.ro proxy (same Brian/StreamElements voice, no CORS restrictions)
-            fetch('https://lazypy.ro/tts/request_tts.php', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              body: `service=StreamElements&voice=Brian&text=${encodeURIComponent(ttsText)}`,
-            })
-              .then(r => r.json())
-              .then(data => {
-                const speakUrl = data?.speak_url || data?.url;
-                if (!speakUrl) throw new Error('no url');
-                const audio = new Audio(speakUrl);
+
+            const speakFallback = (t: string) => {
+              if (!window.speechSynthesis) return;
+              window.speechSynthesis.cancel();
+              const utt = new SpeechSynthesisUtterance(t);
+              utt.volume = 1.0;
+              const go = () => {
+                const voices = window.speechSynthesis.getVoices();
+                const v = voices.find(v => v.name === 'Google UK English Male')
+                  || voices.find(v => v.lang === 'en-GB')
+                  || voices.find(v => v.lang.startsWith('en')) || null;
+                if (v) utt.voice = v;
+                window.speechSynthesis.speak(utt);
+              };
+              window.speechSynthesis.getVoices().length ? go() : window.speechSynthesis.addEventListener('voiceschanged', go, { once: true });
+            };
+
+            // Try our /api/tts proxy (StreamElements Brian → Streamlabs fallback)
+            fetch(`/api/tts?voice=Brian&text=${encodeURIComponent(ttsText)}`)
+              .then(r => {
+                if (!r.ok) throw new Error('proxy failed');
+                return r.blob();
+              })
+              .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
                 audio.volume = 1.0;
                 audio.addEventListener('canplaythrough', () => audio.play().catch(() => {}));
+                audio.addEventListener('ended', () => URL.revokeObjectURL(url));
                 audio.load();
               })
-              .catch(() => {
-                // Fallback to Web Speech API if lazypy fails
-                if (!window.speechSynthesis) return;
-                window.speechSynthesis.cancel();
-                const utt = new SpeechSynthesisUtterance(ttsText);
-                utt.volume = 1.0;
-                const speak = () => {
-                  const voices = window.speechSynthesis.getVoices();
-                  const preferred =
-                    voices.find(v => v.name === 'Google UK English Male') ||
-                    voices.find(v => v.lang === 'en-GB') ||
-                    voices.find(v => v.lang.startsWith('en')) || null;
-                  if (preferred) utt.voice = preferred;
-                  window.speechSynthesis.speak(utt);
-                };
-                window.speechSynthesis.getVoices().length
-                  ? speak()
-                  : window.speechSynthesis.addEventListener('voiceschanged', speak, { once: true });
-              });
+              .catch(() => speakFallback(ttsText));
             break;
           }
         }
