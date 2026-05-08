@@ -596,21 +596,14 @@ export default function Page() {
           case 'tts': {
             const ttsText = text.replace(/^!kickchat\s+tts\s*/i, '').trim();
             if (!ttsText) break;
-            // Use Web Speech API — built into OBS browser (CEF), no external calls, no CORS
-            if (!window.speechSynthesis) break;
-            window.speechSynthesis.cancel(); // stop any current TTS
-            const utt = new SpeechSynthesisUtterance(ttsText);
-            utt.volume = 1.0;
-            utt.rate = 1.0;
-            utt.pitch = 1.0;
-            utt.lang = 'en-US';
-            // Pick a good English voice if available
-            const voices = window.speechSynthesis.getVoices();
-            const preferred = voices.find(v =>
-              v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Microsoft') || v.name.includes('Natural'))
-            ) || voices.find(v => v.lang.startsWith('en')) || null;
-            if (preferred) utt.voice = preferred;
-            window.speechSynthesis.speak(utt);
+            // Proxy through our own Vercel API route — avoids CORS, uses Brian (StreamElements/Polly)
+            const ttsUrl = `/api/tts?voice=Brian&text=${encodeURIComponent(ttsText)}`;
+            const audio = new Audio(ttsUrl);
+            audio.volume = 1.0;
+            audio.addEventListener('canplaythrough', () => {
+              audio.play().catch(() => {});
+            });
+            audio.load();
             break;
           }
         }
