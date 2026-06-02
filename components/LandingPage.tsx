@@ -93,7 +93,7 @@ export default function LandingPage() {
   const [sevenTVE,    setSevenTVE]    = useState(true);
   const [sevenTVC,    setSevenTVC]    = useState(true);
   const [textSize,    setTextSize]    = useState('medium');
-  const [font,        setFont]        = useState('opensans');
+  const [font,        setFont]        = useState('noto');
   const [textShadow,  setTextShadow]  = useState('large');
   const [stroke,      setStroke]      = useState('none');
   const [animation,   setAnimation]   = useState('slide');
