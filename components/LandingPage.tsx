@@ -132,7 +132,7 @@ export default function LandingPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const fontCSS = FONTS.find(([v]) => v === font)?.[2] ?? "'Open Sans', sans-serif";
+  const fontCSS = FONTS.find(([v]) => v === font)?.[2] ?? "'Noto Sans JP', sans-serif";
   const psz     = PSZ[(textSize as SzKey)] ?? PSZ.medium;
 
   const pFilter =
@@ -162,7 +162,7 @@ export default function LandingPage() {
 
       <style>{`
         *, *::before, *::after { box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; background: #1a1a1a; color: #d8d8d8; font-family: 'Open Sans', system-ui, sans-serif; font-size: 16px; }
+        html, body { margin: 0; padding: 0; background: #1a1a1a; color: #d8d8d8; font-family: 'Noto Sans JP', system-ui, sans-serif; font-size: 16px; }
         a { color: #53fc18; } a:hover { color: #7aff4a; }
         .page { max-width: 860px; margin: 0 auto; padding: 0 20px 60px; }
 
