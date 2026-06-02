@@ -493,7 +493,7 @@ export default function LandingPage() {
           <ol className="steps">
             <li>Enter your channel name, tweak your options, then click <strong>Generate &amp; Copy</strong></li>
             <li>In OBS: <strong>Add Source → Browser Source</strong></li>
-            <li>Paste the URL and set your preferred size — my personal favorite is <strong>830 × 230</strong></li>
+            <li>Paste the URL and set your preferred size — my personal favorite is <strong>680 × 280</strong></li>
           </ol>
         </div>
 
