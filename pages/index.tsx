@@ -51,6 +51,7 @@ const QuerySchema = z.object({
   nlAfterName: z.string().optional().transform(v => v === 'true'),
   hideNames: z.string().optional().transform(v => v === 'true'),
   botNames: z.string().optional().transform(v => v ?? ''),
+  ttsEnabled: z.string().optional().transform(v => v !== 'false'),
 });
 
 export type OverlayConfig = z.infer<typeof QuerySchema>;
@@ -251,6 +252,12 @@ export default function Page() {
             const rank = badge.count ?? badge.rank ?? 1;
             const rankSrc = rank <= 1 ? '/badges/kicks-rank-1.png' : rank === 2 ? '/badges/kicks-rank-2.png' : '/badges/kicks-rank-3.png';
             badgeNodes.push(<img key="kicks-rank" className="ck-badge-img" src={rankSrc} alt={`kicks-rank-${rank}`} height={16} width={16} />);
+            break;
+          }
+          case 'level_up': {
+            // Kick sends a unique CDN URL per user with level baked in (e.g. ext.cdn.kick.com/chat/badges/14_uuid.png)
+            const src = badge.image ?? badge.badge_image?.src ?? badge.src ?? null;
+            if (src) badgeNodes.push(<img key="level-up" className="ck-badge-img" src={src} alt={`level ${badge.count ?? ''}`} height={16} width={16} />);
             break;
           }
         }
