@@ -75,6 +75,7 @@ export default function Page() {
     messages: ParsedMessage[];
     channel: KickChannel | null;
     config: OverlayConfig | null;
+    levelBadges: Record<number, string>;
   }>({
     emotes: [],
     badges: [],
@@ -83,6 +84,7 @@ export default function Page() {
     messages: [],
     channel: null,
     config: null,
+    levelBadges: {},
   });
 
   useEffect(() => {
@@ -255,9 +257,14 @@ export default function Page() {
             break;
           }
           case 'level_up': {
-            // Kick sends a unique CDN URL per user with level baked in (e.g. ext.cdn.kick.com/chat/badges/14_uuid.png)
-            const src = badge.image ?? badge.badge_image?.src ?? badge.src ?? null;
-            if (src) badgeNodes.push(<img key="level-up" className="ck-badge-img" src={src} alt={`level ${badge.count ?? ''}`} height={16} width={16} />);
+            const level = badge.count ?? badge.level ?? 0;
+            // Use dynamically fetched map first, then fall back to any URL in the payload itself
+            const src = s.levelBadges[level]
+              ?? badge.badge_image?.src
+              ?? badge.image
+              ?? badge.src
+              ?? null;
+            if (src) badgeNodes.push(<img key="level-up" className="ck-badge-img" src={src} alt={`level ${level}`} height={16} width={16} />);
             break;
           }
         }
@@ -359,6 +366,20 @@ export default function Page() {
         return;
       }
       s.channel = channel;
+
+      // Fetch Kick global badges (includes all level_up badge URLs)
+      fetch('https://kick.com/api/v2/channels/global-badges')
+        .then(r => r.json())
+        .then((data: any) => {
+          const map: Record<number, string> = {};
+          for (const badge of (Array.isArray(data) ? data : [])) {
+            if (badge.type === 'level_up' && badge.count != null && badge.badge_image?.src) {
+              map[Number(badge.count)] = badge.badge_image.src;
+            }
+          }
+          s.levelBadges = map;
+        })
+        .catch(() => {});
       if (cfg.sevenTVEmotesEnabled) {
         const globalEmotes = await getSevenTVGlobalEmotes();
         s.emotes.push(...globalEmotes);
