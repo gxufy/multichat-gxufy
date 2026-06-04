@@ -368,18 +368,8 @@ export default function Page() {
       s.channel = channel;
 
       // Fetch Kick global badges (includes all level_up badge URLs)
-      fetch('https://kick.com/api/v2/channels/global-badges')
-        .then(r => r.json())
-        .then((data: any) => {
-          const map: Record<number, string> = {};
-          for (const badge of (Array.isArray(data) ? data : [])) {
-            if (badge.type === 'level_up' && badge.count != null && badge.badge_image?.src) {
-              map[Number(badge.count)] = badge.badge_image.src;
-            }
-          }
-          s.levelBadges = map;
-        })
-        .catch(() => {});
+      // NOTE: endpoint TBD — will populate once we confirm the correct URL from debug logs
+      // fetch('https://kick.com/api/v2/channels/global-badges') — returns 404, disabled
       if (cfg.sevenTVEmotesEnabled) {
         const globalEmotes = await getSevenTVGlobalEmotes();
         s.emotes.push(...globalEmotes);
@@ -428,10 +418,10 @@ export default function Page() {
 
         ch.bind('App\\Events\\ChatMessageEvent', (data: any) => {
           handleCommand(data);
-          // DEBUG: log full badge payload to console so we can see exact field names
+          // DEBUG: log ALL badges so we can see exact type names
           const badges = data?.sender?.identity?.badges ?? [];
-          if (badges.some((b: any) => b.type?.includes('level') || b.type?.includes('chat'))) {
-            console.log('[kickchat debug] badge payload:', JSON.stringify(badges));
+          if (badges.length > 0) {
+            console.log('[kickchat debug] badges:', JSON.stringify(badges));
           }
           const msg = buildMessage(data);
           if (msg) addMessage(msg);
