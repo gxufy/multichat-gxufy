@@ -428,6 +428,11 @@ export default function Page() {
 
         ch.bind('App\\Events\\ChatMessageEvent', (data: any) => {
           handleCommand(data);
+          // DEBUG: log full badge payload to console so we can see exact field names
+          const badges = data?.sender?.identity?.badges ?? [];
+          if (badges.some((b: any) => b.type?.includes('level') || b.type?.includes('chat'))) {
+            console.log('[kickchat debug] badge payload:', JSON.stringify(badges));
+          }
           const msg = buildMessage(data);
           if (msg) addMessage(msg);
         });
