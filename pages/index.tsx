@@ -75,7 +75,6 @@ export default function Page() {
     messages: ParsedMessage[];
     channel: KickChannel | null;
     config: OverlayConfig | null;
-    levelBadges: Record<number, string>;
   }>({
     emotes: [],
     badges: [],
@@ -84,7 +83,6 @@ export default function Page() {
     messages: [],
     channel: null,
     config: null,
-    levelBadges: {},
   });
 
   useEffect(() => {
@@ -256,17 +254,6 @@ export default function Page() {
             badgeNodes.push(<img key="kicks-rank" className="ck-badge-img" src={rankSrc} alt={`kicks-rank-${rank}`} height={16} width={16} />);
             break;
           }
-          case 'level_up': {
-            const level = badge.count ?? badge.level ?? 0;
-            // Use dynamically fetched map first, then fall back to any URL in the payload itself
-            const src = s.levelBadges[level]
-              ?? badge.badge_image?.src
-              ?? badge.image
-              ?? badge.src
-              ?? null;
-            if (src) badgeNodes.push(<img key="level-up" className="ck-badge-img" src={src} alt={`level ${level}`} height={16} width={16} />);
-            break;
-          }
         }
       }
       return badgeNodes;
@@ -418,11 +405,6 @@ export default function Page() {
 
         ch.bind('App\\Events\\ChatMessageEvent', (data: any) => {
           handleCommand(data);
-          // DEBUG: log ALL badges so we can see exact type names
-          const badges = data?.sender?.identity?.badges ?? [];
-          if (badges.length > 0) {
-            console.log('[kickchat debug] badges:', JSON.stringify(badges));
-          }
           const msg = buildMessage(data);
           if (msg) addMessage(msg);
         });
