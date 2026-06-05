@@ -405,6 +405,22 @@ export default function Page() {
 
         ch.bind('App\\Events\\ChatMessageEvent', (data: any) => {
           handleCommand(data);
+          // DEBUG: log full raw payload to find level badge field
+          if (data?.sender?.username) {
+            const { sender } = data;
+            const levelFields = Object.keys(sender).filter(k =>
+              k.toLowerCase().includes('level') || k.toLowerCase().includes('badge')
+            );
+            if (levelFields.length > 0 || sender?.chat_level != null) {
+              console.log('[level debug] sender fields:', JSON.stringify(sender));
+            }
+            // Also log the full data keys once per session
+            if (!(window as any).__kickDebugDone) {
+              (window as any).__kickDebugDone = true;
+              console.log('[level debug] full data keys:', Object.keys(data));
+              console.log('[level debug] sender keys:', Object.keys(sender));
+            }
+          }
           const msg = buildMessage(data);
           if (msg) addMessage(msg);
         });
