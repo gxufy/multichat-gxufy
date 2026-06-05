@@ -177,8 +177,16 @@ export default function Page() {
       return nodes;
     }
 
-    function buildBadges(senderBadges: any[], subscriberBadges: KickChannel['subscriber_badges']): React.ReactNode[] {
+    function buildBadges(senderBadges: any[], subscriberBadges: KickChannel['subscriber_badges'], senderBadgesV2?: any[]): React.ReactNode[] {
       const badgeNodes: React.ReactNode[] = [];
+      // badges_v2 contains level badges with direct image_url (not in regular badges array)
+      if (senderBadgesV2?.length) {
+        for (const b of senderBadgesV2) {
+          if (b.image_url) {
+            badgeNodes.push(<img key={`v2-${b.name}-${b.metadata?.level ?? 0}`} className="ck-badge-img" src={b.image_url} alt={b.name} height={16} width={16} />);
+          }
+        }
+      }
       for (const badge of senderBadges) {
         switch (badge.type) {
           case 'broadcaster':
@@ -286,7 +294,7 @@ export default function Page() {
       try {
         const channel = s.channel!;
         const msgNodes = parseMessageText(rawMsg.content, s.emotes);
-        const badgeNodes = buildBadges(rawMsg.sender?.identity?.badges ?? [], channel.subscriber_badges ?? []);
+        const badgeNodes = buildBadges(rawMsg.sender?.identity?.badges ?? [], channel.subscriber_badges ?? [], rawMsg.sender?.identity?.badges_v2);
 
         // 7TV cosmetics
         let background = '';
@@ -405,12 +413,6 @@ export default function Page() {
 
         ch.bind('App\\Events\\ChatMessageEvent', (data: any) => {
           handleCommand(data);
-          // DEBUG: log metadata and identity fields
-          if (!(window as any).__kickDebugDone) {
-            (window as any).__kickDebugDone = true;
-            console.log('[level debug] metadata:', JSON.stringify(data?.metadata));
-            console.log('[level debug] identity:', JSON.stringify(data?.sender?.identity));
-          }
           const msg = buildMessage(data);
           if (msg) addMessage(msg);
         });
