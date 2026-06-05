@@ -88,10 +88,14 @@ function SlideGroup({ children }: { children: React.ReactNode }) {
   const [phase, setPhase] = useState<'ghost' | 'content'>('ghost');
   const [ghostH, setGhostH] = useState(0);
   const measureRef = useRef<HTMLDivElement>(null);
+  const [containerW, setContainerW] = useState('calc(100vw - 40px)');
 
   useEffect(() => {
     const el = measureRef.current;
     if (!el) return;
+    // Get container width now that DOM is mounted
+    const container = document.getElementById('chat_container');
+    if (container) setContainerW(`${container.offsetWidth}px`);
     // Must measure AFTER browser has painted — use rAF so layout is complete
     requestAnimationFrame(() => {
       const h = el.getBoundingClientRect().height;
@@ -118,15 +122,12 @@ function SlideGroup({ children }: { children: React.ReactNode }) {
         overflow: 'hidden',
         transition: 'height 150ms ease-in-out',
       }} />
-      {/* $auxDiv: rendered inside container (inherits font/size/wordbreak),
-          positioned off-screen so it doesn't affect visible layout */}
+      {/* $auxDiv: off-screen, uses actual container width for accurate height measurement */}
       <div ref={measureRef} style={{
         position: 'fixed',
         top: '-9999px',
         left: 0,
-        width: document.getElementById('chat_container')?.offsetWidth
-          ? `${document.getElementById('chat_container')!.offsetWidth}px`
-          : 'calc(100vw - 40px)',
+        width: containerW,
         visibility: 'hidden',
         pointerEvents: 'none',
         fontWeight: 800,
