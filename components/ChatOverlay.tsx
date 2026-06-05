@@ -80,31 +80,28 @@ function getStroke(s: string) {
  * Each batch runs its OWN independent 150ms regardless of how fast chat moves.
  * New batches never interrupt previous batches — they just stack their own ghost divs.
  */
-function SlideGroup({ children }: { children: React.ReactNode }) {
-  // Exact chatis:
-  // 1. Measure natural height via hidden $auxDiv appended inside #chat_container
-  // 2. Insert empty $animDiv, animate 0 → naturalH over 150ms (swing = ease-in-out)
-  // 3. In complete callback: remove $animDiv, insert real content
+function SlideGroup({ children, fontSize, lineHeight, fontFamily, smallCaps }: { children: React.ReactNode; fontSize:string; lineHeight:string; fontFamily:string; smallCaps:boolean }) {
+  // Exact chatis jQuery behaviour:
+  // 1. $auxDiv appended to #chat_container (hidden), measure height
+  // 2. $animDiv inserted (empty), animated 0→naturalH over 150ms swing
+  // 3. Complete callback: remove $animDiv, insert real content
   const [phase, setPhase] = useState<'ghost' | 'content'>('ghost');
   const [ghostH, setGhostH] = useState(0);
   const measureRef = useRef<HTMLDivElement>(null);
-  const [containerW, setContainerW] = useState('calc(100vw - 40px)');
 
   useEffect(() => {
     const el = measureRef.current;
     if (!el) return;
-    // Get container width now that DOM is mounted
+    // Set width synchronously before measuring — must match container exactly
     const container = document.getElementById('chat_container');
-    if (container) setContainerW(`${container.offsetWidth}px`);
-    // Must measure AFTER browser has painted — use rAF so layout is complete
+    if (container) el.style.width = `${container.offsetWidth}px`;
+    // rAF 1: let browser apply width and compute layout
     requestAnimationFrame(() => {
       const h = el.getBoundingClientRect().height;
-      // Start ghost at 0 (explicit reset)
-      setGhostH(0);
-      // Second rAF: trigger CSS transition from 0 → h
+      // rAF 2: trigger CSS transition 0 → h (ghost starts at 0 by default)
       requestAnimationFrame(() => {
         setGhostH(h);
-        // After 150ms transition completes: swap ghost for real content
+        // 150ms matches jQuery .animate duration; content snaps in after
         setTimeout(() => setPhase('content'), 150);
       });
     });
@@ -116,22 +113,26 @@ function SlideGroup({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {/* $animDiv: empty div that animates open to make space */}
+      {/* $animDiv equivalent — animates height open to push older messages up */}
       <div style={{
         height: ghostH,
         overflow: 'hidden',
         transition: 'height 150ms ease-in-out',
       }} />
-      {/* $auxDiv: off-screen, uses actual container width for accurate height measurement */}
+      {/* $auxDiv equivalent — off-screen, width set dynamically in useEffect */}
       <div ref={measureRef} style={{
-        position: 'fixed',
-        top: '-9999px',
-        left: 0,
-        width: containerW,
+        position:   'fixed',
+        top:        '-9999px',
+        left:       0,
+        width:      'calc(100vw - 40px)', // overridden synchronously in useEffect
         visibility: 'hidden',
         pointerEvents: 'none',
-        fontWeight: 800,
-        wordBreak: 'break-word',
+        fontWeight:  800,
+        wordBreak:   'break-word',
+        fontSize,
+        lineHeight,
+        fontFamily,
+        ...(smallCaps ? { fontVariant: 'small-caps' } : {}),
       }}>
         {children}
       </div>
@@ -350,7 +351,7 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
       }}>
         {batches.map(({ id, msgs }) => {
           const content = msgs.map(renderMsg);
-          if (cfg.animation==='slide') return <SlideGroup key={id}>{content}</SlideGroup>;
+          if (cfg.animation==='slide') return <SlideGroup key={id} fontSize={sz.fontSize} lineHeight={sz.lineHeight} fontFamily={fontFamily} smallCaps={cfg.smallCaps??false}>{content}</SlideGroup>;
           if (cfg.animation==='fade')  return <FadeGroup  key={id}>{content}</FadeGroup>;
           return <div key={id}>{content}</div>;
         })}
