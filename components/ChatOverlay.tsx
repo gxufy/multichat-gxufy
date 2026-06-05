@@ -81,23 +81,25 @@ function getStroke(s: string) {
  * New batches never interrupt previous batches — they just stack their own ghost divs.
  */
 function SlideGroup({ children }: { children: React.ReactNode }) {
-  // Phase: 'ghost' = empty div expanding, 'content' = real content visible
+  // Exact chatis behaviour:
+  // 1. Append hidden $auxDiv INSIDE #chat_container to measure natural height
+  //    (inherits all container styles — font, size, word-break, padding)
+  // 2. Append empty $animDiv, animate height 0→naturalH over 150ms (jQuery swing)
+  // 3. On complete: remove $animDiv, append real content
   const [phase, setPhase] = useState<'ghost' | 'content'>('ghost');
   const [ghostH, setGhostH] = useState(0);
   const measureRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!measureRef.current) return;
-    // Measure natural height while hidden off-screen
-    const h = measureRef.current.getBoundingClientRect().height;
-    // rAF 1: paint ghost at h=0
+    const measureEl = measureRef.current;
+    if (!measureEl) return;
+    // Measure AFTER paint so layout is computed with full inherited styles
+    const h = measureEl.getBoundingClientRect().height;
+    // Animate ghost 0 → h over 150ms then show content (mirrors jQuery .animate callback)
     requestAnimationFrame(() => {
-      setGhostH(0);
-      // rAF 2: trigger transition to naturalH (jQuery swing = ease-in-out)
       requestAnimationFrame(() => {
         setGhostH(h);
-        // After 150ms animation: remove ghost, show real content (jQuery callback)
-        setTimeout(() => setPhase('content'), 150);
+        setTimeout(() => setPhase('content'), 155); // 5ms buffer over 150ms transition
       });
     });
   }, []);
@@ -108,20 +110,19 @@ function SlideGroup({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {/* Ghost div: opens space exactly like chatis $animDiv */}
+      {/* $animDiv equivalent: empty div that expands to make space */}
       <div style={{
         height: ghostH,
         overflow: 'hidden',
         transition: 'height 150ms ease-in-out',
       }} />
-      {/* Measure div: off-screen, invisible, used only to get natural height */}
+      {/* $auxDiv equivalent: hidden inside container to inherit all styles for accurate measurement */}
       <div ref={measureRef} style={{
-        position: 'fixed',
-        top: '-9999px',
-        left: '-9999px',
         visibility: 'hidden',
         pointerEvents: 'none',
-        width: 'calc(100vw - 40px)', // match chat_container width
+        overflow: 'hidden',
+        height: 0,        // collapse so it doesn't affect layout visually
+        maxHeight: 0,
       }}>
         {children}
       </div>
