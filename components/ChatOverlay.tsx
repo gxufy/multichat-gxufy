@@ -81,25 +81,27 @@ function getStroke(s: string) {
  * New batches never interrupt previous batches — they just stack their own ghost divs.
  */
 function SlideGroup({ children }: { children: React.ReactNode }) {
-  // Exact chatis behaviour:
-  // 1. Append hidden $auxDiv INSIDE #chat_container to measure natural height
-  //    (inherits all container styles — font, size, word-break, padding)
-  // 2. Append empty $animDiv, animate height 0→naturalH over 150ms (jQuery swing)
-  // 3. On complete: remove $animDiv, append real content
+  // Exact chatis:
+  // 1. Measure natural height via hidden $auxDiv appended inside #chat_container
+  // 2. Insert empty $animDiv, animate 0 → naturalH over 150ms (swing = ease-in-out)
+  // 3. In complete callback: remove $animDiv, insert real content
   const [phase, setPhase] = useState<'ghost' | 'content'>('ghost');
   const [ghostH, setGhostH] = useState(0);
   const measureRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const measureEl = measureRef.current;
-    if (!measureEl) return;
-    // Measure AFTER paint so layout is computed with full inherited styles
-    const h = measureEl.getBoundingClientRect().height;
-    // Animate ghost 0 → h over 150ms then show content (mirrors jQuery .animate callback)
+    const el = measureRef.current;
+    if (!el) return;
+    // Must measure AFTER browser has painted — use rAF so layout is complete
     requestAnimationFrame(() => {
+      const h = el.getBoundingClientRect().height;
+      // Start ghost at 0 (explicit reset)
+      setGhostH(0);
+      // Second rAF: trigger CSS transition from 0 → h
       requestAnimationFrame(() => {
         setGhostH(h);
-        setTimeout(() => setPhase('content'), 155); // 5ms buffer over 150ms transition
+        // After 150ms transition completes: swap ghost for real content
+        setTimeout(() => setPhase('content'), 150);
       });
     });
   }, []);
@@ -110,19 +112,25 @@ function SlideGroup({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {/* $animDiv equivalent: empty div that expands to make space */}
+      {/* $animDiv: empty div that animates open to make space */}
       <div style={{
         height: ghostH,
         overflow: 'hidden',
         transition: 'height 150ms ease-in-out',
       }} />
-      {/* $auxDiv equivalent: hidden inside container to inherit all styles for accurate measurement */}
+      {/* $auxDiv: rendered inside container (inherits font/size/wordbreak),
+          positioned off-screen so it doesn't affect visible layout */}
       <div ref={measureRef} style={{
+        position: 'fixed',
+        top: '-9999px',
+        left: 0,
+        width: document.getElementById('chat_container')?.offsetWidth
+          ? `${document.getElementById('chat_container')!.offsetWidth}px`
+          : 'calc(100vw - 40px)',
         visibility: 'hidden',
         pointerEvents: 'none',
-        overflow: 'hidden',
-        height: 0,        // collapse so it doesn't affect layout visually
-        maxHeight: 0,
+        fontWeight: 800,
+        wordBreak: 'break-word',
       }}>
         {children}
       </div>
