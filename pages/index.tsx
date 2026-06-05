@@ -180,9 +180,10 @@ export default function Page() {
     function buildBadges(senderBadges: any[], subscriberBadges: KickChannel['subscriber_badges'], senderBadgesV2?: any[]): React.ReactNode[] {
       const badgeNodes: React.ReactNode[] = [];
       // badges_v2 contains level badges with direct image_url (not in regular badges array)
+      // Only render if user has opted in (selected: true)
       if (senderBadgesV2?.length) {
         for (const b of senderBadgesV2) {
-          if (b.image_url) {
+          if (b.image_url && b.selected === true) {
             badgeNodes.push(<img key={`v2-${b.name}-${b.metadata?.level ?? 0}`} className="ck-badge-img" src={b.image_url} alt={b.name} height={16} width={16} />);
           }
         }
