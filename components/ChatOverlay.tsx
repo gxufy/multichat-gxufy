@@ -2,12 +2,19 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import type { OverlayConfig } from '../pages/index';
 import type { ParsedMessage } from '../lib/kick';
+import { sourceTag, PROVIDERS, type SourceTagMode } from '../lib/render';
+import type { Platform } from '../lib/types';
+
+export interface PinnedState {
+  msg: ParsedMessage;
+  pinnedBy?: string;
+}
 
 interface Props {
   config: OverlayConfig;
   messages: ParsedMessage[];
   fadingIds: Set<string>;
-  pinnedMessage: ParsedMessage | null;
+  pinnedMessage: PinnedState | null;
   showLoader: boolean;
 }
 
@@ -160,12 +167,14 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
   const emoteScale = cfg.emoteScale ?? 1;
   const emoteMaxH  = `${parseFloat(sz.emoteMaxH) * emoteScale}px`;
   const emoteMaxW  = `${parseFloat(sz.emoteMaxW) * emoteScale}px`;
+  // source tags only matter when 2+ platforms are configured
+  const multiPlatform = [cfg.kick || cfg.channel, cfg.twitch, cfg.youtube, cfg.tiktok].filter(Boolean).length > 1;
 
-  /* 200ms batch queue — track by ID not by index.
-     Tracking by index breaks when the messages array shrinks
-     (fade expiry, bans) causing prevLenRef to overshoot and
-     new messages to be sliced off as empty. */
-  const pendingRef  = useRef<ParsedMessage[]>([]);
+  /* Batching — chatis has ONE 200ms update loop (script.js update()).
+     pages/index.tsx owns that loop now and flushes messages at most
+     every 200ms, so each prop change here IS one chatis batch: turn it
+     straight into a slide/fade group. A second interval here would
+     double-buffer (up to 400ms lag) and desync animation starts. */
   const seqRef      = useRef(0);
   const [batches, setBatches] = useState<{ id:number; msgs:ParsedMessage[] }[]>([]);
   const seenIdsRef  = useRef<Set<string>>(new Set());
@@ -178,23 +187,15 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
       const keep = messages.map(m => m.id);
       seenIdsRef.current = new Set(keep);
     }
-    if (newMsgs.length) pendingRef.current.push(...newMsgs);
+    if (!newMsgs.length) return;
+    const id = ++seqRef.current;
+    setBatches(prev => {
+      const next = [...prev, { id, msgs: newMsgs }];
+      let total = next.reduce((s,b)=>s+b.msgs.length, 0);
+      while (total > 100 && next.length) { total -= next[0].msgs.length; next.shift(); }
+      return next;
+    });
   }, [messages]);
-
-  useEffect(() => {
-    const iv = setInterval(() => {
-      if (!pendingRef.current.length) return;
-      const batch = pendingRef.current.splice(0);
-      const id = ++seqRef.current;
-      setBatches(prev => {
-        const next = [...prev, { id, msgs: batch }];
-        let total = next.reduce((s,b)=>s+b.msgs.length, 0);
-        while (total > 100 && next.length) { total -= next[0].msgs.length; next.shift(); }
-        return next;
-      });
-    }, 200);
-    return () => clearInterval(iv);
-  }, []);
 
   /* Sync deletions */
   useEffect(() => {
@@ -215,7 +216,9 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
     }}>
       <MsgLine msg={msg} sz={sz} emoteMaxH={emoteMaxH} emoteMaxW={emoteMaxW}
         stroke={strokeVal} smallCaps={cfg.smallCaps??false}
-        nlAfterName={cfg.nlAfterName??false} hideNames={cfg.hideNames??false} />
+        nlAfterName={cfg.nlAfterName??false} hideNames={cfg.hideNames??false}
+        tagMode={multiPlatform ? (cfg.sourceTag ?? 'icon') : 'none'}
+        showAvatar={cfg.showAvatars ?? false} />
     </div>
   );
 
@@ -245,10 +248,11 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
           ${cfg.font==='alsina' ? `@font-face { font-family:Alsina; src:url(https://chatis.is2511.com/v2/styles/Alsina_Ultrajada.ttf); }` : ''}
 
           /* Badge sizing — exact from size_*.css .badge
-             Targets both the wrapper-child selector AND the direct class
-             to override any remaining Tailwind/inline size attrs */
+             Targets img AND svg (platform icons) via the bare class,
+             plus the wrapper-child selector for stragglers */
           .ck-bw img,
-          img.ck-badge-img {
+          .ck-bw svg,
+          .ck-badge-img {
             width:          ${sz.badgeW} !important;
             height:         ${sz.badgeH} !important;
             min-width:      ${sz.badgeW} !important;
@@ -262,19 +266,32 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
             display:        inline-block;
           }
           .ck-bw img:last-of-type,
-          .ck-bw img.ck-badge-img:last-of-type { margin-right: ${sz.badgeLastMR}; }
+          .ck-bw svg:last-of-type,
+          .ck-bw .ck-badge-img:last-of-type { margin-right: ${sz.badgeLastMR}; }
+
+          /* Wide badges (TikTok fan-club/gifter art): height-locked,
+             natural width, so they baseline-align with square badges */
+          img.ck-badge-img.ck-badge-wide {
+            width:     auto !important;
+            min-width: 0 !important;
+            max-width: calc(${sz.badgeW} * 2.5) !important;
+          }
 
           .ck-body {
             display: inline;
           }
 
-          /* Emote sizing — exact from size_*.css .emote */
+          /* Emote sizing — exact from chatis size_*.css .emote +
+             style.css (.emote{vertical-align:middle} .emote-container
+             {display:inline-block}). object-fit + auto dims keep 7TV/
+             BTTV/FFZ art on one baseline regardless of aspect ratio. */
           .ck-body img,
           .ck-body img.ck-emote {
             max-width:      ${emoteMaxW};
             max-height:     ${emoteMaxH};
             height:         auto;
             width:          auto;
+            object-fit:     contain;
             margin-right:   ${sz.emoteMR};
             vertical-align: middle;
             display:        inline-block;
@@ -305,20 +322,20 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
 {showLoader && (
         <div style={{
           position: 'absolute',
-          left: 'calc(50% - 64px)',
-          bottom: 'calc(20% - 64px)',
+          left: 'calc(50% - 288px)',
+          bottom: 0,
           zIndex: 100,
-          animation: 'ckSpin 2s linear infinite',
-          width: 128,
-          height: 128,
+          width: 576,
+          height: 576,
         }}>
-          <img src="/kick-logo.gif" alt="Loading..." width={128} height={128} style={{ display: 'block' }} />
+          {/* tpl loop is self-animated — no ckSpin needed */}
+          <video src="/tpl.webm" autoPlay loop muted playsInline width={576} height={576} style={{ display: 'block', objectFit: 'contain' }} />
         </div>
       )}
 
       {cfg.showPinEnabled && pinnedMessage && (
         <PinBanner
-          msg={pinnedMessage} sz={sz} emoteMaxH={emoteMaxH} emoteMaxW={emoteMaxW}
+          pinned={pinnedMessage} sz={sz} emoteMaxH={emoteMaxH} emoteMaxW={emoteMaxW}
           fontFamily={fontFamily} filterVal={filterVal} strokeVal={strokeVal}
           smallCaps={cfg.smallCaps??false} nlAfterName={cfg.nlAfterName??false} hideNames={cfg.hideNames??false}
         />
@@ -360,71 +377,149 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
   );
 }
 
-/* PinBanner — shows pinned message, auto-hides after 10s, no scrollbar */
-function PinBanner({ msg, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strokeVal, smallCaps, nlAfterName, hideNames }: {
-  msg: ParsedMessage; sz: typeof SIZE[SzKey];
+/* PinBanner — StreamNook-style persistent pin card.
+ * Stays visible while pinned (no auto-hide); after 15s collapses to a
+ * thin one-line bar (StreamNook's pinned_start_collapsed pattern).
+ * Glassmorphism card with pin header and "Pinned by X" footer. */
+function PinBanner({ pinned, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strokeVal, smallCaps, nlAfterName, hideNames }: {
+  pinned: PinnedState; sz: typeof SIZE[SzKey];
   emoteMaxH:string; emoteMaxW:string; fontFamily:string;
   filterVal:string; strokeVal:string;
   smallCaps:boolean; nlAfterName:boolean; hideNames:boolean;
 }) {
-  const [visible, setVisible] = useState(true);
+  const { msg, pinnedBy } = pinned;
+  const [collapsed, setCollapsed] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>|null>(null);
 
   useEffect(() => {
-    setVisible(true);
+    setCollapsed(false);
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setVisible(false), 7000);
+    timerRef.current = setTimeout(() => setCollapsed(true), 15000);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [msg.id]);
 
-  if (!visible) return null;
+  const shell: React.CSSProperties = {
+    position:'absolute', top:0, left:0, right:0, zIndex:10,
+    background:'rgba(12,12,16,0.72)',
+    backdropFilter:'blur(16px) saturate(180%)', WebkitBackdropFilter:'blur(16px) saturate(180%)',
+    borderBottom:'1px solid rgba(255,255,255,0.12)',
+    borderRadius:'0 0 10px 10px',
+    animation:'ckPin 150ms ease-out',
+    fontFamily, fontWeight:800,
+    color:'white',
+    wordBreak:'break-word', overflowWrap:'break-word',
+    overflow:'hidden',
+    ...(filterVal ? { filter:filterVal } : {}),
+    ...(strokeVal ? { WebkitTextStroke:strokeVal } : {}),
+  };
+
+  if (collapsed) {
+    // Thin bar: pin icon + name + truncated single-line text
+    return (
+      <div style={{ ...shell, padding:'4px 10px', fontSize:'0.55em', display:'flex', alignItems:'center', gap:6 }}>
+        <span style={{ opacity:0.7, flexShrink:0, display:'inline-flex' }}><PinSVG /></span>
+        <span style={{ color:msg.identity.color, flexShrink:0 }}>{msg.identity.username}</span>
+        <span style={{ whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', opacity:0.9, fontWeight:600, minWidth:0 }}>
+          {msg.message.map((node,i) => <Fragment key={i}>{node}</Fragment>)}
+        </span>
+      </div>
+    );
+  }
 
   return (
-    <div style={{
-      position:'absolute', top:0, left:0, right:0, zIndex:10,
-      background:'rgba(0,0,0,0.75)', backdropFilter:'blur(4px)',
-      padding:'6px 10px 8px', borderRadius:'0 0 6px 6px',
-      animation:'ckPin 150ms ease-out',
-      fontFamily, fontWeight:800, fontSize:sz.fontSize,
-      color:'white',
-      wordBreak:'break-word', overflowWrap:'break-word',
-      overflow:'hidden',           // no scrollbar ever
-      ...(filterVal ? { filter:filterVal } : {}),
-      ...(strokeVal ? { WebkitTextStroke:strokeVal } : {}),
-    }}>
+    <div style={{ ...shell, padding:'6px 10px 8px', fontSize:sz.fontSize }}>
       <div style={{ display:'flex', alignItems:'center', gap:4, paddingBottom:4, opacity:0.6, fontSize:'0.7em' }}>
         <PinSVG /> <span style={{ fontWeight:700 }}>Pinned Message</span>
       </div>
       <MsgLine msg={msg} sz={sz} emoteMaxH={emoteMaxH} emoteMaxW={emoteMaxW}
         stroke={strokeVal} smallCaps={smallCaps}
-        nlAfterName={nlAfterName} hideNames={hideNames} />
+        nlAfterName={nlAfterName} hideNames={hideNames}
+        tagMode="icon" showAvatar={false} />
+      {pinnedBy && (
+        <div style={{ paddingTop:4, opacity:0.5, fontSize:'0.55em', fontWeight:600 }}>
+          Pinned by {pinnedBy}
+        </div>
+      )}
     </div>
   );
 }
 
-function MsgLine({ msg, sz, emoteMaxH, emoteMaxW, stroke, smallCaps, nlAfterName, hideNames }: {
+/* StreamNook event-card metadata: category → icon glyph + tint.
+   Rendered in 'plain' style: 2px provider-colored left border +
+   20%→transparent gradient wash (OverlayChat.tsx:682). */
+const CATEGORY_ICON: Record<string, string> = {
+  subscription: '★', gift: '🎁', raid: '👥', cheer: '💰',
+  milestone: '🔥', follow: '❤️', announcement: '📣',
+};
+
+function MsgLine({ msg, sz, emoteMaxH, emoteMaxW, stroke, smallCaps, nlAfterName, hideNames, tagMode, showAvatar }: {
   msg: ParsedMessage; sz: typeof SIZE[SzKey];
   emoteMaxH:string; emoteMaxW:string; stroke:string;
   smallCaps:boolean; nlAfterName:boolean; hideNames:boolean;
+  tagMode:SourceTagMode; showAvatar:boolean;
 }) {
   const isPaint = !!msg.identity.background;
-  const nameStyle: React.CSSProperties = isPaint
+  const pill = msg.identity.namePill?.split('|');
+  const nameStyle: React.CSSProperties = pill
+    ? { background:pill[0], color:pill[1], borderRadius:'0.4em', padding:'0 0.35em',
+        WebkitTextStroke:'0px', textShadow:'none',
+        ...(smallCaps?{fontVariant:'small-caps'}:{}) }
+    : isPaint
     ? { background:msg.identity.background, filter:msg.identity.filter,
         WebkitTextFillColor:'transparent', WebkitBackgroundClip:'text',
         backgroundClip:'text', backgroundSize:'cover',
         WebkitTextStroke:'0px', textShadow:'none' }
     : { color:msg.identity.color, ...(smallCaps?{fontVariant:'small-caps'}:{}) };
 
+  const tag = msg.platform ? sourceTag(msg.platform, tagMode) : null;
+
+  // StreamNook: avatars only for yt/tiktok, 1.5em circle, leads the line
+  const avatar = showAvatar && msg.avatar && (msg.platform === 'youtube' || msg.platform === 'tiktok') ? (
+    <img src={msg.avatar} alt="" loading="lazy" referrerPolicy="no-referrer"
+      style={{ width:'1.5em', height:'1.5em', minWidth:'1.5em', borderRadius:9999,
+               objectFit:'cover', marginRight:'0.4em', verticalAlign:'-0.32em',
+               display:'inline-block' }}
+      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+  ) : null;
+
+  const badgesNode = msg.identity.badges.length > 0 && (
+    <span className="ck-bw">
+      {msg.identity.badges.map((b,i) => <Fragment key={i}>{b}</Fragment>)}
+    </span>
+  );
+  const nameNode = <span style={nameStyle}>{msg.identity.username}</span>;
+
+  /* Event card (StreamNook 'plain' eventStyle): provider-colored left
+     border + gradient wash, category icon, regular-weight action text */
+  if (msg.kind === 'system') {
+    const color = msg.platform ? PROVIDERS[msg.platform as Platform].color : '#888';
+    return (
+      <div style={{ lineHeight:sz.lineHeight, wordBreak:'break-word', display:'flex', alignItems:'flex-start', gap:'0.3em' }}>
+        {tag && <span style={{ flexShrink:0 }}>{tag}</span>}
+        <div style={{
+          borderLeft:`2px solid ${color}`,
+          background:`linear-gradient(90deg, color-mix(in srgb, ${color} 20%, transparent), transparent)`,
+          padding:'0 8px', borderRadius:6, flex:1, minWidth:0,
+        }}>
+          <span style={{ marginRight:'0.35em' }}>{CATEGORY_ICON[msg.category ?? 'announcement'] ?? '📣'}</span>
+          <span style={{ fontWeight:400 }} className="ck-body">
+            {msg.message.map((node,i) => <Fragment key={i}>{node}</Fragment>)}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ lineHeight:sz.lineHeight, wordBreak:'break-word' }}>
+      {tag}
+      {avatar}
       {!hideNames && (
         <span style={{ display:'inline' }}>
-          {msg.identity.badges.length > 0 && (
-            <span className="ck-bw">
-              {msg.identity.badges.map((b,i) => <Fragment key={i}>{b}</Fragment>)}
-            </span>
-          )}
-          <span style={nameStyle}>{msg.identity.username}</span>
+          {/* StreamNook: YouTube renders name THEN badges; others badges-first */}
+          {msg.platform === 'youtube'
+            ? <>{nameNode}{badgesNode && <span style={{ marginLeft:'0.25em' }}>{badgesNode}</span>}</>
+            : <>{badgesNode}{nameNode}</>}
           {!nlAfterName ? <span className="ck-colon">:</span> : <br />}
         </span>
       )}

@@ -1,6 +1,6 @@
 {
-  "name": "kick-chat-overlay",
-  "version": "1.0.0",
+  "name": "multichat-gxufy",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,18 +9,19 @@
   },
   "dependencies": {
     "next": "14",
+    "pusher-js": "^8.4.0",
     "react": "^18",
     "react-dom": "^18",
-    "pusher-js": "^8.4.0",
+    "tiktok-live-connector": "^2.4.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.0",
-    "postcss": "^8",
-    "autoprefixer": "^10",
-    "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
-    "@types/react-dom": "^18"
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5"
   }
 }

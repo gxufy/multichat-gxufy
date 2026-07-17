@@ -43,6 +43,17 @@ export interface Entitlements {
 
 export interface ParsedMessage {
   id: string;
+  platform?: 'kick' | 'twitch' | 'youtube' | 'tiktok';
+  /** platform sender id — enables ban-by-author deletion (yt) */
+  senderId?: string;
+  /** event card category for kind === 'system' */
+  category?: string;
+  /** avatar URL (yt/tiktok) */
+  avatar?: string;
+  /** original UnifiedMessage — kept so late-arriving 7TV cosmetics can rebuild the rendered line */
+  raw?: unknown;
+  /** system events (gifts, subs, superchats) render without name colon */
+  kind?: 'chat' | 'system';
   timestamp?: number;
   identity: {
     username: string;
@@ -50,6 +61,8 @@ export interface ParsedMessage {
     background: string;
     filter: string;
     badges: React.ReactNode[];
+    /** render name as a colored pill (yt owner gold) — 'bg|fg' */
+    namePill?: string;
   };
   message: React.ReactNode[];
 }
@@ -84,15 +97,19 @@ export async function getSevenTVGlobalEmotes(): Promise<SevenTVEmote[]> {
   }
 }
 
-export async function getSevenTVChannelEmotes(userId: string): Promise<{ emotes: SevenTVEmote[]; setId: string | null }> {
+export async function getSevenTVChannelEmotes(userId: string, platform: 'kick' | 'twitch' = 'kick'): Promise<{ emotes: SevenTVEmote[]; setId: string | null; stvUserId: string | null }> {
   try {
-    const res = await fetch(`https://7tv.io/v3/users/kick/${userId}`);
-    if (!res.ok) return { emotes: [], setId: null };
+    const res = await fetch(`https://7tv.io/v3/users/${platform}/${userId}`);
+    if (!res.ok) return { emotes: [], setId: null, stvUserId: null };
     const data = await res.json();
+    // NOTE: root `id` is the PLATFORM connection id; the actual 7TV
+    // user id (needed for the presence POST) is `user.id`
+    const stvUserId = data?.user?.id ?? null;
     const emoteSet = data?.emote_set;
-    if (!emoteSet) return { emotes: [], setId: null };
+    if (!emoteSet) return { emotes: [], setId: null, stvUserId };
     return {
       setId: emoteSet.id,
+      stvUserId,
       emotes: (emoteSet.emotes || []).map((e: any) => ({
         name: e.name,
         image: `https://cdn.7tv.app/emote/${e.id}/4x.webp`,
@@ -103,7 +120,7 @@ export async function getSevenTVChannelEmotes(userId: string): Promise<{ emotes:
       })),
     };
   } catch {
-    return { emotes: [], setId: null };
+    return { emotes: [], setId: null, stvUserId: null };
   }
 }
 
