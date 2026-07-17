@@ -1,0 +1,12 @@
+# Replace yourdomain.com with your actual domain (both lines)
+yourdomain.com, www.yourdomain.com {
+	encode gzip
+
+	# SSE (TikTok live chat stream) — disable buffering so events flush
+	@sse path /api/tiktok/*
+	reverse_proxy @sse localhost:3000 {
+		flush_interval -1
+	}
+
+	reverse_proxy localhost:3000
+}
