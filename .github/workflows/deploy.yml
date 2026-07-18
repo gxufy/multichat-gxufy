@@ -26,6 +26,9 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             npm ci
+            # Windows-generated lockfile can omit the Linux SWC binary;
+            # without it Next falls back to Babel and dies on OpenSSL 3
+            npm install --no-save @next/swc-linux-$(node -p "process.arch")-gnu
             npm run build
             pm2 restart multichat --update-env
             pm2 save
