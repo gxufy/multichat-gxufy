@@ -122,7 +122,7 @@ export default function LandingPage() {
   const [botNames,    setBotNames]    = useState('');
   const [copied,      setCopied]      = useState(false);
   const [previewWhite, setPreviewWhite] = useState(false);
-  const [baseUrl,     setBaseUrl]     = useState('https://multichat-gxufy.vercel.app');
+  const [baseUrl,     setBaseUrl]     = useState('https://multichat-gxufy.com');
 
   useEffect(() => { setBaseUrl(window.location.origin); }, []);
 

@@ -2,6 +2,8 @@
 
 A multi-platform chat overlay for OBS and streaming software — **Kick · Twitch · YouTube · TikTok** in one browser source, no login or OAuth required. Built by [@Gxufy_](https://x.com/Gxufy_).
 
+**Live:** [multichat-gxufy.com](https://multichat-gxufy.com)
+
 ---
 
 ## Features
