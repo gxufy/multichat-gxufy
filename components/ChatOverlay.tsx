@@ -328,8 +328,8 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
           width: 576,
           height: 576,
         }}>
-          {/* tpl loop is self-animated — no ckSpin needed */}
-          <video src="/tpl.webm" autoPlay loop muted playsInline width={576} height={576} style={{ display: 'block', objectFit: 'contain' }} />
+          {/* animated WebP: alpha works everywhere incl. iOS (VP9-alpha webm doesn't) */}
+          <img src="/tpl.webp" alt="" width={576} height={576} style={{ display: 'block', objectFit: 'contain' }} />
         </div>
       )}
 

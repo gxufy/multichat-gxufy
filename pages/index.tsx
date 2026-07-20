@@ -25,6 +25,7 @@ import { loadTwitchEmotes } from '../lib/twitchEmotes';
 import { createCosmeticsFetcher } from '../lib/cosmetics';
 import LandingPage from '../components/LandingPage';
 import ChatOverlay, { type PinnedState } from '../components/ChatOverlay';
+import { SunsetBanner } from '../components/SunsetBanner';
 
 const QuerySchema = z.object({
   /** legacy param — same as kick= */
@@ -696,7 +697,12 @@ export default function Page() {
 
   const hasChannel = !!(router.query.channel || router.query.kick || router.query.twitch || router.query.youtube || router.query.tiktok);
   if (!hasChannel) {
-    return <LandingPage />;
+    return (
+      <>
+        <SunsetBanner variant="landing" />
+        <LandingPage />
+      </>
+    );
   }
 
   if (error) {
@@ -718,6 +724,7 @@ export default function Page() {
       <Head>
         <title>multichat-gxufy</title>
       </Head>
+      <SunsetBanner variant="overlay" />
       <ChatOverlay
         config={config}
         messages={messages}

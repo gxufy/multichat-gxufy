@@ -115,6 +115,12 @@ export default function LandingPage() {
   const [fade,        setFade]        = useState('30');
   const [fadeBool,    setFadeBool]    = useState(true);
   const [showPin,     setShowPin]     = useState(true);
+  const [platformIcons, setPlatformIcons] = useState(true);
+  const [vcMetric,    setVcMetric]    = useState('live');
+  const [vcCombined,  setVcCombined]  = useState('true');
+  const [vcFont,      setVcFont]      = useState('montserrat');
+  const [vcIcons,     setVcIcons]     = useState('true');
+  const [copiedCounter, setCopiedCounter] = useState(false);
   const [emoteScale,  setEmoteScale]  = useState('');
   const [smallCaps,   setSmallCaps]   = useState(false);
   const [nlAfterName, setNlAfterName] = useState(false);
@@ -138,6 +144,7 @@ export default function LandingPage() {
     textSize, font, textShadow, stroke, animation,
     ...(fadeBool && fade !== '' ? { fade } : {}),
     showPinEnabled:        String(showPin),
+    ...(platformIcons ? {} : { sourceTag: 'none' }),
     ...(emoteScale !== '' ? { emoteScale } : {}),
     smallCaps:   String(smallCaps),
     nlAfterName: String(nlAfterName),
@@ -145,6 +152,25 @@ export default function LandingPage() {
     ...(botNames.trim() ? { botNames: botNames.trim() } : {}),
   });
   const overlayUrl = `${baseUrl}/?${params.toString()}`;
+
+  const counterParams = new URLSearchParams({
+    ...(channel.trim() ? { kick: channel.trim() } : {}),
+    ...(twitch.trim()  ? { twitch: twitch.trim().replace(/^@/, '') } : {}),
+    ...(youtube.trim() ? { youtube: youtube.trim().replace(/^@/, '') } : {}),
+    ...(tiktok.trim()  ? { tiktok: tiktok.trim().replace(/^@/, '') } : {}),
+    metric: vcMetric,
+    combined: vcCombined,
+    font: vcFont,
+    icons: vcIcons,
+    textSize, textShadow, stroke,
+  });
+  const counterUrl = `${baseUrl}/counter?${counterParams.toString()}`;
+
+  const copyCounter = () => {
+    navigator.clipboard.writeText(counterUrl);
+    setCopiedCounter(true);
+    setTimeout(() => setCopiedCounter(false), 2000);
+  };
 
   const copy = () => {
     navigator.clipboard.writeText(overlayUrl);
@@ -287,7 +313,7 @@ export default function LandingPage() {
 
         {/* Header */}
         <header>
-          <video src="/tpl.webm" className="header-logo" autoPlay loop muted playsInline />
+          <img src="/tpl.webp" alt="multichat" className="header-logo" />
           <h1 className="header-title">multichat-gxufy</h1>
           <p className="header-sub">One overlay for Kick · Twitch · YouTube · TikTok — no login, no OAuth</p>
           <div className="platform-row">
@@ -465,6 +491,13 @@ export default function LandingPage() {
                   <span className="toggle-slider" />
                 </label>
               </div>
+              <div className="toggle-wrap">
+                <label>Platform icons</label>
+                <label className="toggle">
+                  <input type="checkbox" checked={platformIcons} onChange={e => setPlatformIcons(e.target.checked)} />
+                  <span className="toggle-slider" />
+                </label>
+              </div>
               <div style={{ borderTop:'1px solid #2a2a2a', marginTop:8, paddingTop:10 }}>
                 <p style={{ margin:'0 0 6px', fontSize:'0.78rem', color:'#555', textAlign:'right' }}>Extra bots to hide (comma-separated)</p>
                 <input type="text" placeholder="nightbot, streamelements…"
@@ -558,6 +591,52 @@ export default function LandingPage() {
             </a>
             <span style={{ fontSize:'0.78rem', color:'#444' }}>Works at any resolution — set whatever fits your layout</span>
           </div>
+        </div>
+
+        {/* Viewer Counter */}
+        <div className="setup-section">
+          <p className="section-title">Viewer Counter Overlay</p>
+          <p style={{ color:'#909090', fontSize:'0.85rem', margin:'0 0 10px', lineHeight:1.5 }}>
+            A second browser source: real-time viewer count across all your platforms.
+            Offline platforms slide out automatically; counts roll smoothly as viewership changes.
+            Uses the same channel names entered above.
+          </p>
+          <div className="form_row left" style={{ flexWrap:'wrap', gap:12 }}>
+            <label>Metric{' '}
+              <select value={vcMetric} onChange={e => setVcMetric(e.target.value)}>
+                <option value="live">Live viewers</option>
+                <option value="avg">Average viewers</option>
+                <option value="peak">Peak viewers</option>
+              </select>
+            </label>
+            <label>Display{' '}
+              <select value={vcCombined} onChange={e => setVcCombined(e.target.value)}>
+                <option value="true">Combined total</option>
+                <option value="false">Per platform</option>
+              </select>
+            </label>
+            <label>Font{' '}
+              <select value={vcFont} onChange={e => setVcFont(e.target.value)}>
+                <option value="montserrat">Montserrat Bold</option>
+                <option value="dejavu">DejaVu Sans Bold</option>
+              </select>
+            </label>
+            <label>Icons{' '}
+              <select value={vcIcons} onChange={e => setVcIcons(e.target.value)}>
+                <option value="true">Show</option>
+                <option value="false">Hide</option>
+              </select>
+            </label>
+          </div>
+          <div className="url-box">
+            <div className="url-code">{counterUrl}</div>
+            <button onClick={copyCounter} className={`url-copy${copiedCounter ? ' ok' : ''}`} type="button">
+              {copiedCounter ? '✓ Copied' : 'Copy'}
+            </button>
+          </div>
+          <p style={{ color:'#555', fontSize:'0.79rem', margin:'6px 0 0' }}>
+            Size/shadow/stroke options from the generator above apply here too. Recommended OBS size: 400 × 80.
+          </p>
         </div>
 
         {/* OBS Setup */}
