@@ -25,10 +25,10 @@ const Query = z.object({
   twitch: z.string().optional(),
   youtube: z.string().optional(),
   tiktok: z.string().optional(),
-  metric: z.string().optional().transform(v => (['live','avg','peak'].includes(v ?? '') ? v! : 'live') as 'live'|'avg'|'peak'),
+  metric: z.string().optional().transform(() => 'live' as const),
   combined: z.string().optional().transform(v => v !== 'false'),
   icons: z.string().optional().transform(v => v !== 'false'),
-  font: z.string().optional().transform(v => (v === 'dejavu' ? 'dejavu' : 'montserrat')),
+  font: z.string().optional().transform(v => (v === 'montserrat' ? 'montserrat' : 'dejavu')),
   textSize: z.string().optional().transform(v => {
     const map: Record<string,string> = {'1':'small','2':'medium','3':'large'};
     return map[v??''] ?? (['small','medium','large'].includes(v??'') ? v! : 'medium');
@@ -47,7 +47,9 @@ const Query = z.object({
 const SIZES = { small: 22, medium: 34, large: 48 } as const;
 
 const ICONS: Record<Plat, JSX.Element> = {
-  kick: <svg viewBox="0 0 24 24" fill="#53FC19"><path d="M1.333 0h8v5.333H12V2.667h2.667V0h8v8H20v2.667h-2.667v2.666H20V16h2.667v8h-8v-2.667H12v-2.666H9.333V24h-8Z"/></svg>,
+  // kick's blocky K is visually denser than the other marks — render it
+  // slightly smaller inside its box so all icons read the same size
+  kick: <svg viewBox="0 0 24 24" fill="#53FC19" style={{ height: '78%', width: 'auto', margin: 'auto' }}><path d="M1.333 0h8v5.333H12V2.667h2.667V0h8v8H20v2.667h-2.667v2.666H20V16h2.667v8h-8v-2.667H12v-2.666H9.333V24h-8Z"/></svg>,
   twitch: <img src="/platform-twitch.png" alt="Twitch" style={{ height: '100%', width: 'auto' }} />,
   youtube: (
     <svg viewBox="0 0 24 24">
@@ -150,7 +152,7 @@ export default function Counter() {
   if (!ready || !cfgRef.current) return null;
   const cfg = cfgRef.current;
 
-  const fontFamily = cfg.font === 'dejavu' ? "'DejaVu Sans', sans-serif" : "'Montserrat', sans-serif";
+  const fontFamily = cfg.font === 'montserrat' ? "'Montserrat', sans-serif" : "'DejaVu Sans', sans-serif";
   const fontSize = SIZES[cfg.textSize as keyof typeof SIZES];
   const iconSize = Math.round(fontSize * 0.9);
   const shadow =
@@ -159,17 +161,14 @@ export default function Counter() {
     cfg.textShadow === 'large' ? 'drop-shadow(2px 2px 0.5rem black)' : '';
   const strokeCss = ({ thin: '1px black', medium: '2px black', thick: '3px black', thicker: '4px black' } as Record<string,string>)[cfg.stroke] ?? '';
 
-  const metricOf = (s: Stats) =>
-    cfg.metric === 'peak' ? s.peak :
-    cfg.metric === 'avg' ? (s.samples ? Math.round(s.sum / s.samples) : 0) :
-    s.viewers;
+  const metricOf = (s: Stats) => s.viewers;
 
   const liveList = ORDER.filter(p => stats[p]?.live);
   const combinedValue = liveList.reduce((n, p) => n + metricOf(stats[p]!), 0);
 
   const pill: React.CSSProperties = {
     display: 'inline-flex', alignItems: 'center', gap: Math.round(fontSize * 0.28),
-    ...(cfg.bg ? { background: 'rgba(24,24,28,0.92)', borderRadius: 999, padding: `${Math.round(fontSize*0.22)}px ${Math.round(fontSize*0.5)}px` } : {}),
+    ...(cfg.bg ? { background: 'rgba(20,20,24,0.45)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', borderRadius: 999, padding: `${Math.round(fontSize*0.22)}px ${Math.round(fontSize*0.5)}px` } : {}),
     fontFamily, fontWeight: 700, color: '#fff',
     ...(shadow ? { filter: shadow } : {}),
     ...(strokeCss ? { WebkitTextStroke: strokeCss } : {}),

@@ -27,7 +27,13 @@ function providerIcon(p: Platform): React.ReactNode {
     case 'tiktok':
       return <img src="/platform-tiktok.png" alt="TikTok" style={iconImgStyle} />;
     case 'kick':
-      return <svg viewBox="0 0 24 24" fill="#53FC19" style={{ width:'1em', height:'1em' }}><path d="M1.333 0h8v5.333H12V2.667h2.667V0h8v8H20v2.667h-2.667v2.666H20V16h2.667v8h-8v-2.667H12v-2.666H9.333V24h-8Z"/></svg>;
+      // kick's blocky K reads denser than the other marks — shrink ~20%
+      // inside a 1em box so it aligns with the badge row
+      return (
+        <span style={{ width:'1em', height:'1em', display:'inline-flex', alignItems:'center', justifyContent:'center' }}>
+          <svg viewBox="0 0 24 24" fill="#53FC19" style={{ width:'0.8em', height:'0.8em' }}><path d="M1.333 0h8v5.333H12V2.667h2.667V0h8v8H20v2.667h-2.667v2.666H20V16h2.667v8h-8v-2.667H12v-2.666H9.333V24h-8Z"/></svg>
+        </span>
+      );
     case 'youtube':
       return (
         <svg viewBox="0 0 24 24" style={{ width:'1em', height:'1em' }}>

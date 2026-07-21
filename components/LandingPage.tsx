@@ -116,9 +116,8 @@ export default function LandingPage() {
   const [fadeBool,    setFadeBool]    = useState(true);
   const [showPin,     setShowPin]     = useState(true);
   const [platformIcons, setPlatformIcons] = useState(true);
-  const [vcMetric,    setVcMetric]    = useState('live');
   const [vcCombined,  setVcCombined]  = useState('true');
-  const [vcFont,      setVcFont]      = useState('montserrat');
+  const [vcFont,      setVcFont]      = useState('dejavu');
   const [vcIcons,     setVcIcons]     = useState('true');
   const [copiedCounter, setCopiedCounter] = useState(false);
   const [emoteScale,  setEmoteScale]  = useState('');
@@ -158,7 +157,6 @@ export default function LandingPage() {
     ...(twitch.trim()  ? { twitch: twitch.trim().replace(/^@/, '') } : {}),
     ...(youtube.trim() ? { youtube: youtube.trim().replace(/^@/, '') } : {}),
     ...(tiktok.trim()  ? { tiktok: tiktok.trim().replace(/^@/, '') } : {}),
-    metric: vcMetric,
     combined: vcCombined,
     font: vcFont,
     icons: vcIcons,
@@ -602,13 +600,6 @@ export default function LandingPage() {
             Uses the same channel names entered above.
           </p>
           <div className="form_row left" style={{ flexWrap:'wrap', gap:12 }}>
-            <label>Metric{' '}
-              <select value={vcMetric} onChange={e => setVcMetric(e.target.value)}>
-                <option value="live">Live viewers</option>
-                <option value="avg">Average viewers</option>
-                <option value="peak">Peak viewers</option>
-              </select>
-            </label>
             <label>Display{' '}
               <select value={vcCombined} onChange={e => setVcCombined(e.target.value)}>
                 <option value="true">Combined total</option>
@@ -617,8 +608,8 @@ export default function LandingPage() {
             </label>
             <label>Font{' '}
               <select value={vcFont} onChange={e => setVcFont(e.target.value)}>
-                <option value="montserrat">Montserrat Bold</option>
                 <option value="dejavu">DejaVu Sans Bold</option>
+                <option value="montserrat">Montserrat Bold</option>
               </select>
             </label>
             <label>Icons{' '}

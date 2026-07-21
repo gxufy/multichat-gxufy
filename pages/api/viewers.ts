@@ -50,13 +50,16 @@ async function youtubeViewers(handle: string): Promise<PlatformCount> {
   });
   if (!live.ok) return { live: false, viewers: 0 };
   const html = await live.text();
+  // only a LIVE page canonicalizes to /watch?v= — that IS the live signal;
+  // "isLiveNow" is region/experiment-dependent and unreliable on VPS IPs
   if (!/<link rel="canonical" href="https:\/\/www\.youtube\.com\/watch\?v=/.test(html)) {
     return { live: false, viewers: 0 };
   }
-  const isLive = /"isLiveNow":true/.test(html);
-  const m = html.match(/"viewCount":\{"runs":\[\{"text":"([\d,.\s]+)"/) || html.match(/([\d,.]+)\s+watching now/);
+  const m = html.match(/"viewCount":\{"runs":\[\{"text":"([\d,.\s ]+)"/)
+    || html.match(/"originalViewCount":"(\d+)"/)
+    || html.match(/([\d,.]+)\s+watching now/);
   const viewers = m ? parseInt(m[1].replace(/[^\d]/g, ''), 10) || 0 : 0;
-  return { live: isLive, viewers };
+  return { live: true, viewers };
 }
 
 async function tiktokViewers(user: string): Promise<PlatformCount> {
