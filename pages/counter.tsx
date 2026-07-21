@@ -18,7 +18,8 @@ import { useRouter } from 'next/router';
 import { z } from 'zod';
 
 type Plat = 'kick' | 'twitch' | 'youtube' | 'tiktok';
-const ORDER: Plat[] = ['kick', 'twitch', 'youtube', 'tiktok'];
+// fixed display order, left → right
+const ORDER: Plat[] = ['twitch', 'youtube', 'kick', 'tiktok'];
 
 const Query = z.object({
   kick: z.string().optional(),

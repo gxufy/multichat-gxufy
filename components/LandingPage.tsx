@@ -119,6 +119,7 @@ export default function LandingPage() {
   const [vcCombined,  setVcCombined]  = useState('true');
   const [vcFont,      setVcFont]      = useState('dejavu');
   const [vcIcons,     setVcIcons]     = useState('true');
+  const [vcBg,        setVcBg]        = useState('true');
   const [copiedCounter, setCopiedCounter] = useState(false);
   const [emoteScale,  setEmoteScale]  = useState('');
   const [smallCaps,   setSmallCaps]   = useState(false);
@@ -160,6 +161,7 @@ export default function LandingPage() {
     combined: vcCombined,
     font: vcFont,
     icons: vcIcons,
+    bg: vcBg,
     textSize, textShadow, stroke,
   });
   const counterUrl = `${baseUrl}/counter?${counterParams.toString()}`;
@@ -616,6 +618,12 @@ export default function LandingPage() {
               <select value={vcIcons} onChange={e => setVcIcons(e.target.value)}>
                 <option value="true">Show</option>
                 <option value="false">Hide</option>
+              </select>
+            </label>
+            <label>Background{' '}
+              <select value={vcBg} onChange={e => setVcBg(e.target.value)}>
+                <option value="true">On</option>
+                <option value="false">Off</option>
               </select>
             </label>
           </div>
