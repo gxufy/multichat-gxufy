@@ -46,15 +46,17 @@ async function twitchViewers(login: string): Promise<PlatformCount> {
 async function youtubeViewers(handle: string): Promise<PlatformCount> {
   const clean = handle.replace(/^@/, '');
   const live = await fetch(`https://www.youtube.com/@${clean}/live`, {
-    headers: { 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9', Cookie: 'SOCS=CAI' },
+    headers: { 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9', Cookie: 'SOCS=CAI; CONSENT=YES+cb' },
   });
   if (!live.ok) return { live: false, viewers: 0 };
   const html = await live.text();
-  // only a LIVE page canonicalizes to /watch?v= — that IS the live signal;
-  // "isLiveNow" is region/experiment-dependent and unreliable on VPS IPs
-  if (!/<link rel="canonical" href="https:\/\/www\.youtube\.com\/watch\?v=/.test(html)) {
-    return { live: false, viewers: 0 };
-  }
+  // Datacenter IPs sometimes get HTML variants without the canonical
+  // <link>; accept any signal that this resolved to a live watch page
+  const isLive =
+    /<link rel="canonical" href="https:\/\/www\.youtube\.com\/watch\?v=/.test(html) ||
+    /<meta property="og:url" content="https:\/\/www\.youtube\.com\/watch\?v=/.test(html) ||
+    /"isLiveNow"\s*:\s*true/.test(html);
+  if (!isLive) return { live: false, viewers: 0 };
   const m = html.match(/"viewCount":\{"runs":\[\{"text":"([\d,.\s ]+)"/)
     || html.match(/"originalViewCount":"(\d+)"/)
     || html.match(/([\d,.]+)\s+watching now/);
