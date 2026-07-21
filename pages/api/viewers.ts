@@ -50,18 +50,24 @@ async function youtubeViewers(handle: string): Promise<PlatformCount> {
   });
   if (!live.ok) return { live: false, viewers: 0 };
   const html = await live.text();
-  // Datacenter IPs sometimes get HTML variants without the canonical
-  // <link>; accept any signal that this resolved to a live watch page
+  // Try the count FIRST: datacenter IPs get a bot-lite page variant where
+  // canonical="undefined" and isLiveNow is absent, but the live watching-
+  // now renderer ("viewCount":{"runs":...}) is still present — its very
+  // existence means the /live page resolved to an active stream.
+  const m = html.match(/"viewCount":\{"runs":\[\{"text":"([\d,.\s ]+)"/)
+    || html.match(/([\d,.]+)\s+watching now/);
+  if (m) {
+    const viewers = parseInt(m[1].replace(/[^\d]/g, ''), 10) || 0;
+    return { live: true, viewers };
+  }
+  // fall back to page-level live signals (normal browser-variant HTML)
   const isLive =
     /<link rel="canonical" href="https:\/\/www\.youtube\.com\/watch\?v=/.test(html) ||
     /<meta property="og:url" content="https:\/\/www\.youtube\.com\/watch\?v=/.test(html) ||
     /"isLiveNow"\s*:\s*true/.test(html);
   if (!isLive) return { live: false, viewers: 0 };
-  const m = html.match(/"viewCount":\{"runs":\[\{"text":"([\d,.\s ]+)"/)
-    || html.match(/"originalViewCount":"(\d+)"/)
-    || html.match(/([\d,.]+)\s+watching now/);
-  const viewers = m ? parseInt(m[1].replace(/[^\d]/g, ''), 10) || 0 : 0;
-  return { live: true, viewers };
+  const orig = html.match(/"originalViewCount":"(\d+)"/);
+  return { live: true, viewers: orig ? parseInt(orig[1], 10) || 0 : 0 };
 }
 
 async function tiktokViewers(user: string): Promise<PlatformCount> {
