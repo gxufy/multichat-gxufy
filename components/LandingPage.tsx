@@ -103,7 +103,7 @@ export default function LandingPage() {
   const [fadeBool,    setFadeBool]    = useState(true);
   const [showPin,     setShowPin]     = useState(true);
   const [platformIcons, setPlatformIcons] = useState(true);
-  const [mentionColor, setMentionColor] = useState(false);
+  const [mentionColor, setMentionColor] = useState(true);
   const [bgColor,     setBgColor]     = useState('');      // '' = transparent
   const [customMsgs,  setCustomMsgs]  = useState<Array<{ user: string; color: string; msg: string }>>([]);
   const [testInput,   setTestInput]   = useState('');
@@ -136,7 +136,7 @@ export default function LandingPage() {
     ...(fadeBool && fade !== '' ? { fade } : {}),
     showPinEnabled:        String(showPin),
     ...(platformIcons ? {} : { sourceTag: 'none' }),
-    ...(mentionColor ? { mentionColor: 'true' } : {}),
+    ...(mentionColor ? {} : { mentionColor: 'false' }),
     ...(bgColor ? { bgColor: bgColor.replace('#', '') } : {}),
     ...(emoteScale !== '' ? { emoteScale } : {}),
     smallCaps:   String(smallCaps),

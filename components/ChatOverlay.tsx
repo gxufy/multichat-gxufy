@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
-import type { OverlayConfig } from '../pages/index';
+import type { OverlayConfig } from '../pages/multichat';
 import type { ParsedMessage } from '../lib/kick';
 import { sourceTag, PROVIDERS, type SourceTagMode } from '../lib/render';
 import type { Platform } from '../lib/types';
