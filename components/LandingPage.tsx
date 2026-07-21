@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { sourceTag } from '../lib/render';
 import type { Platform } from '../lib/types';
+import CounterPreview from './CounterPreview';
 
 const FONTS: [string, string, string][] = [
   ['baloo',       'Baloo Tammudu',          "'Baloo Tammudu 2', cursive"],
@@ -626,6 +627,23 @@ export default function LandingPage() {
                 <option value="false">Off</option>
               </select>
             </label>
+          </div>
+
+          {/* Live preview — same pill styling as /counter, fake rolling counts */}
+          <div className="preview-label" style={{ marginTop: 10 }}>
+            <span>Preview:</span>
+          </div>
+          <div id="counter-example" className={previewWhite ? 'white' : 'checkered'}
+            style={{ border:'1px solid #444', borderRadius:6, overflow:'hidden', padding:'14px 12px' }}>
+            <CounterPreview
+              combined={vcCombined === 'true'}
+              font={vcFont}
+              icons={vcIcons === 'true'}
+              bg={vcBg === 'true'}
+              textSize={textSize}
+              textShadow={textShadow}
+              stroke={stroke}
+            />
           </div>
           <div className="url-box">
             <div className="url-code">{counterUrl}</div>
