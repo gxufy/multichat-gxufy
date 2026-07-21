@@ -11,7 +11,6 @@ const SOCIALS = [
   { label: 'X / Twitter', href: 'https://x.com/Gxufy_', icon: '𝕏' },
   { label: 'GitHub', href: 'https://github.com/gxufy', icon: '⌥' },
   { label: 'Discord', href: 'https://discord.com/users/882428313644179486', icon: '💬' },
-  { label: 'Spotify', href: 'https://open.spotify.com/playlist/37i9dQZF1EIWnEPQNZdwAa', icon: '♫' },
 ];
 
 const TAGS = ['multi-platform chat', 'viewer counters', 'OBS overlays', '7TV · BTTV · FFZ', 'no OAuth', 'real-time'];
@@ -101,7 +100,7 @@ export default function Hub() {
           <img className="hero-avatar" src="/gxufy-avatar.jpg" alt="Gxufy" />
           <div className="hero-text">
             <p className="hero-kicker">overlays &amp; stream tools</p>
-            <h1>Hey, I&rsquo;m <span>Gxufy</span> ヤ</h1>
+            <h1>wtw, I&rsquo;m <span>Gxufy</span> 🕊️</h1>
             <p>I build tools that make streams smoother — multi-platform chat overlays and widgets that just work. No logins, no OAuth, no setup pain.</p>
           </div>
         </div>
@@ -131,7 +130,7 @@ export default function Hub() {
 
         <div className="banner">
           <p><strong>More tools are on the way.</strong> multichat is the first — follow me to catch what&rsquo;s next.</p>
-          <a href="https://x.com/Gxufy_" target="_blank" rel="noreferrer">Follow @Gxufy_</a>
+          <a href="https://guns.lol/gxufy" target="_blank" rel="noreferrer">Follow @Gxufy_</a>
         </div>
 
         <div className="socials">

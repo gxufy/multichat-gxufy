@@ -112,6 +112,7 @@ export default function LandingPage() {
   const [vcIcons,     setVcIcons]     = useState('true');
   const [vcBg,        setVcBg]        = useState('true');
   const [copiedCounter, setCopiedCounter] = useState(false);
+  const [activeTab,   setActiveTab]   = useState<'counter' | 'commands' | 'setup' | null>(null);
   const [emoteScale,  setEmoteScale]  = useState('');
   const [smallCaps,   setSmallCaps]   = useState(false);
   const [nlAfterName, setNlAfterName] = useState(false);
@@ -144,7 +145,7 @@ export default function LandingPage() {
     hideNames:   String(hideNames),
     ...(botNames.trim() ? { botNames: botNames.trim() } : {}),
   });
-  const overlayUrl = `${baseUrl}/?${params.toString()}`;
+  const overlayUrl = `${baseUrl}/multichat?${params.toString()}`;
 
   const counterParams = new URLSearchParams({
     ...(channel.trim() ? { kick: channel.trim() } : {}),
@@ -233,16 +234,22 @@ export default function LandingPage() {
         a { color: var(--accent); text-decoration: none; transition: opacity .2s; } a:hover { color: var(--accent-2); opacity: .85; }
         .page { max-width: 900px; margin: 0 auto; padding: 0 20px 60px; }
 
-        /* Header — hero */
-        header { display: flex; flex-direction: column; align-items: center; padding: 0 0 26px; margin-bottom: 28px; gap: 8px; position: relative; }
-        header::after { content: ''; position: absolute; bottom: 0; left: 15%; right: 15%; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
-        .header-logo { height: 400px; width: auto; margin-top: -60px; margin-bottom: -120px; filter: drop-shadow(0 12px 32px rgba(0,0,0,.5)); }
+        /* Header — compact horizontal strip, no giant hero */
+        header.header-strip { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 20px; padding: 10px 0 16px; margin-bottom: 18px; position: relative; }
+        header.header-strip::after { content: ''; position: absolute; bottom: 0; left: 15%; right: 15%; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+        .header-logo { height: 150px; width: auto; margin: -20px 0 -30px; filter: drop-shadow(0 8px 20px rgba(0,0,0,.5)); }
+        .header-copy { display: flex; flex-direction: column; gap: 4px; }
         @keyframes ckSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .header-title { font-size: 2.6rem; font-weight: 800; color: #fff; margin: 0; letter-spacing: -.04em; position: relative; z-index: 1; text-shadow: 0 4px 24px rgba(0,0,0,.6); }
-        .header-sub { font-size: 0.98rem; font-weight: 500; color: var(--accent); margin: 0; }
-        .platform-row { display: flex; gap: 8px; margin-top: 4px; }
-        .platform-chip { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; padding: 3px 12px; border-radius: 999px; background: rgba(255,255,255,0.03); }
-        .header-blurb { max-width: 580px; text-align: center; color: var(--muted); font-size: 0.86rem; line-height: 1.6; margin: 8px 0 0; }
+        .header-title { font-size: 2rem; font-weight: 800; color: #fff; margin: 0; letter-spacing: -.04em; }
+        .header-sub { font-size: 0.9rem; font-weight: 600; color: var(--accent); margin: 0; }
+        .platform-row { display: flex; gap: 6px; margin-top: 2px; }
+        .platform-chip { font-size: 0.64rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,0.03); }
+
+        /* Tab bar — extras collapse behind buttons, page stays short */
+        .tab-bar { display: flex; gap: 10px; margin-bottom: 18px; }
+        .tab-btn { flex: 1; background: var(--card); border: 1px solid var(--line); border-radius: 12px; color: var(--muted); font-family: inherit; font-size: 0.88rem; font-weight: 700; padding: 13px 10px; cursor: pointer; transition: all .15s; box-shadow: var(--shadow); }
+        .tab-btn:hover { border-color: rgba(74,132,250,.5); color: var(--text); transform: translateY(-1px); }
+        .tab-btn.on { background: rgba(74,132,250,.12); border-color: var(--accent); color: var(--accent); }
 
         /* Cards — every section is one */
         .commands-section, .setup-section, #result {
@@ -354,44 +361,22 @@ export default function LandingPage() {
 
       <div className="page">
 
-        {/* Header */}
-        <header>
+        {/* Header — compact strip: logo left, title + chips inline */}
+        <header className="header-strip">
           <img src="/tpl.webp" alt="multichat" className="header-logo" />
-          <h1 className="header-title">multichat-gxufy</h1>
-          <p className="header-sub">One overlay for Kick · Twitch · YouTube · TikTok — no login, no OAuth</p>
-          <div className="platform-row">
-            <span className="platform-chip kick-tag">Kick</span>
-            <span className="platform-chip tw-tag">Twitch</span>
-            <span className="platform-chip yt-tag">YouTube</span>
-            <span className="platform-chip tt-tag">TikTok</span>
+          <div className="header-copy">
+            <h1 className="header-title">multichat-gxufy</h1>
+            <p className="header-sub">Every chat. One overlay. No login.</p>
+            <div className="platform-row">
+              <span className="platform-chip kick-tag">Kick</span>
+              <span className="platform-chip tw-tag">Twitch</span>
+              <span className="platform-chip yt-tag">YouTube</span>
+              <span className="platform-chip tt-tag">TikTok</span>
+            </div>
           </div>
-          <p className="header-blurb">
-            Combine any (or all) of your chats into a single OBS browser source.
-            7TV / BTTV / FFZ emotes, real platform badges, name paints, pinned messages,
-            gifts &amp; Super Chats — everything just works with a channel name.
-          </p>
         </header>
 
-        {/* Commands */}
-        <div className="commands-section">
-          <p className="section-title">Chat Commands <span style={{color:'#666', textTransform:'none', letterSpacing:0}}>— work from any connected platform&rsquo;s chat (mods &amp; broadcaster)</span></p>
-          <table className="cmd-table">
-            <thead><tr><th>Command</th><th>Description</th><th>Access</th></tr></thead>
-            <tbody>
-              <tr><td>!multichat ping</td><td>Shows a &ldquo;Pong!&rdquo; notification on screen</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!multichat reload</td><td>Reloads the browser source</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!multichat stop</td><td>Clears all active overlays</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!multichat show / hide</td><td>Shows or hides the chat</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!multichat refresh emotes</td><td>Reloads 7TV/BTTV/FFZ emotes without a page refresh</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!multichat img [url or emote] -t [sec] -o [opacity]</td><td>Fullscreen image or emote (e.g. GIGACHAD). Use <code style={{color:'#4a84fa'}}>img clear</code> to dismiss</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!multichat yt [url or preset] -t [sec] -m</td><td>Fullscreen YouTube video. Presets: bruh, vine-boom, rickroll, dc-ping, win-error. Add <code style={{color:'#4a84fa'}}>-m</code> to mute</td><td className="cmd-access">Mod+</td></tr>
-              <tr><td>!multichat tts [message]</td><td>Text-to-speech using the system voice built into OBS</td><td className="cmd-access">Mod+</td></tr>
-            </tbody>
-          </table>
-          <p style={{ color:'#555', fontSize:'0.74rem', margin:'6px 0 0' }}><code style={{color:'#4a84fa'}}>!kickchat</code> still works as an alias for existing setups.</p>
-        </div>
-
-        {/* Generator form */}
+        {/* Generator form — first thing, no scroll needed */}
         <form name="generator" onSubmit={e => { e.preventDefault(); copy(); }}>
 
           <div className="form_row center platform-inputs">
@@ -680,23 +665,25 @@ export default function LandingPage() {
             <button onClick={copy} className={`url-copy${copied ? ' ok' : ''}`} type="button">
               {copied ? '✓ Copied' : 'Copy'}
             </button>
-          </div>
-          <div className="url-actions">
-            <a href={overlayUrl} target="_blank" rel="noreferrer" className="url-newtab">
-              👁️ Preview in new tab <span style={{fontSize:'0.7rem', color:'#888'}}>(type in your chat to test)</span>
+            <a href={overlayUrl} target="_blank" rel="noreferrer" className="url-copy" style={{ display:'inline-flex', alignItems:'center', background:'transparent', border:'1px solid rgba(74,132,250,.5)', color:'#4a84fa' }}>
+              👁️ Test
             </a>
-            <span style={{ fontSize:'0.78rem', color:'#444' }}>Works at any resolution — set whatever fits your layout</span>
           </div>
         </div>
 
-        {/* Viewer Counter */}
+        {/* Tabs — counter / commands / setup collapse into one bar */}
+        <div className="tab-bar">
+          {([['counter','📊 Viewer Counter'],['commands','⚡ Commands'],['setup','🎥 OBS Setup']] as const).map(([key, label]) => (
+            <button key={key} type="button"
+              className={`tab-btn${activeTab === key ? ' on' : ''}`}
+              onClick={() => setActiveTab(activeTab === key ? null : key)}>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {activeTab === 'counter' && (
         <div className="setup-section">
-          <p className="section-title">Viewer Counter Overlay</p>
-          <p style={{ color:'#909090', fontSize:'0.85rem', margin:'0 0 10px', lineHeight:1.5 }}>
-            A second browser source: real-time viewer count across all your platforms.
-            Offline platforms slide out automatically; counts roll smoothly as viewership changes.
-            Uses the same channel names entered above.
-          </p>
           <div className="form_row left" style={{ flexWrap:'wrap', gap:12 }}>
             <label>Display{' '}
               <select value={vcCombined} onChange={e => setVcCombined(e.target.value)}>
@@ -724,12 +711,8 @@ export default function LandingPage() {
             </label>
           </div>
 
-          {/* Live preview — same pill styling as /counter, fake rolling counts */}
-          <div className="preview-label" style={{ marginTop: 10 }}>
-            <span>Preview:</span>
-          </div>
           <div id="counter-example" className={previewWhite ? 'white' : 'checkered'}
-            style={{ border:'1px solid #444', borderRadius:6, overflow:'hidden', padding:'14px 12px' }}>
+            style={{ border:'1px solid #444', borderRadius:6, overflow:'hidden', padding:'14px 12px', marginTop:8 }}>
             <CounterPreview
               combined={vcCombined === 'true'}
               font={vcFont}
@@ -740,26 +723,46 @@ export default function LandingPage() {
               stroke={stroke}
             />
           </div>
-          <div className="url-box">
+          <div className="url-box" style={{ marginTop:8 }}>
             <div className="url-code">{counterUrl}</div>
             <button onClick={copyCounter} className={`url-copy${copiedCounter ? ' ok' : ''}`} type="button">
               {copiedCounter ? '✓ Copied' : 'Copy'}
             </button>
           </div>
-          <p style={{ color:'#555', fontSize:'0.79rem', margin:'6px 0 0' }}>
-            Size/shadow/stroke options from the generator above apply here too. Recommended OBS size: 400 × 80.
+          <p style={{ color:'#555', fontSize:'0.76rem', margin:'6px 0 0' }}>
+            Real-time counts, offline platforms slide out. OBS size: 400 × 80.
           </p>
         </div>
+        )}
 
-        {/* OBS Setup */}
+        {activeTab === 'commands' && (
+        <div className="commands-section">
+          <table className="cmd-table">
+            <thead><tr><th>Command</th><th>Description</th><th>Access</th></tr></thead>
+            <tbody>
+              <tr><td>!multichat ping</td><td>Pong! notification on screen</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!multichat reload</td><td>Reloads the browser source</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!multichat stop</td><td>Clears all active overlays</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!multichat show / hide</td><td>Shows or hides the chat</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!multichat refresh emotes</td><td>Reloads 7TV/BTTV/FFZ emotes live</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!multichat img [url/emote] -t [s] -o [op]</td><td>Fullscreen image or emote. <code style={{color:'#4a84fa'}}>img clear</code> dismisses</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!multichat yt [url/preset] -t [s] -m</td><td>Fullscreen video. Presets: bruh, vine-boom, rickroll, dc-ping, win-error</td><td className="cmd-access">Mod+</td></tr>
+              <tr><td>!multichat tts [message]</td><td>Text-to-speech in OBS</td><td className="cmd-access">Mod+</td></tr>
+            </tbody>
+          </table>
+          <p style={{ color:'#555', fontSize:'0.74rem', margin:'6px 0 0' }}>Works from any connected platform&rsquo;s chat. <code style={{color:'#4a84fa'}}>!kickchat</code> is an alias.</p>
+        </div>
+        )}
+
+        {activeTab === 'setup' && (
         <div className="setup-section">
-          <p className="section-title">OBS Setup</p>
           <ol className="steps">
-            <li>Enter your channel name(s) — any one platform or all four — then click <strong>Generate &amp; Copy</strong></li>
-            <li>In OBS: <strong>Add Source → Browser Source</strong></li>
-            <li>Paste the URL and set your preferred size — my personal favorite is <strong>680 × 280</strong></li>
+            <li>Enter channel name(s) above → <strong>Generate &amp; Copy</strong></li>
+            <li>OBS: <strong>Add Source → Browser Source</strong> → paste</li>
+            <li>Size it — <strong>680 × 280</strong> works great</li>
           </ol>
         </div>
+        )}
 
       </div>
 
