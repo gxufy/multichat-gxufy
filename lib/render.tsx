@@ -186,8 +186,40 @@ function render7TVSegment(segment: string, emotes: SevenTVEmote[], keyBase: stri
   return nodes;
 }
 
-/** text + platform emote offsets (+ 7TV for kick) → React nodes */
-export function renderMessageText(msg: UnifiedMessage, sevenTV: SevenTVEmote[]): React.ReactNode[] {
+/* UChat-style colorable mentions (ref-uchat emoteParser.ts:286):
+   tokens normalized by stripping @ and trailing commas; a mention only
+   colors if that user has chatted before (name → color map filled as
+   messages arrive). */
+export interface MentionContext {
+  enabled: boolean;
+  /** lowercase username → their display color */
+  colors: Map<string, string>;
+}
+
+function renderMentions(segment: string, ctx: MentionContext | undefined, keyBase: string): React.ReactNode[] {
+  if (!ctx?.enabled || !segment.includes('@')) return [segment];
+  const nodes: React.ReactNode[] = [];
+  const words = segment.split(' ');
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i];
+    const tail = i !== words.length - 1 ? ' ' : '';
+    if (word.startsWith('@')) {
+      const color = ctx.colors.get(word.replace(/[@,]/g, '').toLowerCase());
+      if (color) {
+        nodes.push(<strong key={`${keyBase}-m${i}`} style={{ color, fontWeight: 800 }}>{word}</strong>);
+        if (tail) nodes.push(tail);
+        continue;
+      }
+    }
+    const last = nodes[nodes.length - 1];
+    if (typeof last === 'string') nodes[nodes.length - 1] = last + word + tail;
+    else nodes.push(word + tail);
+  }
+  return nodes;
+}
+
+/** text + platform emote offsets (+ 7TV for kick/twitch) → React nodes */
+export function renderMessageText(msg: UnifiedMessage, sevenTV: SevenTVEmote[], mentions?: MentionContext): React.ReactNode[] {
   const chars = Array.from(msg.text); // codepoint-safe offsets
   const sorted = [...msg.emotes].sort((a, b) => a.begin - b.begin);
   const nodes: React.ReactNode[] = [];
@@ -197,9 +229,15 @@ export function renderMessageText(msg: UnifiedMessage, sevenTV: SevenTVEmote[]):
     if (!segment) return;
     // 7TV word-swap applies to kick AND twitch text gaps
     if ((msg.platform === 'kick' || msg.platform === 'twitch') && sevenTV.length) {
-      nodes.push(...render7TVSegment(segment.replace(/\s\s+/g, ' '), sevenTV, keyBase));
+      const parts = render7TVSegment(segment.replace(/\s\s+/g, ' '), sevenTV, keyBase);
+      // apply mention coloring to the plain-string parts between emotes
+      for (let pi = 0; pi < parts.length; pi++) {
+        const p = parts[pi];
+        if (typeof p === 'string') nodes.push(...renderMentions(p, mentions, `${keyBase}-p${pi}`));
+        else nodes.push(p);
+      }
     } else {
-      nodes.push(segment);
+      nodes.push(...renderMentions(segment, mentions, keyBase));
     }
   };
 

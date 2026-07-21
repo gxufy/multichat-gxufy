@@ -91,7 +91,28 @@ export function createKickConnector(opts: KickConnectorOpts): Connector {
     function bindChannel() {
       const ch = pusher!.subscribe(chatroomName);
       ch.bind('App\\Events\\ChatMessageEvent', (data: any) => {
-        opts.onMessage(buildKickMessage(data));
+        const msg = buildKickMessage(data);
+        // kick reward/celebration message types render highlighted
+        if (data.type === 'celebration' || data.metadata?.celebration || data.metadata?.reward) {
+          msg.redeem = data.metadata?.reward?.title ?? 'celebration';
+        }
+        opts.onMessage(msg);
+      });
+      ch.bind('App\\Events\\RewardRedeemedEvent', (data: any) => {
+        const d = typeof data === 'string' ? JSON.parse(data) : data;
+        opts.onMessage({
+          platform: 'kick',
+          id: `redeem-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          senderId: d.user_id?.toString() ?? '',
+          username: d.username ?? 'Someone',
+          color: '',
+          badges: [],
+          text: d.user_input ? `${d.reward_title}: ${d.user_input}` : (d.reward_title ?? 'redeemed a reward'),
+          emotes: [],
+          timestamp: Date.now(),
+          kind: 'chat',
+          redeem: d.reward_title ?? 'reward',
+        });
       });
       ch.bind('App\\Events\\MessageDeletedEvent', (data: any) => {
         opts.onDelete({ id: data.message?.id });

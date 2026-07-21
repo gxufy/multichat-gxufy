@@ -47,6 +47,8 @@ export interface UnifiedMessage {
   kind: 'chat' | 'system';
   /** event card category (system only) */
   category?: EventCategory;
+  /** channel-point redeem / highlighted message (twitch tags, kick reward event) */
+  redeem?: boolean | string;
   /** avatar URL — yt/tiktok only (StreamNook: other platforms don't carry one) */
   avatar?: string;
 }

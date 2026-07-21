@@ -235,7 +235,7 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
             overflow: hidden !important;
             height: 100vh !important;
             position: relative !important;
-            background: transparent !important;
+            background: ${(cfg as any).bgColor || 'transparent'} !important;
           }
           /* Next.js inserts #__next between <body> and our content.
              Make it invisible to layout so position:absolute;bottom:0
@@ -510,7 +510,25 @@ function MsgLine({ msg, sz, emoteMaxH, emoteMaxW, stroke, smallCaps, nlAfterName
     );
   }
 
-  return (
+  /* Redeem / highlighted message: Twitch-style purple accent bar +
+     subtle wash (net-new — UChat only shows/hides these, StreamNook
+     routes them to event cards; the bar keeps them inline like Twitch) */
+  const redeemWrap = (inner: React.ReactNode) => (
+    <div style={{
+      borderLeft: '0.22em solid #9147ff',
+      background: 'linear-gradient(90deg, rgba(145,71,255,0.18), transparent 70%)',
+      padding: '0 0 0 0.4em', borderRadius: 3,
+    }}>
+      {typeof msg.redeem === 'string' && msg.redeem !== 'highlighted' && (
+        <div style={{ fontSize: '0.6em', opacity: 0.75, fontWeight: 700, lineHeight: 1.6 }}>
+          🎁 {msg.redeem}
+        </div>
+      )}
+      {inner}
+    </div>
+  );
+
+  const line = (
     <div style={{ lineHeight:sz.lineHeight, wordBreak:'break-word' }}>
       {tag}
       {avatar}
@@ -528,6 +546,8 @@ function MsgLine({ msg, sz, emoteMaxH, emoteMaxW, stroke, smallCaps, nlAfterName
       </span>
     </div>
   );
+
+  return msg.redeem ? redeemWrap(line) : line;
 }
 
 function PinSVG() {

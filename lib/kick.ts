@@ -48,6 +48,8 @@ export interface ParsedMessage {
   senderId?: string;
   /** event card category for kind === 'system' */
   category?: string;
+  /** redeem/highlighted message — truthy = highlight; string = reward title */
+  redeem?: boolean | string;
   /** avatar URL (yt/tiktok) */
   avatar?: string;
   /** original UnifiedMessage — kept so late-arriving 7TV cosmetics can rebuild the rendered line */

@@ -203,7 +203,12 @@ export function createTwitchConnector(opts: TwitchConnectorOpts): Connector {
           const pref = prefixText(`${author} cheered ${bits} bits`, text, emotes);
           opts.onMessage(buildMessage(p, 'system', pref.text, pref.emotes, 'cheer'));
         } else {
-          opts.onMessage(buildMessage(p, 'chat', text, emotes));
+          const msg = buildMessage(p, 'chat', text, emotes);
+          // channel-point redeems: custom-reward-id / highlighted-message tag
+          if (p.tags['custom-reward-id'] || p.tags['msg-id'] === 'highlighted-message') {
+            msg.redeem = p.tags['custom-reward-id'] || 'highlighted';
+          }
+          opts.onMessage(msg);
         }
         break;
       }

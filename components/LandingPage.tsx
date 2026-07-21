@@ -117,6 +117,10 @@ export default function LandingPage() {
   const [fadeBool,    setFadeBool]    = useState(true);
   const [showPin,     setShowPin]     = useState(true);
   const [platformIcons, setPlatformIcons] = useState(true);
+  const [mentionColor, setMentionColor] = useState(false);
+  const [bgColor,     setBgColor]     = useState('');      // '' = transparent
+  const [customMsgs,  setCustomMsgs]  = useState<Array<{ user: string; color: string; msg: string }>>([]);
+  const [testInput,   setTestInput]   = useState('');
   const [vcCombined,  setVcCombined]  = useState('true');
   const [vcFont,      setVcFont]      = useState('dejavu');
   const [vcIcons,     setVcIcons]     = useState('true');
@@ -146,6 +150,8 @@ export default function LandingPage() {
     ...(fadeBool && fade !== '' ? { fade } : {}),
     showPinEnabled:        String(showPin),
     ...(platformIcons ? {} : { sourceTag: 'none' }),
+    ...(mentionColor ? { mentionColor: 'true' } : {}),
+    ...(bgColor ? { bgColor: bgColor.replace('#', '') } : {}),
     ...(emoteScale !== '' ? { emoteScale } : {}),
     smallCaps:   String(smallCaps),
     nlAfterName: String(nlAfterName),
@@ -171,6 +177,16 @@ export default function LandingPage() {
     navigator.clipboard.writeText(counterUrl);
     setCopiedCounter(true);
     setTimeout(() => setCopiedCounter(false), 2000);
+  };
+
+  /* UChat preview.ts sendFakeMessage: random 5-char name + random color */
+  const sendTestMsg = () => {
+    const msg = testInput.trim();
+    if (!msg) return;
+    const user = Math.random().toString(36).slice(2, 7);
+    const colors = ['#FF4B6E', '#53fc18', '#00BFFF', '#D399FF', '#FF8C00', '#9ACD32', '#FF69B4'];
+    setCustomMsgs(prev => [...prev.slice(-7), { user, color: colors[Math.floor(Math.random() * colors.length)], msg }]);
+    setTestInput('');
   };
 
   const copy = () => {
@@ -499,6 +515,28 @@ export default function LandingPage() {
                   <span className="toggle-slider" />
                 </label>
               </div>
+              <div className="toggle-wrap">
+                <label><abbr title="Highlight @mentions in the mentioned user's name color (they must have chatted before)">Colored mentions</abbr></label>
+                <label className="toggle">
+                  <input type="checkbox" checked={mentionColor} onChange={e => setMentionColor(e.target.checked)} />
+                  <span className="toggle-slider" />
+                </label>
+              </div>
+              <div className="toggle-wrap">
+                <label><abbr title="Chat background color. Transparent is the default — pick a color only if you don't want a see-through overlay">Background</abbr></label>
+                <span style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
+                  <button type="button"
+                    onClick={() => setBgColor('')}
+                    style={{
+                      fontSize:'0.72rem', padding:'2px 8px', borderRadius:4, cursor:'pointer',
+                      border: bgColor === '' ? '1px solid #4a84fa' : '1px solid #3a3a3a',
+                      background:'#2e2e2e', color: bgColor === '' ? '#4a84fa' : '#888',
+                    }}>Transparent</button>
+                  <input type="color" value={bgColor || '#191919'}
+                    onChange={e => setBgColor(e.target.value)}
+                    style={{ width:28, height:22, padding:0, border:'1px solid #3a3a3a', borderRadius:4, background:'none', cursor:'pointer' }} />
+                </span>
+              </div>
               <div style={{ borderTop:'1px solid #2a2a2a', marginTop:8, paddingTop:10 }}>
                 <p style={{ margin:'0 0 6px', fontSize:'0.78rem', color:'#555', textAlign:'right' }}>Extra bots to hide (comma-separated)</p>
                 <input type="text" placeholder="nightbot, streamelements…"
@@ -516,7 +554,8 @@ export default function LandingPage() {
                 <button type="button" onClick={() => setPreviewWhite(p => !p)} title="Toggle background">⚙️</button>
                 <span>Preview:</span>
               </div>
-              <div id="example" className={previewWhite ? 'white' : 'checkered'}>
+              <div id="example" className={previewWhite ? 'white' : 'checkered'}
+                style={bgColor ? { background: bgColor } : undefined}>
                 <div className="example-inner" style={{
                   fontFamily: fontCSS, fontSize: psz.fs, lineHeight: psz.lh,
                   fontVariant: smallCaps ? 'small-caps' : undefined,
@@ -569,7 +608,37 @@ export default function LandingPage() {
                       </span>
                     </div>
                   ))}
+                  {/* user-injected test messages (UChat preview Send box) */}
+                  {customMsgs.map((m, i) => (
+                    <div key={`c${i}`} style={{ lineHeight: psz.lh }}>
+                      {!hideNames && (
+                        <span style={{ display:'inline-block' }}>
+                          <span className="ptag">{sourceTag('kick', 'icon')}</span>
+                          <span style={{ fontWeight: 800, color: m.color }}>{m.user}</span>
+                          {!nlAfterName ? <span className="pc">:</span> : <br />}
+                        </span>
+                      )}{' '}
+                      <span>{mentionColor
+                        ? m.msg.split(' ').map((w, wi) => w.startsWith('@')
+                          ? <strong key={wi} style={{ color: '#53fc18' }}>{w} </strong>
+                          : w + ' ')
+                        : m.msg}</span>
+                    </div>
+                  ))}
                 </div>
+              </div>
+              {/* UChat-style test message box */}
+              <div style={{ display:'flex', gap:8, marginTop:8 }}>
+                <input type="text" placeholder="Send a test message… (try @Gxufy)"
+                  value={testInput}
+                  onChange={e => setTestInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); sendTestMsg(); } }}
+                  style={{ flex:1, fontSize:'0.82rem' }} />
+                <button type="button" onClick={sendTestMsg}
+                  style={{ background:'#4a84fa', color:'#fff', border:'none', borderRadius:5,
+                           fontWeight:800, fontSize:'0.8rem', padding:'0 16px', cursor:'pointer' }}>
+                  Send
+                </button>
               </div>
             </div>
           </div>

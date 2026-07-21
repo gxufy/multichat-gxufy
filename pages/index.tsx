@@ -50,6 +50,14 @@ const QuerySchema = z.object({
   }),
   showPinEnabled: z.string().optional().transform(v => v === 'true'),
   showSystemMsgs: z.string().optional().transform(v => v !== 'false'),
+  /* UChat-style colorable mentions: highlight @user in the mentioned
+     user's own name color (needs them to have chatted before) */
+  mentionColor: z.string().optional().transform(v => v === 'true'),
+  /* chat background: 'transparent' (default) or a hex color like 191919 */
+  bgColor: z.string().optional().transform(v =>
+    /^[0-9a-fA-F]{6}$/.test(v ?? '') ? `#${v}` : ''),
+  /* channel-point redeems (kick/twitch highlighted messages) */
+  showRedeems: z.string().optional().transform(v => v !== 'false'),
   /* StreamNook sourceTag: none | dot | label | icon (default icon —
      official brand marks, same art Streamlabs uses) */
   sourceTag: z.string().optional().transform(v =>
@@ -179,6 +187,10 @@ export default function Page() {
       return { background, filter: shadows.join(' ') };
     }
 
+    /* UChat mention coloring: name→color map fills as users chat */
+    const mentionColors = new Map<string, string>();
+    const mentionCtx = { enabled: cfg.mentionColor, colors: mentionColors };
+
     /** UnifiedMessage → ParsedMessage (React nodes + 7TV cosmetics for kick) */
     function buildParsed(um: UnifiedMessage): ParsedMessage {
       const badgeNodes = renderBadges(um, s.channel?.subscriber_badges ?? []);
@@ -198,19 +210,22 @@ export default function Page() {
           }
         }
       }
+      // mention map: remember every chatter's color (lowercase name)
+      const displayColor = um.color ? readableColor(um.color) : fallbackColor(um.platform, um.username, um.senderId);
+      mentionColors.set(um.username.toLowerCase(), displayColor);
       return {
         id: `${um.platform}:${um.id}`,
         platform: um.platform,
         senderId: um.senderId,
         kind: um.kind,
         category: um.category,
+        redeem: um.redeem,
         avatar: um.avatar,
         raw: um,
         timestamp: Date.now(),
         identity: {
           username: um.username,
-          // chatis rule: lighten too-dark user-set colors; hash-assign when unset
-          color: um.color ? readableColor(um.color) : fallbackColor(um.platform, um.username, um.senderId),
+          color: displayColor,
           background,
           filter,
           badges: badgeNodes,
@@ -220,7 +235,8 @@ export default function Page() {
         // kick + twitch both get third-party emote word-swaps in text gaps
         message: renderMessageText(
           um,
-          (um.platform === 'kick' || um.platform === 'twitch') && cfg.sevenTVEmotesEnabled ? s.emotes : []
+          (um.platform === 'kick' || um.platform === 'twitch') && cfg.sevenTVEmotesEnabled ? s.emotes : [],
+          mentionCtx
         ),
       };
     }
@@ -255,6 +271,7 @@ export default function Page() {
       handleCommand(um); // !multichat commands work from any platform
       if (isBot(um.username)) return;
       if (um.kind === 'system' && !cfg.showSystemMsgs) return;
+      if (um.redeem && !cfg.showRedeems) return;
       // queue this chatter for GQL cosmetics (kick/twitch only)
       if (cfg.sevenTVCosmeticsEnabled && (um.platform === 'kick' || um.platform === 'twitch')) {
         cosmeticsFetcher.want(um.platform, um.senderId);
