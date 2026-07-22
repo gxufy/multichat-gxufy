@@ -87,7 +87,7 @@ function getStroke(s: string) {
  * Each batch runs its OWN independent 150ms regardless of how fast chat moves.
  * New batches never interrupt previous batches — they just stack their own ghost divs.
  */
-function SlideGroup({ children, fontSize, lineHeight, fontFamily, smallCaps }: { children: React.ReactNode; fontSize:string; lineHeight:string; fontFamily:string; smallCaps:boolean }) {
+function SlideGroup({ children, fontSize, lineHeight, fontFamily }: { children: React.ReactNode; fontSize:string; lineHeight:string; fontFamily:string }) {
   // Exact chatis jQuery behaviour:
   // 1. $auxDiv appended to #chat_container (hidden), measure height
   // 2. $animDiv inserted (empty), animated 0→naturalH over 150ms swing
@@ -139,8 +139,7 @@ function SlideGroup({ children, fontSize, lineHeight, fontFamily, smallCaps }: {
         fontSize,
         lineHeight,
         fontFamily,
-        ...(smallCaps ? { fontVariant: 'small-caps' } : {}),
-      }}>
+              }}>
         {children}
       </div>
     </>
@@ -156,7 +155,7 @@ function FadeGroup({ children }: { children: React.ReactNode }) {
 export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage, showLoader }: Props) {
   const cfg = config as OverlayConfig & {
     font?:string; stroke?:string; emoteScale?:number;
-    smallCaps?:boolean; nlAfterName?:boolean; hideNames?:boolean;
+    hideNames?:boolean;
   };
 
   const szKey      = (cfg.textSize in SIZE ? cfg.textSize : 'medium') as SzKey;
@@ -215,8 +214,7 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
 
     }}>
       <MsgLine msg={msg} sz={sz} emoteMaxH={emoteMaxH} emoteMaxW={emoteMaxW}
-        stroke={strokeVal} smallCaps={cfg.smallCaps??false}
-        nlAfterName={cfg.nlAfterName??false} hideNames={cfg.hideNames??false}
+        stroke={strokeVal} hideNames={cfg.hideNames??false}
         tagMode={multiPlatform ? (cfg.sourceTag ?? 'icon') : 'none'}
         showAvatar={cfg.showAvatars ?? false} />
     </div>
@@ -337,7 +335,7 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
         <PinBanner
           pinned={pinnedMessage} sz={sz} emoteMaxH={emoteMaxH} emoteMaxW={emoteMaxW}
           fontFamily={fontFamily} filterVal={filterVal} strokeVal={strokeVal}
-          smallCaps={cfg.smallCaps??false} nlAfterName={cfg.nlAfterName??false} hideNames={cfg.hideNames??false}
+          hideNames={cfg.hideNames??false}
         />
       )}
 
@@ -357,18 +355,18 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
         bottom:     0,
         overflow:   'hidden',
         background: 'transparent',
-        color:      'white',
-        fontWeight: 800,
+        color:      (cfg as any).fontColor || 'white',
+        fontWeight: (cfg as any).msgBold === false ? 400 : 800,
+        textTransform: (cfg as any).msgCaps ? 'uppercase' as const : undefined,
         wordBreak:  'break-word',
         fontFamily,
         fontSize:   sz.fontSize,
-        ...(cfg.smallCaps ? { fontVariant:'small-caps' } : {}),
-        ...(filterVal ? { filter:filterVal } : {}),
+                ...(filterVal ? { filter:filterVal } : {}),
         ...(strokeVal ? { WebkitTextStroke:strokeVal } : {}),
       }}>
         {batches.map(({ id, msgs }) => {
           const content = msgs.map(renderMsg);
-          if (cfg.animation==='slide') return <SlideGroup key={id} fontSize={sz.fontSize} lineHeight={sz.lineHeight} fontFamily={fontFamily} smallCaps={cfg.smallCaps??false}>{content}</SlideGroup>;
+          if (cfg.animation==='slide') return <SlideGroup key={id} fontSize={sz.fontSize} lineHeight={sz.lineHeight} fontFamily={fontFamily} >{content}</SlideGroup>;
           if (cfg.animation==='fade')  return <FadeGroup  key={id}>{content}</FadeGroup>;
           return <div key={id}>{content}</div>;
         })}
@@ -381,11 +379,11 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
  * Stays visible while pinned (no auto-hide); after 15s collapses to a
  * thin one-line bar (StreamNook's pinned_start_collapsed pattern).
  * Glassmorphism card with pin header and "Pinned by X" footer. */
-function PinBanner({ pinned, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strokeVal, smallCaps, nlAfterName, hideNames }: {
+function PinBanner({ pinned, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strokeVal, hideNames }: {
   pinned: PinnedState; sz: typeof SIZE[SzKey];
   emoteMaxH:string; emoteMaxW:string; fontFamily:string;
   filterVal:string; strokeVal:string;
-  smallCaps:boolean; nlAfterName:boolean; hideNames:boolean;
+  hideNames:boolean;
 }) {
   const { msg, pinnedBy } = pinned;
   const [collapsed, setCollapsed] = useState(false);
@@ -432,8 +430,7 @@ function PinBanner({ pinned, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, st
         <PinSVG /> <span style={{ fontWeight:700 }}>Pinned Message</span>
       </div>
       <MsgLine msg={msg} sz={sz} emoteMaxH={emoteMaxH} emoteMaxW={emoteMaxW}
-        stroke={strokeVal} smallCaps={smallCaps}
-        nlAfterName={nlAfterName} hideNames={hideNames}
+        stroke={strokeVal} hideNames={hideNames}
         tagMode="icon" showAvatar={false} />
       {pinnedBy && (
         <div style={{ paddingTop:4, opacity:0.5, fontSize:'0.55em', fontWeight:600 }}>
@@ -452,10 +449,10 @@ const CATEGORY_ICON: Record<string, string> = {
   milestone: '🔥', follow: '❤️', announcement: '📣',
 };
 
-function MsgLine({ msg, sz, emoteMaxH, emoteMaxW, stroke, smallCaps, nlAfterName, hideNames, tagMode, showAvatar }: {
+function MsgLine({ msg, sz, emoteMaxH, emoteMaxW, stroke, hideNames, tagMode, showAvatar }: {
   msg: ParsedMessage; sz: typeof SIZE[SzKey];
   emoteMaxH:string; emoteMaxW:string; stroke:string;
-  smallCaps:boolean; nlAfterName:boolean; hideNames:boolean;
+  hideNames:boolean;
   tagMode:SourceTagMode; showAvatar:boolean;
 }) {
   const isPaint = !!msg.identity.background;
@@ -463,13 +460,12 @@ function MsgLine({ msg, sz, emoteMaxH, emoteMaxW, stroke, smallCaps, nlAfterName
   const nameStyle: React.CSSProperties = pill
     ? { background:pill[0], color:pill[1], borderRadius:'0.4em', padding:'0 0.35em',
         WebkitTextStroke:'0px', textShadow:'none',
-        ...(smallCaps?{fontVariant:'small-caps'}:{}) }
-    : isPaint
+        }    : isPaint
     ? { background:msg.identity.background, filter:msg.identity.filter,
         WebkitTextFillColor:'transparent', WebkitBackgroundClip:'text',
         backgroundClip:'text', backgroundSize:'cover',
         WebkitTextStroke:'0px', textShadow:'none' }
-    : { color:msg.identity.color, ...(smallCaps?{fontVariant:'small-caps'}:{}) };
+    : { color:msg.identity.color, };
 
   const tag = msg.platform ? sourceTag(msg.platform, tagMode) : null;
 
@@ -538,7 +534,7 @@ function MsgLine({ msg, sz, emoteMaxH, emoteMaxW, stroke, smallCaps, nlAfterName
           {msg.platform === 'youtube'
             ? <>{nameNode}{badgesNode && <span style={{ marginLeft:'0.25em' }}>{badgesNode}</span>}</>
             : <>{badgesNode}{nameNode}</>}
-          {!nlAfterName ? <span className="ck-colon">:</span> : <br />}
+          <span className="ck-colon">:</span>
         </span>
       )}
       <span className="ck-body">

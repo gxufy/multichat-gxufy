@@ -73,8 +73,26 @@ const QuerySchema = z.object({
   }),
   emoteScale: z.string().optional().transform(v => { const n = parseFloat(v ?? ''); return isNaN(n) ? 1 : n; }),
   fade: z.string().optional().transform(v => { const n = parseInt(v ?? ''); return isNaN(n) ? (false as const) : n; }),
-  smallCaps: z.string().optional().transform(v => v === 'true'),
-  nlAfterName: z.string().optional().transform(v => v === 'true'),
+  /* ── UChat-ported settings ── */
+  msgBold: z.string().optional().transform(v => v !== 'false'),
+  msgCaps: z.string().optional().transform(v => v === 'true'),
+  fontColor: z.string().optional().transform(v =>
+    /^[0-9a-fA-F]{6}$/.test(v ?? '') ? `#${v}` : ''),
+  paintShadows: z.string().optional().transform(v => v !== 'false'),
+  modAction: z.string().optional().transform(v => v !== 'false'),
+  userBL: z.string().optional().transform(v => v ?? ''),
+  prefixBL: z.string().optional().transform(v => v ?? ''),
+  /* per-platform pins: CSV of kick,youtube,tiktok
+   * - absent → default to all three (backward compat)
+   * - present but empty → [] (no pins at all)
+   * - valid names → only those; invalid ignored, duplicates removed */
+  pinPlatforms: z.string().optional().transform(v => {
+    const all = ['kick', 'youtube', 'tiktok'];
+    if (v === undefined) return all;       // param absent → default
+    if (v === '') return [];                // param explicitly empty → none
+    const picked = [...new Set(v.split(',').map(s => s.trim().toLowerCase()).filter(s => all.includes(s)))];
+    return picked.length ? picked : all;    // no valid names → fallback to all
+  }),
   hideNames: z.string().optional().transform(v => v === 'true'),
   botNames: z.string().optional().transform(v => v ?? ''),
   ttsEnabled: z.string().optional().transform(v => v !== 'false'),
@@ -180,6 +198,7 @@ export default function Page() {
         }
       }
       for (const shadow of paint.shadows) {
+        if (!cfg.paintShadows) break; // UChat: paint shadows toggle
         shadows.push(`drop-shadow(${decimalToRGBA(shadow.color)} ${shadow.x_offset}px ${shadow.y_offset}px ${shadow.radius}px)`);
       }
       const background = `${prefix}${paint.func.toLowerCase().replace('_', '-')}(${parts.join(', ')})`;
@@ -250,9 +269,15 @@ export default function Page() {
     const extraBots = new Set(
       (cfg.botNames || '').split(',').flatMap((b: string) => b.trim().split(' ')).filter(Boolean).map((b: string) => b.toLowerCase())
     );
+    // UChat user + prefix blacklists (space-separated)
+    const userBlacklist = new Set((cfg.userBL || '').split(/\s+/).filter(Boolean).map(u => u.toLowerCase()));
+    const prefixBlacklist = (cfg.prefixBL || '').split(/\s+/).filter(Boolean);
     function isBot(username: string) {
       const u = username.toLowerCase();
-      return KNOWN_BOTS.has(u) || extraBots.has(u);
+      return KNOWN_BOTS.has(u) || extraBots.has(u) || userBlacklist.has(u);
+    }
+    function isBlacklistedPrefix(text: string) {
+      return prefixBlacklist.some(p => text.startsWith(p));
     }
 
     /* chatis-exact render loop: messages buffer into s.messages and a
@@ -269,6 +294,7 @@ export default function Page() {
     function addMessage(um: UnifiedMessage) {
       handleCommand(um); // !multichat commands work from any platform
       if (isBot(um.username)) return;
+      if (um.kind === 'chat' && isBlacklistedPrefix(um.text)) return;
       if (um.kind === 'system' && !cfg.showSystemMsgs) return;
       if (um.redeem && !cfg.showRedeems) return;
       // queue this chatter for GQL cosmetics (kick/twitch only)
@@ -281,6 +307,7 @@ export default function Page() {
     }
 
     function removeMessages(platform: string, opts: { id?: string; username?: string; senderId?: string }) {
+      if (!cfg.modAction) return; // UChat: moderation actions can be disabled
       if (opts.id) {
         s.messages = s.messages.filter(m => m.id !== `${platform}:${opts.id}`);
       } else if (opts.senderId) {
@@ -295,6 +322,8 @@ export default function Page() {
 
     function handlePin(pin: UnifiedPin | null) {
       if (!cfg.showPinEnabled) return;
+      // per-platform pin toggle: latest pin from an enabled platform wins
+      if (pin && !cfg.pinPlatforms.includes(pin.message.platform)) return;
       setPinnedMessage(pin ? { msg: buildParsed(pin.message), pinnedBy: pin.pinnedBy } : null);
     }
 

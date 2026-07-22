@@ -27,6 +27,7 @@ const PSZ = {
 type SzKey = keyof typeof PSZ;
 
 // Preview messages — one per platform, real badge art per platform
+const PLATFORM_COLOR: Record<Platform, string> = { twitch: '#9147ff', kick: '#53fc18', youtube: '#ff0000', tiktok: '#00f2ea' };
 const TW_BADGE = (uuid: string) => `https://static-cdn.jtvnw.net/badges/v1/${uuid}/2`;
 const YT_MOD = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3ea6ff"><path d="M12 2 4 5.5V12c0 4.7 3.4 8.6 8 10 4.6-1.4 8-5.3 8-10V5.5Zm5.3 6.1-6.5 6.9-3.6-3.4 1.2-1.3 2.4 2.2 5.3-5.7Z"/></svg>');
 const YT_VERIFIED = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#999999"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.2 14.5-3.9-3.9 1.4-1.4 2.5 2.5 5.9-5.9 1.4 1.4Z"/></svg>');
@@ -35,6 +36,7 @@ const PREV_MSGS: Array<{
   platform: Platform; color: string; paint: string | null; user: string;
   badges: { src: string; alt: string }[];
   msg: string; emotes: { src: string; alt: string }[];
+  event?: string; // renders as an event card (follow/gift/etc) instead of a chat line
 }> = [
   {
     platform: 'kick',
@@ -54,10 +56,10 @@ const PREV_MSGS: Array<{
     color: '#7afcff',
     paint: null,
     user: 'Gxufy',
-    badges: [
-      { src: 'https://p16-webcast.tiktokcdn.com/webcast-sg/new_top_gifter_version_2.png~tplv-obj.image', alt: 'topGifter' },
-    ],
-    msg: 'Pinned by Gxufy: Fan Club Level 12 unlocked — join the club and grab your badge! ',
+    badges: [],
+    // real event-card look, not a plain text line
+    event: 'follow',
+    msg: 'Gxufy followed!',
     emotes: [],
   },
   {
@@ -77,12 +79,12 @@ const PREV_MSGS: Array<{
     platform: 'youtube',
     color: '#00BFFF',
     paint: 'linear-gradient(90deg, #00BFFF, #0080ff, #00BFFF)',
-    user: 'FazeRug',
+    user: 'IShowSpeed',
     badges: [
       { src: YT_VERIFIED, alt: 'verified' },
       { src: YT_MOD, alt: 'moderator' },
     ],
-    msg: "I've been tuning in to your streams. Keep up the good work! ",
+    msg: 'SUUUII 🔥🔥 keep it up bro ',
     emotes: [{ src: 'https://cdn.7tv.app/emote/01GZ2CTDQ000093EMR4AKWQ462/2x.webp', alt: 'lebronArrive' }],
   },
 ];
@@ -114,10 +116,16 @@ export default function LandingPage() {
   const [copiedCounter, setCopiedCounter] = useState(false);
   const [activeTab,   setActiveTab]   = useState<'counter' | 'commands' | 'setup' | null>(null);
   const [emoteScale,  setEmoteScale]  = useState('');
-  const [smallCaps,   setSmallCaps]   = useState(false);
-  const [nlAfterName, setNlAfterName] = useState(false);
+  const [msgBold,     setMsgBold]     = useState(true);
+  const [msgCaps,     setMsgCaps]     = useState(false);
+  const [modAction,   setModAction]   = useState(true);
+  const [paintShadows, setPaintShadows] = useState(true);
+  const [fontColor,   setFontColor]   = useState('');
   const [hideNames,   setHideNames]   = useState(false);
+  const [pinPlats,    setPinPlats]    = useState<Platform[]>(['kick','youtube','tiktok']);
   const [botNames,    setBotNames]    = useState('');
+  const [userBL,      setUserBL]      = useState('');
+  const [prefixBL,    setPrefixBL]    = useState('');
   const [copied,      setCopied]      = useState(false);
   const [previewWhite, setPreviewWhite] = useState(false);
   const [baseUrl,     setBaseUrl]     = useState('https://multichat-gxufy.com');
@@ -140,10 +148,19 @@ export default function LandingPage() {
     ...(mentionColor ? {} : { mentionColor: 'false' }),
     ...(bgColor ? { bgColor: bgColor.replace('#', '') } : {}),
     ...(emoteScale !== '' ? { emoteScale } : {}),
-    smallCaps:   String(smallCaps),
-    nlAfterName: String(nlAfterName),
+    ...(msgBold ? {} : { msgBold: 'false' }),
+    ...(msgCaps ? { msgCaps: 'true' } : {}),
+    ...(modAction ? {} : { modAction: 'false' }),
+    ...(paintShadows ? {} : { paintShadows: 'false' }),
+    ...(fontColor ? { fontColor: fontColor.replace('#', '') } : {}),
+    /* per-platform pins: omit when all three selected (default),
+       encode '' when none selected, encode CSV for subsets */
+    ...(pinPlats.length === 0 ? { pinPlatforms: '' } : {}),
+    ...(pinPlats.length > 0 && pinPlats.length < 3 ? { pinPlatforms: pinPlats.join(',') } : {}),
     hideNames:   String(hideNames),
     ...(botNames.trim() ? { botNames: botNames.trim() } : {}),
+    ...(userBL.trim() ? { userBL: userBL.trim() } : {}),
+    ...(prefixBL.trim() ? { prefixBL: prefixBL.trim() } : {}),
   });
   const overlayUrl = `${baseUrl}/multichat?${params.toString()}`;
 
@@ -492,16 +509,30 @@ export default function LandingPage() {
                 </label>
               </div>
               <div className="toggle-wrap">
-                <label>Small Caps</label>
+                <label><strong>Bold</strong> messages</label>
                 <label className="toggle">
-                  <input type="checkbox" checked={smallCaps} onChange={e => setSmallCaps(e.target.checked)} />
+                  <input type="checkbox" checked={msgBold} onChange={e => setMsgBold(e.target.checked)} />
                   <span className="toggle-slider" />
                 </label>
               </div>
               <div className="toggle-wrap">
-                <label><abbr title="New Line">NL</abbr> after name</label>
+                <label>UPPERCASE messages</label>
                 <label className="toggle">
-                  <input type="checkbox" checked={nlAfterName} onChange={e => setNlAfterName(e.target.checked)} />
+                  <input type="checkbox" checked={msgCaps} onChange={e => setMsgCaps(e.target.checked)} />
+                  <span className="toggle-slider" />
+                </label>
+              </div>
+              <div className="toggle-wrap">
+                <label><abbr title="Deletions, timeouts, bans and clears remove messages from the overlay">Moderation actions</abbr></label>
+                <label className="toggle">
+                  <input type="checkbox" checked={modAction} onChange={e => setModAction(e.target.checked)} />
+                  <span className="toggle-slider" />
+                </label>
+              </div>
+              <div className="toggle-wrap">
+                <label><abbr title="Shadows on 7TV paints — may cost performance">Paint shadows</abbr></label>
+                <label className="toggle">
+                  <input type="checkbox" checked={paintShadows} onChange={e => setPaintShadows(e.target.checked)} />
                   <span className="toggle-slider" />
                 </label>
               </div>
@@ -513,12 +544,30 @@ export default function LandingPage() {
                 </label>
               </div>
               <div className="toggle-wrap">
-                <label>Pinned messages</label>
+                <label><abbr title="Show pinned messages from your platforms (latest pin wins). Twitch pins need login, so they're not supported.">Pinned messages</abbr></label>
                 <label className="toggle">
                   <input type="checkbox" checked={showPin} onChange={e => setShowPin(e.target.checked)} />
                   <span className="toggle-slider" />
                 </label>
               </div>
+              {showPin && (
+                <div style={{ display:'flex', gap:6, justifyContent:'flex-end', margin:'-4px 0 11px', flexWrap:'wrap' }}>
+                  {(['kick','youtube','tiktok'] as const).map(p => {
+                    const on = pinPlats.includes(p);
+                    return (
+                      <button key={p} type="button"
+                        onClick={() => setPinPlats(prev => on ? prev.filter(x => x !== p) : [...prev, p])}
+                        style={{
+                          fontSize:'0.66rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em',
+                          padding:'3px 10px', borderRadius:999, cursor:'pointer',
+                          border: `1px solid ${on ? PLATFORM_COLOR[p] : 'var(--line)'}`,
+                          background: on ? `color-mix(in srgb, ${PLATFORM_COLOR[p]} 15%, transparent)` : 'transparent',
+                          color: on ? PLATFORM_COLOR[p] : 'var(--dim)',
+                        }}>{p}</button>
+                    );
+                  })}
+                </div>
+              )}
               <div className="toggle-wrap">
                 <label>Platform icons</label>
                 <label className="toggle">
@@ -553,6 +602,14 @@ export default function LandingPage() {
                 <input type="text" placeholder="nightbot, streamelements…"
                   style={{ width:'100%', fontSize:'0.78rem' }}
                   value={botNames} onChange={e => setBotNames(e.target.value)} />
+                <p style={{ margin:'10px 0 6px', fontSize:'0.78rem', color:'#555', textAlign:'right' }}>Username blacklist (space-separated)</p>
+                <input type="text" placeholder="spammer1 botuser"
+                  style={{ width:'100%', fontSize:'0.78rem' }}
+                  value={userBL} onChange={e => setUserBL(e.target.value)} />
+                <p style={{ margin:'10px 0 6px', fontSize:'0.78rem', color:'#555', textAlign:'right' }}>Message-prefix blacklist (space-separated)</p>
+                <input type="text" placeholder="https:// scam "
+                  style={{ width:'100%', fontSize:'0.78rem' }}
+                  value={prefixBL} onChange={e => setPrefixBL(e.target.value)} />
               </div>
             </div>
           </div>
@@ -569,7 +626,6 @@ export default function LandingPage() {
                 style={bgColor ? { background: bgColor } : undefined}>
                 <div className="example-inner" style={{
                   fontFamily: fontCSS, fontSize: psz.fs, lineHeight: psz.lh,
-                  fontVariant: smallCaps ? 'small-caps' : undefined,
                   fontWeight: 800,
                   color: 'white',
                   ...(pFilter ? { filter: pFilter } : {}),
@@ -588,7 +644,20 @@ export default function LandingPage() {
                     .pc { margin-right:${psz.cmr}; }
                     .pe { max-height:${psz.eh}; max-width:${psz.ew}; height:auto; width:auto; vertical-align:middle; display:inline-block; margin-right:-3px; }
                   `}</style>
-                  {PREV_MSGS.map((m, i) => (
+                  {PREV_MSGS.map((m, i) => m.event ? (
+                    /* real event-card render — matches the overlay's follow/gift card */
+                    <div key={i} style={{ lineHeight: psz.lh, display:'flex', alignItems:'flex-start', gap:'0.3em' }}>
+                      <span className="ptag">{sourceTag(m.platform, 'icon')}</span>
+                      <div style={{
+                        borderLeft: `2px solid ${PLATFORM_COLOR[m.platform]}`,
+                        background: `linear-gradient(90deg, color-mix(in srgb, ${PLATFORM_COLOR[m.platform]} 20%, transparent), transparent)`,
+                        padding: '0 8px', borderRadius: 6, flex: 1, minWidth: 0,
+                      }}>
+                        <span style={{ marginRight:'0.35em' }}>❤️</span>
+                        <span style={{ fontWeight: 400 }}>{m.msg}</span>
+                      </div>
+                    </div>
+                  ) : (
                     <div key={i} style={{
                       lineHeight: psz.lh,
                     }}>
@@ -607,7 +676,7 @@ export default function LandingPage() {
                               backgroundClip: 'text',
                             } : { color: m.color }),
                           }}>{m.user}</span>
-                          {!nlAfterName ? <span className="pc">:</span> : <br />}
+                          <span className="pc">:</span>
                         </span>
                       )}{' '}
                       <span>
@@ -626,7 +695,7 @@ export default function LandingPage() {
                         <span style={{ display:'inline-block' }}>
                           <span className="ptag">{sourceTag('kick', 'icon')}</span>
                           <span style={{ fontWeight: 800, color: m.color }}>{m.user}</span>
-                          {!nlAfterName ? <span className="pc">:</span> : <br />}
+                          <span className="pc">:</span>
                         </span>
                       )}{' '}
                       <span>{mentionColor

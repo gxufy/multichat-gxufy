@@ -88,28 +88,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   };
   const twitch = q('twitch'), youtube = q('youtube'), tiktok = q('tiktok');
 
-  // ?debug=yt — report what YouTube actually serves this server's IP
-  if (req.query.debug === 'yt' && youtube) {
-    const clean = youtube.replace(/^@/, '');
-    const r = await fetch(`https://www.youtube.com/@${clean}/live`, {
-      headers: { 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9', Cookie: 'SOCS=CAI; CONSENT=YES+cb' },
-      redirect: 'follow',
-    });
-    const html = await r.text();
-    return res.status(200).json({
-      status: r.status,
-      finalUrl: r.url,
-      htmlLen: html.length,
-      title: html.match(/<title>([^<]*)<\/title>/)?.[1] ?? null,
-      canonical: html.match(/<link rel="canonical" href="([^"]+)"/)?.[1] ?? null,
-      ogUrl: html.match(/<meta property="og:url" content="([^"]+)"/)?.[1] ?? null,
-      isLiveNow: /"isLiveNow"\s*:\s*true/.test(html),
-      hasViewCountRuns: /"viewCount":\{"runs"/.test(html),
-      consentPage: /consent\.youtube\.com|before you continue/i.test(html),
-      snippet: html.slice(0, 300),
-    });
-  }
-
   const [tw, yt, tt] = await Promise.all([
     twitch ? cached(`tw:${twitch.toLowerCase()}`, () => twitchViewers(twitch.toLowerCase())) : null,
     youtube ? cached(`yt:${youtube.toLowerCase()}`, () => youtubeViewers(youtube)) : null,
