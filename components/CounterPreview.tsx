@@ -1,8 +1,17 @@
-/* CounterPreview — landing-page live preview of the /counter overlay.
- * Mirrors counter.tsx styling exactly (pill, glass bg, icon boxes,
- * rolling number) but feeds fake per-platform counts that drift every
- * few seconds so the animation is visible. Order matches ORDER in
- * counter.tsx: twitch → youtube → kick → tiktok.
+/* CounterPreview — purely presentational viewer counter preview.
+ *
+ * Accepts pre-fetched viewer data from a parent hook (useViewerCounts)
+ * and renders it in the StreamNook counter-pill style.
+ *
+ * Modes:
+ *   - combined: single pill with all icons + total count
+ *   - per-platform: one pill per live platform
+ *
+ * States rendered:
+ *   - loading (null data): icon + placeholder "—"
+ *   - offline: icon + "0"
+ *   - error: icon + small "err" text
+ *   - live: icon + rolling count
  */
 import { useEffect, useRef, useState } from 'react';
 
@@ -23,8 +32,28 @@ const ICONS: Record<Plat, JSX.Element> = {
   tiktok: <img src="/platform-tiktok.png" alt="TikTok" style={{ height: '100%', width: 'auto' }} />,
 };
 
-/* base fake counts per platform (drift ±3% every tick) */
-const BASE: Record<Plat, number> = { twitch: 12483, youtube: 3921, kick: 8117, tiktok: 1354 };
+export interface ViewerResult {
+  viewers: number;
+  live: boolean;
+  error?: string;
+}
+
+interface Props {
+  combined: boolean;
+  font: string;
+  icons: boolean;
+  bg: boolean;
+  textSize: string;
+  textShadow: string;
+  stroke: string;
+  /* Pre-fetched viewer data — null means still loading. */
+  counts: Record<Plat, ViewerResult | null>;
+  loading: boolean;
+  hasError: boolean;
+  combinedValue: number;
+}
+
+/* ── RollingCount ──────────────────────────────────────────────────────── */
 
 function RollingCount({ value, fontSize }: { value: number; fontSize: number }) {
   const [shown, setShown] = useState(value);
@@ -48,29 +77,29 @@ function RollingCount({ value, fontSize }: { value: number; fontSize: number }) 
   return <span style={{ fontSize, fontVariantNumeric: 'tabular-nums' }}>{shown.toLocaleString()}</span>;
 }
 
-export default function CounterPreview({ combined, font, icons, bg, textSize, textShadow, stroke }: {
-  combined: boolean; font: string; icons: boolean; bg: boolean;
-  textSize: string; textShadow: string; stroke: string;
-}) {
-  const [counts, setCounts] = useState<Record<Plat, number>>({ ...BASE });
+/* ── Loading placeholder ───────────────────────────────────────────────── */
 
-  useEffect(() => {
-    const iv = setInterval(() => {
-      setCounts(prev => {
-        const next = { ...prev };
-        for (const p of ORDER) {
-          const drift = Math.round(BASE[p] * (Math.random() * 0.06 - 0.03));
-          next[p] = Math.max(0, prev[p] + drift);
-        }
-        return next;
-      });
-    }, 2500);
-    return () => clearInterval(iv);
-  }, []);
+function LoadingPlaceholder({ fontSize }: { fontSize: number }) {
+  return (
+    <span style={{
+      fontSize, fontVariantNumeric: 'tabular-nums', opacity: 0.5,
+      display: 'inline-block', width: `${fontSize * 3}px`, textAlign: 'center',
+    }}>
+      —
+    </span>
+  );
+}
 
+/* ── Main component ────────────────────────────────────────────────────── */
+
+export default function CounterPreview({
+  combined, font, icons, bg, textSize, textShadow, stroke,
+  counts, loading, hasError, combinedValue,
+}: Props) {
   const fontFamily = font === 'montserrat' ? "'Montserrat', sans-serif" : "'DejaVu Sans', sans-serif";
   const fontSize = SIZES[(textSize as keyof typeof SIZES)] ?? SIZES.medium;
   const iconSize = Math.round(fontSize * 0.9);
+
   const shadow =
     textShadow === 'small' ? 'drop-shadow(2px 2px 0.2rem black)' :
     textShadow === 'medium' ? 'drop-shadow(2px 2px 0.35rem black)' :
@@ -85,13 +114,23 @@ export default function CounterPreview({ combined, font, icons, bg, textSize, te
     ...(strokeCss ? { WebkitTextStroke: strokeCss } : {}),
   };
 
+  /* Platforms with non-null data (loaded or error). */
+  const activePlats = ORDER.filter(p => counts[p] !== null);
+  const hasData = activePlats.length > 0;
+
   const iconBox = (p: Plat) => (
-    <span key={p} style={{ height: iconSize, width: iconSize, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+    <span key={p} style={{ height: iconSize, width: 'auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
       {ICONS[p]}
     </span>
   );
 
-  const total = ORDER.reduce((n, p) => n + counts[p], 0);
+  const platformCount = (p: Plat) => {
+    const r = counts[p];
+    if (r === null) return <LoadingPlaceholder fontSize={fontSize} />;
+    if (r.error) return <span style={{ fontSize: fontSize * 0.7, color: '#ff6b6b' }}>err</span>;
+    if (!r.live || r.viewers === 0) return <RollingCount value={0} fontSize={fontSize} />;
+    return <RollingCount value={r.viewers} fontSize={fontSize} />;
+  };
 
   return (
     <>
@@ -99,21 +138,36 @@ export default function CounterPreview({ combined, font, icons, bg, textSize, te
         @font-face { font-family: 'Montserrat'; src: url('/fonts/Montserrat-SemiBold.ttf') format('truetype'); font-weight: 700; }
         @font-face { font-family: 'DejaVu Sans'; src: url('/fonts/DejaVuSans-Bold.ttf') format('truetype'); font-weight: 700; }
       `}</style>
-      <div style={{ display: 'flex', gap: Math.round(fontSize * 0.5), flexWrap: 'wrap' }}>
-        {combined ? (
-          <div style={pill}>
-            {icons && ORDER.map(iconBox)}
-            <RollingCount value={total} fontSize={fontSize} />
-          </div>
-        ) : (
-          ORDER.map(p => (
+
+      {!hasData ? (
+        <div style={{
+          fontSize: Math.round(fontSize * 0.8), color: '#888',
+          textAlign: 'center', padding: '8px 0', fontStyle: 'italic',
+        }}>
+          Enter a channel to preview viewer counts
+        </div>
+      ) : combined ? (
+        <div style={pill}>
+          {icons && activePlats.map(iconBox)}
+          {loading ? (
+            <LoadingPlaceholder fontSize={fontSize} />
+          ) : (
+            <RollingCount value={combinedValue} fontSize={fontSize} />
+          )}
+          {hasError && (
+            <span style={{ fontSize: fontSize * 0.55, color: '#ff6b6b', marginLeft: 4 }}>!</span>
+          )}
+        </div>
+      ) : (
+        <div style={{ display: 'flex', gap: Math.round(fontSize * 0.5), flexWrap: 'wrap' }}>
+          {activePlats.map(p => (
             <div key={p} style={pill}>
               {icons && iconBox(p)}
-              <RollingCount value={counts[p]} fontSize={fontSize} />
+              {platformCount(p)}
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </>
   );
 }

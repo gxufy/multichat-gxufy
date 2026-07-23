@@ -1,8 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 import { sourceTag } from '../lib/render';
 import type { Platform } from '../lib/types';
+import type { UnifiedMessage, UnifiedPin } from '../lib/types';
+import type { ParsedMessage } from '../lib/kick';
+import { makePreviewMessage, PreviewMsgLine, PreviewPinBanner } from '../lib/previewRenderer';
 import CounterPreview from './CounterPreview';
+import { useViewerCounts } from '../lib/useViewerCounts';
+import TestMessageSimulator from './TestMessageSimulator';
+import type { PinnedState } from './ChatOverlay';
+import { filterMessage, FilterResult, allowModAction, makeMentionCtx, registerChatter, type SimMentionCtx } from '../lib/previewFilters';
 
 const FONTS: [string, string, string][] = [
   ['baloo',       'Baloo Tammudu',          "'Baloo Tammudu 2', cursive"],
@@ -19,75 +27,71 @@ const FONTS: [string, string, string][] = [
   ['alsina',      'Alsina (Vsauce)',         "Alsina, cursive"],
 ];
 
+/* FONT_FAMILIES map — same shape as ChatOverlay's for the preview. */
+const FONT_FAMILIES: Record<string, string> = {
+  default:    'inherit',
+  baloo:      "'Baloo Tammudu 2', cursive",
+  segoe:      "'Segoe UI', sans-serif",
+  roboto:     "'Roboto', sans-serif",
+  lato:       "'Lato', sans-serif",
+  noto:       "'Noto Sans JP', sans-serif",
+  sourcecode: "'Source Code Pro', monospace",
+  impact:     "'Impact', sans-serif",
+  comfortaa:  "'Comfortaa', cursive",
+  dancing:    "'Dancing Script', cursive",
+  indieflower:"'Indie Flower', cursive",
+  opensans:   "'Open Sans', sans-serif",
+  alsina:     "Alsina, cursive",
+};
+
 const PSZ = {
   small:  { fs:'20px', lh:'30px', bh:'16px', bw:'16px', bmr:'2px', bmb:'3px', blmr:'3px', cmr:'8px',  eh:'25px', ew:'75px'  },
   medium: { fs:'34px', lh:'55px', bh:'28px', bw:'28px', bmr:'4px', bmb:'6px', blmr:'6px', cmr:'14px', eh:'42px', ew:'128px' },
   large:  { fs:'48px', lh:'75px', bh:'40px', bw:'40px', bmr:'5px', bmb:'8px', blmr:'8px', cmr:'20px', eh:'60px', ew:'180px' },
 } as const;
+
+/* Map PSZ to PreviewMsgLine's sz type. */
+function toPreviewSz(psz: (typeof PSZ)[SzKey]) {
+  return {
+    fontSize: psz.fs, lineHeight: psz.lh,
+    badgeW: psz.bw, badgeH: psz.bh, badgeMR: psz.bmr, badgeMB: psz.bmb, badgeLastMR: psz.blmr,
+    colonMR: psz.cmr,
+    emoteMaxW: psz.ew, emoteMaxH: psz.eh,
+    upscaleH: psz.eh,
+  };
+}
 type SzKey = keyof typeof PSZ;
 
 // Preview messages — one per platform, real badge art per platform
 const PLATFORM_COLOR: Record<Platform, string> = { twitch: '#9147ff', kick: '#53fc18', youtube: '#ff0000', tiktok: '#00f2ea' };
+const PLATFORM_NAMES: Platform[] = ['kick', 'twitch', 'youtube', 'tiktok'];
 const TW_BADGE = (uuid: string) => `https://static-cdn.jtvnw.net/badges/v1/${uuid}/2`;
 const YT_MOD = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3ea6ff"><path d="M12 2 4 5.5V12c0 4.7 3.4 8.6 8 10 4.6-1.4 8-5.3 8-10V5.5Zm5.3 6.1-6.5 6.9-3.6-3.4 1.2-1.3 2.4 2.2 5.3-5.7Z"/></svg>');
 const YT_VERIFIED = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#999999"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.2 14.5-3.9-3.9 1.4-1.4 2.5 2.5 5.9-5.9 1.4 1.4Z"/></svg>');
 
-const PREV_MSGS: Array<{
-  platform: Platform; color: string; paint: string | null; user: string;
-  badges: { src: string; alt: string }[];
-  msg: string; emotes: { src: string; alt: string }[];
-  event?: string; // renders as an event card (follow/gift/etc) instead of a chat line
-}> = [
-  {
-    platform: 'kick',
-    color: '#FF4B6E',
-    paint: 'linear-gradient(135deg, #FF4B6E, #ff8c69)',
-    user: 'AdinRoss',
-    badges: [
-      { src: '/badges/gift_200-249.svg', alt: 'subGifter200' },
-      { src: '/badges/og.svg', alt: 'og' },
-      { src: '/badges/verified.svg', alt: 'verified' },
-    ],
-    msg: "Don't forget to go to brandriskpromotions.com! ",
-    emotes: [{ src: 'https://cdn.7tv.app/emote/01GNQNADZG0008EC7XVFGMTRNY/2x.webp', alt: 'LOL' }],
-  },
-  {
-    platform: 'tiktok',
-    color: '#7afcff',
-    paint: null,
-    user: 'Gxufy',
+/* Static preview messages — built once at module load via makePreviewMessage
+   so the preview renders through the exact same code path as real messages. */
+const PREVIEW_MSGS: ParsedMessage[] = (() => {
+  const configs: Array<{ platform: Platform; username: string; color: string; text: string; kind?: 'chat' | 'system'; category?: string }> = [
+    { platform: 'kick',    username: 'AdinRoss',  color: '#FF4B6E', text: "Don't forget to go to brandriskpromotions.com! " },
+    { platform: 'tiktok',  username: 'Gxufy',     color: '#7afcff', text: 'followed!', kind: 'system', category: 'follow' },
+    { platform: 'twitch',  username: 'KaiCenat',  color: '#D399FF', text: "You've been invited to Streamer's University 2027! " },
+    { platform: 'youtube', username: 'IShowSpeed', color: '#00BFFF', text: 'SUUUII 🔥🔥 keep it up bro ' },
+  ];
+  return configs.map((c, i) => makePreviewMessage({
+    platform: c.platform,
+    id: `preview-${i}`,
+    senderId: `preview-${i}`,
+    username: c.username,
+    color: c.color,
     badges: [],
-    // real event-card look, not a plain text line
-    event: 'follow',
-    msg: 'Gxufy followed!',
+    text: c.text,
     emotes: [],
-  },
-  {
-    platform: 'twitch',
-    color: '#D399FF',
-    paint: 'linear-gradient(135deg, #D399FF, #7c3aed, #D399FF)',
-    user: 'KaiCenat',
-    badges: [
-      { src: TW_BADGE('5527c58c-fb7d-422d-b71b-f309dcb85cc1'), alt: 'broadcaster' },
-      { src: TW_BADGE('5d9f2208-5dd8-11e7-8513-2ff4adfae661'), alt: 'subscriber' },
-      { src: TW_BADGE('d12a2e27-16f6-41d0-ab77-b780518f00a3'), alt: 'partner' },
-    ],
-    msg: "You've been invited to Streamer's University 2027! ",
-    emotes: [{ src: 'https://cdn.7tv.app/emote/01K7QZQ23KNR9E6ERTDEE3E9GQ/4x.avif', alt: 'invited' }],
-  },
-  {
-    platform: 'youtube',
-    color: '#00BFFF',
-    paint: 'linear-gradient(90deg, #00BFFF, #0080ff, #00BFFF)',
-    user: 'IShowSpeed',
-    badges: [
-      { src: YT_VERIFIED, alt: 'verified' },
-      { src: YT_MOD, alt: 'moderator' },
-    ],
-    msg: 'SUUUII 🔥🔥 keep it up bro ',
-    emotes: [{ src: 'https://cdn.7tv.app/emote/01GZ2CTDQ000093EMR4AKWQ462/2x.webp', alt: 'lebronArrive' }],
-  },
-];
+    timestamp: Date.now(),
+    kind: c.kind ?? 'chat',
+    category: c.category as any,
+  }));
+})();
 
 export default function LandingPage() {
   const [channel,     setChannel]     = useState('');
@@ -109,12 +113,13 @@ export default function LandingPage() {
   const [bgColor,     setBgColor]     = useState('');      // '' = transparent
   const [customMsgs,  setCustomMsgs]  = useState<Array<{ user: string; color: string; msg: string }>>([]);
   const [testInput,   setTestInput]   = useState('');
+  const [previewMessages, setPreviewMessages] = useState<ParsedMessage[]>([]);
   const [vcCombined,  setVcCombined]  = useState('true');
   const [vcFont,      setVcFont]      = useState('dejavu');
   const [vcIcons,     setVcIcons]     = useState('true');
   const [vcBg,        setVcBg]        = useState('true');
   const [copiedCounter, setCopiedCounter] = useState(false);
-  const [activeTab,   setActiveTab]   = useState<'counter' | 'commands' | 'setup' | null>(null);
+  const [activeTab,   setActiveTab]   = useState<'counter' | 'commands' | 'simulator' | 'setup' | null>(null);
   const [emoteScale,  setEmoteScale]  = useState('');
   const [msgBold,     setMsgBold]     = useState(true);
   const [msgCaps,     setMsgCaps]     = useState(false);
@@ -122,7 +127,7 @@ export default function LandingPage() {
   const [paintShadows, setPaintShadows] = useState(true);
   const [fontColor,   setFontColor]   = useState('');
   const [hideNames,   setHideNames]   = useState(false);
-  const [pinPlats,    setPinPlats]    = useState<Platform[]>(['kick','youtube','tiktok']);
+  const [pinPlats,    setPinPlats]    = useState<Platform[]>(['kick','twitch','youtube','tiktok']);
   const [botNames,    setBotNames]    = useState('');
   const [userBL,      setUserBL]      = useState('');
   const [prefixBL,    setPrefixBL]    = useState('');
@@ -130,7 +135,25 @@ export default function LandingPage() {
   const [previewWhite, setPreviewWhite] = useState(false);
   const [baseUrl,     setBaseUrl]     = useState('https://multichat-gxufy.com');
 
+  /* Mention tracking — mirrors production MentionContext (username → color).
+   * Used by makePreviewMessage to colour @mentions in simulator messages. */
+  const mentionCtxRef = useRef<SimMentionCtx>(makeMentionCtx(true));
+
+  /* Toast shown when a simulator message is filtered out by blacklist/bot rules. */
+  const [filterToast, setFilterToast] = useState<string | null>(null);
+
+  /* Preview pin state (for simulator pin events). */
+  const [pinnedPreview, setPinnedPreview] = useState<PinnedState | null>(null);
+
   useEffect(() => { setBaseUrl(window.location.origin); }, []);
+
+  /* Shared viewer counts — fetched once, shared by all CounterPreview instances. */
+  const viewerCounts = useViewerCounts({
+    kick: channel.trim(),
+    twitch: twitch.trim().replace(/^@/, ''),
+    youtube: youtube.trim().replace(/^@/, ''),
+    tiktok: tiktok.trim().replace(/^@/, ''),
+  });
 
   const params = new URLSearchParams({
     ...(channel.trim() ? { kick: channel.trim() } : {}),
@@ -153,10 +176,10 @@ export default function LandingPage() {
     ...(modAction ? {} : { modAction: 'false' }),
     ...(paintShadows ? {} : { paintShadows: 'false' }),
     ...(fontColor ? { fontColor: fontColor.replace('#', '') } : {}),
-    /* per-platform pins: omit when all three selected (default),
+    /* per-platform pins: omit when all four selected (default),
        encode '' when none selected, encode CSV for subsets */
     ...(pinPlats.length === 0 ? { pinPlatforms: '' } : {}),
-    ...(pinPlats.length > 0 && pinPlats.length < 3 ? { pinPlatforms: pinPlats.join(',') } : {}),
+    ...(pinPlats.length > 0 && pinPlats.length < 4 ? { pinPlatforms: pinPlats.join(',') } : {}),
     hideNames:   String(hideNames),
     ...(botNames.trim() ? { botNames: botNames.trim() } : {}),
     ...(userBL.trim() ? { userBL: userBL.trim() } : {}),
@@ -215,11 +238,17 @@ export default function LandingPage() {
   const badgeSize = parseInt(psz.bw);
   const emoteSize = parseInt(psz.eh);
 
+  /* emoteScale — float multiplier applied to the preview emote CSS and to
+   * the emoteMaxH / emoteMaxW props passed to PreviewMsgLine. */
+  const emoteScaleNum = emoteScale ? parseFloat(emoteScale) || 1 : 1;
+  const emoteH = `${Math.round(emoteSize * emoteScaleNum)}px`;
+  const emoteW = `${Math.round(parseInt(psz.ew) * emoteScaleNum)}px`;
+
   return (
     <>
       <Head>
         <title>multichat-gxufy | Kick · Twitch · YouTube · TikTok Chat Overlay</title>
-        <meta name="description" content="Free multi-platform chat overlay for OBS by gxufy — Kick, Twitch, YouTube & TikTok in one browser source. 7TV/BTTV/FFZ emotes, real badges, name-paints, pins. No login required." />
+        <meta name="description" content="Free multi-platform chat overlay for OBS by gxufy — Kick, Twitch, YouTube & TikTok in one browser source. 7TV/BTTV/FFZ emotes, real badges, name-paints, simulated pins. No login required." />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet" />
@@ -249,7 +278,23 @@ export default function LandingPage() {
         html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Montserrat', 'Noto Sans JP', system-ui, sans-serif; font-size: 16px; }
         body { background-image: radial-gradient(ellipse 900px 420px at 50% -80px, rgba(74,132,250,0.09), transparent); }
         a { color: var(--accent); text-decoration: none; transition: opacity .2s; } a:hover { color: var(--accent-2); opacity: .85; }
-        .page { max-width: 900px; margin: 0 auto; padding: 0 20px 60px; }
+        .page { max-width: 1400px; margin: 0 auto; padding: 0 20px 60px; }
+
+        /* Three-column grid — desktop */
+        .gen-grid { display: grid; grid-template-columns: 260px 1fr 260px; gap: 16px; }
+        .gen-col { display: flex; flex-direction: column; gap: 16px; }
+        .gen-col.center { min-width: 0; }
+        /* Left/Right column scroll on tall screens */
+        .gen-col.scrollable { max-height: calc(100vh - 200px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+        /* Tablet — collapse to single column, hide sidebars (tabs below handle content) */
+        @media (max-width: 1099px) {
+          .gen-grid { grid-template-columns: 1fr; max-width: 600px; margin: 0 auto; }
+          .gen-col.scrollable { display: none; }
+        }
+        /* Mobile */
+        @media (max-width: 720px) {
+          .gen-grid { grid-template-columns: 1fr; max-width: 100%; }
+        }
 
         /* Header — compact horizontal strip, no giant hero */
         header.header-strip { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 20px; padding: 10px 0 16px; margin-bottom: 18px; position: relative; }
@@ -263,8 +308,9 @@ export default function LandingPage() {
         .platform-chip { font-size: 0.64rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; padding: 2px 10px; border-radius: 999px; background: rgba(255,255,255,0.03); }
 
         /* Tab bar — extras collapse behind buttons, page stays short */
-        .tab-bar { display: flex; gap: 10px; margin-bottom: 18px; }
-        .tab-btn { flex: 1; background: var(--card); border: 1px solid var(--line); border-radius: 12px; color: var(--muted); font-family: inherit; font-size: 0.88rem; font-weight: 700; padding: 13px 10px; cursor: pointer; transition: all .15s; box-shadow: var(--shadow); }
+        .tab-bar { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+        .tab-btn { flex: 1 1 calc(50% - 5px); min-width: 120px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; color: var(--muted); font-family: inherit; font-size: 0.88rem; font-weight: 700; padding: 13px 10px; cursor: pointer; transition: all .15s; box-shadow: var(--shadow); }
+        @media (max-width: 480px) { .tab-btn { flex: 1 1 100%; } }
         .tab-btn:hover { border-color: rgba(74,132,250,.5); color: var(--text); transform: translateY(-1px); }
         .tab-btn.on { background: rgba(74,132,250,.12); border-color: var(--accent); color: var(--accent); }
 
@@ -380,7 +426,9 @@ export default function LandingPage() {
 
         {/* Header — compact strip: logo left, title + chips inline */}
         <header className="header-strip">
-          <img src="/tpl.webp" alt="multichat" className="header-logo" />
+          <Link href="/">
+            <img src="/tpl.webp" alt="multichat" className="header-logo" style={{ cursor: 'pointer' }} />
+          </Link>
           <div className="header-copy">
             <h1 className="header-title">multichat-gxufy</h1>
             <p className="header-sub">Every chat. One overlay. No login.</p>
@@ -393,356 +441,477 @@ export default function LandingPage() {
           </div>
         </header>
 
-        {/* Generator form — first thing, no scroll needed */}
-        <form name="generator" onSubmit={e => { e.preventDefault(); copy(); }}>
+        {/* Three-column grid: Commands + Simulator | Generator | Counter */}
+        <div className="gen-grid">
 
-          <div className="form_row center platform-inputs">
-            <div className="platform-input">
-              <span className="platform-tag kick-tag">Kick</span>
-              <input type="text" name="channel" placeholder="Channel name"
-                value={channel} onChange={e => setChannel(e.target.value)} />
+          {/* ── LEFT COLUMN: Commands + Test Simulator ── */}
+          <div className="gen-col scrollable">
+
+            {/* Commands table */}
+            <div className="commands-section">
+              <table className="cmd-table">
+                <thead><tr><th>Command</th><th>Description</th><th>Access</th></tr></thead>
+                <tbody>
+                  <tr><td>!multichat ping</td><td>Pong! notification on screen</td><td className="cmd-access">Mod+</td></tr>
+                  <tr><td>!multichat reload</td><td>Reloads the browser source</td><td className="cmd-access">Mod+</td></tr>
+                  <tr><td>!multichat stop</td><td>Clears all active overlays</td><td className="cmd-access">Mod+</td></tr>
+                  <tr><td>!multichat show / hide</td><td>Shows or hides the chat</td><td className="cmd-access">Mod+</td></tr>
+                  <tr><td>!multichat refresh emotes</td><td>Reloads 7TV/BTTV/FFZ emotes live</td><td className="cmd-access">Mod+</td></tr>
+                  <tr><td>!multichat img [url/emote]</td><td>Fullscreen image or emote. <code style={{color:'#4a84fa'}}>img clear</code> dismisses</td><td className="cmd-access">Mod+</td></tr>
+                  <tr><td>!multichat yt [url/preset]</td><td>Fullscreen video. Presets: bruh, vine-boom</td><td className="cmd-access">Mod+</td></tr>
+                  <tr><td>!multichat tts [msg]</td><td>Text-to-speech in OBS</td><td className="cmd-access">Mod+</td></tr>
+                </tbody>
+              </table>
+              <p style={{ color:'#555', fontSize:'0.72rem', margin:'8px 0 0' }}>From any connected platform&rsquo;s chat. <code style={{color:'#4a84fa'}}>!kickchat</code> alias too.</p>
             </div>
-            <div className="platform-input">
-              <span className="platform-tag tw-tag">Twitch</span>
-              <input type="text" name="twitch" placeholder="Channel name"
-                value={twitch} onChange={e => setTwitch(e.target.value)} />
-            </div>
-            <div className="platform-input">
-              <span className="platform-tag yt-tag">YouTube</span>
-              <input type="text" name="youtube" placeholder="@handle"
-                value={youtube} onChange={e => setYoutube(e.target.value)} />
-            </div>
-            <div className="platform-input">
-              <span className="platform-tag tt-tag">TikTok</span>
-              <input type="text" name="tiktok" placeholder="@username"
-                value={tiktok} onChange={e => setTiktok(e.target.value)} />
+
+            {/* Test message simulator */}
+            <div className="commands-section" style={{ paddingBottom: 16 }}>
+              <div className="section-title">Test Messages</div>
+              <TestMessageSimulator
+                onMessage={(um: UnifiedMessage) => {
+                  /* Filter through production rules before displaying. */
+                  const decision = filterMessage(um, { botNames, userBL, prefixBL, showSystemMsgs: true, showRedeems: true, modAction });
+                  if (decision.result !== FilterResult.Pass) {
+                    setFilterToast(`${decision.result === FilterResult.UserBlocked ? 'Blocked: ' : ''}${decision.username ?? decision.result}`);
+                    setTimeout(() => setFilterToast(null), 2500);
+                    return;
+                  }
+                  /* Register chatter for @mention coloring. */
+                  registerChatter(mentionCtxRef.current, um.username, um.color);
+                  const parsed = makePreviewMessage(um, {
+                    sevenTVCosmeticsEnabled: sevenTVC,
+                    paintShadows,
+                    emotes: [],
+                    mentionCtx: mentionCtxRef.current,
+                  });
+                  setPreviewMessages(prev => [...prev.slice(-15), parsed]);
+                }}
+                onPin={(pin: UnifiedPin | null) => {
+                  if (pin) {
+                    setPinnedPreview({
+                      msg: makePreviewMessage(pin.message, { sevenTVCosmeticsEnabled: sevenTVC, paintShadows }),
+                      pinnedBy: pin.pinnedBy,
+                      phase: 'entering',
+                    });
+                  } else {
+                    setPinnedPreview(null);
+                  }
+                }}
+                onDelete={(opts) => {
+                  if (!allowModAction({ modAction })) {
+                    setFilterToast('Mod actions blocked (modAction = false)');
+                    setTimeout(() => setFilterToast(null), 2500);
+                    return;
+                  }
+                  if (opts.username) {
+                    setPreviewMessages(prev => prev.filter(m => m.identity.username !== opts.username));
+                  } else {
+                    setPreviewMessages([]);
+                  }
+                }}
+                onFilter={(msg) => {
+                  setFilterToast(msg);
+                  setTimeout(() => setFilterToast(null), 2500);
+                }}
+                modActionAllowed={modAction}
+                isWhite={previewWhite}
+              />
             </div>
           </div>
-          <p style={{ textAlign:'center', color:'#666', fontSize:'0.78rem', margin:'-6px 0 16px' }}>
-            Fill in any one — or combine platforms into a single overlay. No login needed.
-          </p>
 
-          <div className="form_table">
-            {/* Left — selects */}
-            <div className="form_col">
-              <div className="form_row left">
-                <select value={textSize} onChange={e => setTextSize(e.target.value)}>
-                  <option value="small">Small</option>
-                  <option value="medium">Medium</option>
-                  <option value="large">Large</option>
-                </select>
-                <label>Size</label>
-              </div>
-              <div className="form_row left">
-                <select value={font} onChange={e => setFont(e.target.value)} style={{ fontFamily: fontCSS }}>
-                  {FONTS.map(([v, label, css]) => (
-                    <option key={v} value={v} style={{ fontFamily: css }}>{label}</option>
-                  ))}
-                </select>
-                <label>Font</label>
-              </div>
-              <div className="form_row left">
-                <select value={stroke} onChange={e => setStroke(e.target.value)}>
-                  <option value="none">Off</option>
-                  <option value="thin">Thin</option>
-                  <option value="medium">Medium</option>
-                  <option value="thick">Thick</option>
-                  <option value="thicker">Thicker</option>
-                </select>
-                <label>Stroke</label>
-              </div>
-              <div className="form_row left">
-                <select value={textShadow} onChange={e => setTextShadow(e.target.value)}>
-                  <option value="none">Off</option>
-                  <option value="small">Small</option>
-                  <option value="medium">Medium</option>
-                  <option value="large">Large</option>
-                </select>
-                <label>Shadow</label>
-              </div>
-              <div className="form_row left">
-                <select value={animation} onChange={e => setAnimation(e.target.value)}>
-                  <option value="none">None</option>
-                  <option value="slide">Slide</option>
-                  <option value="fade">Fade in</option>
-                </select>
-                <label>Animation</label>
-              </div>
-              <div className="form_row left">
-                <input type="text" placeholder="1.0" style={{ width: 80 }}
-                  value={emoteScale} onChange={e => setEmoteScale(e.target.value)} />
-                <label>Emote scale (0–3)</label>
-              </div>
-            </div>
+          {/* ── CENTER COLUMN: Generator Form ── */}
+          <div className="gen-col center">
 
-            {/* Right — toggles */}
-            <div className="form_col">
-              <div className="toggle-wrap">
-                <label>7TV Emotes</label>
-                <label className="toggle">
-                  <input type="checkbox" checked={sevenTVE} onChange={e => setSevenTVE(e.target.checked)} />
-                  <span className="toggle-slider" />
-                </label>
-              </div>
-              <div className="toggle-wrap">
-                <label>7TV Cosmetics</label>
-                <label className="toggle">
-                  <input type="checkbox" checked={sevenTVC} onChange={e => setSevenTVC(e.target.checked)} />
-                  <span className="toggle-slider" />
-                </label>
-              </div>
-              <div className="toggle-wrap">
-                <label style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', gap:6, flex:1 }}>
-                  Fade old messages
-                  {fadeBool && (
-                    <span style={{ display:'inline-flex', alignItems:'center', gap:4 }}>
-                      <input type="text" value={fade} className="short"
-                        onChange={e => setFade(e.target.value)} style={{ width:46 }} />
-                      <span style={{ fontSize:'0.78rem', color:'#555' }}>sec</span>
-                    </span>
-                  )}
-                </label>
-                <label className="toggle">
-                  <input type="checkbox" checked={fadeBool}
-                    onChange={e => { setFadeBool(e.target.checked); if (e.target.checked && !fade) setFade('30'); }} />
-                  <span className="toggle-slider" />
-                </label>
-              </div>
-              <div className="toggle-wrap">
-                <label><strong>Bold</strong> messages</label>
-                <label className="toggle">
-                  <input type="checkbox" checked={msgBold} onChange={e => setMsgBold(e.target.checked)} />
-                  <span className="toggle-slider" />
-                </label>
-              </div>
-              <div className="toggle-wrap">
-                <label>UPPERCASE messages</label>
-                <label className="toggle">
-                  <input type="checkbox" checked={msgCaps} onChange={e => setMsgCaps(e.target.checked)} />
-                  <span className="toggle-slider" />
-                </label>
-              </div>
-              <div className="toggle-wrap">
-                <label><abbr title="Deletions, timeouts, bans and clears remove messages from the overlay">Moderation actions</abbr></label>
-                <label className="toggle">
-                  <input type="checkbox" checked={modAction} onChange={e => setModAction(e.target.checked)} />
-                  <span className="toggle-slider" />
-                </label>
-              </div>
-              <div className="toggle-wrap">
-                <label><abbr title="Shadows on 7TV paints — may cost performance">Paint shadows</abbr></label>
-                <label className="toggle">
-                  <input type="checkbox" checked={paintShadows} onChange={e => setPaintShadows(e.target.checked)} />
-                  <span className="toggle-slider" />
-                </label>
-              </div>
-              <div className="toggle-wrap">
-                <label>Hide usernames</label>
-                <label className="toggle">
-                  <input type="checkbox" checked={hideNames} onChange={e => setHideNames(e.target.checked)} />
-                  <span className="toggle-slider" />
-                </label>
-              </div>
-              <div className="toggle-wrap">
-                <label><abbr title="Show pinned messages from your platforms (latest pin wins). Twitch pins need login, so they're not supported.">Pinned messages</abbr></label>
-                <label className="toggle">
-                  <input type="checkbox" checked={showPin} onChange={e => setShowPin(e.target.checked)} />
-                  <span className="toggle-slider" />
-                </label>
-              </div>
-              {showPin && (
-                <div style={{ display:'flex', gap:6, justifyContent:'flex-end', margin:'-4px 0 11px', flexWrap:'wrap' }}>
-                  {(['kick','youtube','tiktok'] as const).map(p => {
-                    const on = pinPlats.includes(p);
-                    return (
-                      <button key={p} type="button"
-                        onClick={() => setPinPlats(prev => on ? prev.filter(x => x !== p) : [...prev, p])}
-                        style={{
-                          fontSize:'0.66rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em',
-                          padding:'3px 10px', borderRadius:999, cursor:'pointer',
-                          border: `1px solid ${on ? PLATFORM_COLOR[p] : 'var(--line)'}`,
-                          background: on ? `color-mix(in srgb, ${PLATFORM_COLOR[p]} 15%, transparent)` : 'transparent',
-                          color: on ? PLATFORM_COLOR[p] : 'var(--dim)',
-                        }}>{p}</button>
-                    );
-                  })}
+            {/* Generator form */}
+            <form name="generator" onSubmit={e => { e.preventDefault(); copy(); }}>
+
+              <div className="form_row center platform-inputs">
+                <div className="platform-input">
+                  <span className="platform-tag kick-tag">Kick</span>
+                  <input type="text" name="channel" placeholder="Channel name"
+                    value={channel} onChange={e => setChannel(e.target.value)} />
                 </div>
-              )}
-              <div className="toggle-wrap">
-                <label>Platform icons</label>
-                <label className="toggle">
-                  <input type="checkbox" checked={platformIcons} onChange={e => setPlatformIcons(e.target.checked)} />
-                  <span className="toggle-slider" />
-                </label>
+                <div className="platform-input">
+                  <span className="platform-tag tw-tag">Twitch</span>
+                  <input type="text" name="twitch" placeholder="Channel name"
+                    value={twitch} onChange={e => setTwitch(e.target.value)} />
+                </div>
+                <div className="platform-input">
+                  <span className="platform-tag yt-tag">YouTube</span>
+                  <input type="text" name="youtube" placeholder="@handle"
+                    value={youtube} onChange={e => setYoutube(e.target.value)} />
+                </div>
+                <div className="platform-input">
+                  <span className="platform-tag tt-tag">TikTok</span>
+                  <input type="text" name="tiktok" placeholder="@username"
+                    value={tiktok} onChange={e => setTiktok(e.target.value)} />
+                </div>
               </div>
-              <div className="toggle-wrap">
-                <label><abbr title="Highlight @mentions in the mentioned user's name color (they must have chatted before)">Colored mentions</abbr></label>
-                <label className="toggle">
-                  <input type="checkbox" checked={mentionColor} onChange={e => setMentionColor(e.target.checked)} />
-                  <span className="toggle-slider" />
-                </label>
-              </div>
-              <div className="toggle-wrap">
-                <label><abbr title="Chat background color. Transparent is the default — pick a color only if you don't want a see-through overlay">Background</abbr></label>
-                <span style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
-                  <button type="button"
-                    onClick={() => setBgColor('')}
-                    style={{
-                      fontSize:'0.72rem', padding:'2px 8px', borderRadius:4, cursor:'pointer',
-                      border: bgColor === '' ? '1px solid #4a84fa' : '1px solid #3a3a3a',
-                      background:'#2e2e2e', color: bgColor === '' ? '#4a84fa' : '#888',
-                    }}>Transparent</button>
-                  <input type="color" value={bgColor || '#191919'}
-                    onChange={e => setBgColor(e.target.value)}
-                    style={{ width:28, height:22, padding:0, border:'1px solid #3a3a3a', borderRadius:4, background:'none', cursor:'pointer' }} />
-                </span>
-              </div>
-              <div style={{ borderTop:'1px solid #2a2a2a', marginTop:8, paddingTop:10 }}>
-                <p style={{ margin:'0 0 6px', fontSize:'0.78rem', color:'#555', textAlign:'right' }}>Extra bots to hide (comma-separated)</p>
-                <input type="text" placeholder="nightbot, streamelements…"
-                  style={{ width:'100%', fontSize:'0.78rem' }}
-                  value={botNames} onChange={e => setBotNames(e.target.value)} />
-                <p style={{ margin:'10px 0 6px', fontSize:'0.78rem', color:'#555', textAlign:'right' }}>Username blacklist (space-separated)</p>
-                <input type="text" placeholder="spammer1 botuser"
-                  style={{ width:'100%', fontSize:'0.78rem' }}
-                  value={userBL} onChange={e => setUserBL(e.target.value)} />
-                <p style={{ margin:'10px 0 6px', fontSize:'0.78rem', color:'#555', textAlign:'right' }}>Message-prefix blacklist (space-separated)</p>
-                <input type="text" placeholder="https:// scam "
-                  style={{ width:'100%', fontSize:'0.78rem' }}
-                  value={prefixBL} onChange={e => setPrefixBL(e.target.value)} />
-              </div>
-            </div>
-          </div>
+              <p style={{ textAlign:'center', color:'#666', fontSize:'0.78rem', margin:'-6px 0 16px' }}>
+                Fill in any one — or combine platforms into a single overlay. No login needed.
+              </p>
 
-          {/* Preview + Generate */}
-          <div id="submit_container">
-            <div className="preview-wrap">
-              <div className="preview-label">
-                <span>click 👉 </span>
-                <button type="button" onClick={() => setPreviewWhite(p => !p)} title="Toggle background">⚙️</button>
-                <span>Preview:</span>
-              </div>
-              <div id="example" className={previewWhite ? 'white' : 'checkered'}
-                style={bgColor ? { background: bgColor } : undefined}>
-                <div className="example-inner" style={{
-                  fontFamily: fontCSS, fontSize: psz.fs, lineHeight: psz.lh,
-                  fontWeight: 800,
-                  color: 'white',
-                  ...(pFilter ? { filter: pFilter } : {}),
-                  ...(pStroke ? { WebkitTextStroke: pStroke } : {}),
-                }}>
-                  <style>{`
-                    .pb { width:${psz.bw}!important; height:${psz.bh}!important; min-width:${psz.bw}; min-height:${psz.bh}; max-width:${psz.bw}; max-height:${psz.bh}; vertical-align:middle; border-radius:10%; display:inline-block; margin-right:${psz.bmr}; margin-bottom:${psz.bmb}; }
-                    .pb:last-of-type { margin-right:${psz.blmr}; }
-                    .pb.pb-wide { width:auto!important; min-width:0; max-width:calc(${psz.bw} * 2.5); border-radius:0; }
-                    /* platform icon — same box/baseline as badges; !important
-                       beats the icon's inline height:1em (which tracks the
-                       preview font-size, not the badge row) */
-                    .ptag { display:inline-block; vertical-align:middle; margin-right:${psz.bmr}; margin-bottom:${psz.bmb}; line-height:0; }
-                    .ptag span { margin:0!important; vertical-align:middle!important; display:inline-flex!important; }
-                    .ptag svg, .ptag img { height:${psz.bh}!important; width:auto!important; display:inline-block; vertical-align:middle; }
-                    .pc { margin-right:${psz.cmr}; }
-                    .pe { max-height:${psz.eh}; max-width:${psz.ew}; height:auto; width:auto; vertical-align:middle; display:inline-block; margin-right:-3px; }
-                  `}</style>
-                  {PREV_MSGS.map((m, i) => m.event ? (
-                    /* real event-card render — matches the overlay's follow/gift card */
-                    <div key={i} style={{ lineHeight: psz.lh, display:'flex', alignItems:'flex-start', gap:'0.3em' }}>
-                      <span className="ptag">{sourceTag(m.platform, 'icon')}</span>
-                      <div style={{
-                        borderLeft: `2px solid ${PLATFORM_COLOR[m.platform]}`,
-                        background: `linear-gradient(90deg, color-mix(in srgb, ${PLATFORM_COLOR[m.platform]} 20%, transparent), transparent)`,
-                        padding: '0 8px', borderRadius: 6, flex: 1, minWidth: 0,
-                      }}>
-                        <span style={{ marginRight:'0.35em' }}>❤️</span>
-                        <span style={{ fontWeight: 400 }}>{m.msg}</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div key={i} style={{
-                      lineHeight: psz.lh,
-                    }}>
-                      {!hideNames && (
-                        <span style={{ display:'inline-block' }}>
-                          <span className="ptag">{sourceTag(m.platform, 'icon')}</span>
-                          {m.badges.map((b, bi) => (
-                            <img key={bi} className={b.alt === 'topGifter' ? 'pb pb-wide' : 'pb'} src={b.src} alt={b.alt} />
-                          ))}
-                          <span style={{
-                            fontWeight: 800,
-                            ...(m.paint && sevenTVC ? {
-                              background: m.paint,
-                              WebkitBackgroundClip: 'text',
-                              WebkitTextFillColor: 'transparent',
-                              backgroundClip: 'text',
-                            } : { color: m.color }),
-                          }}>{m.user}</span>
-                          <span className="pc">:</span>
+              <div className="form_table">
+                {/* Left — selects */}
+                <div className="form_col">
+                  <div className="form_row left">
+                    <select value={textSize} onChange={e => setTextSize(e.target.value)}>
+                      <option value="small">Small</option>
+                      <option value="medium">Medium</option>
+                      <option value="large">Large</option>
+                    </select>
+                    <label>Size</label>
+                  </div>
+                  <div className="form_row left">
+                    <select value={font} onChange={e => setFont(e.target.value)} style={{ fontFamily: fontCSS }}>
+                      {FONTS.map(([v, label, css]) => (
+                        <option key={v} value={v} style={{ fontFamily: css }}>{label}</option>
+                      ))}
+                    </select>
+                    <label>Font</label>
+                  </div>
+                  <div className="form_row left">
+                    <select value={stroke} onChange={e => setStroke(e.target.value)}>
+                      <option value="none">Off</option>
+                      <option value="thin">Thin</option>
+                      <option value="medium">Medium</option>
+                      <option value="thick">Thick</option>
+                      <option value="thicker">Thicker</option>
+                    </select>
+                    <label>Stroke</label>
+                  </div>
+                  <div className="form_row left">
+                    <select value={textShadow} onChange={e => setTextShadow(e.target.value)}>
+                      <option value="none">Off</option>
+                      <option value="small">Small</option>
+                      <option value="medium">Medium</option>
+                      <option value="large">Large</option>
+                    </select>
+                    <label>Shadow</label>
+                  </div>
+                  <div className="form_row left">
+                    <select value={animation} onChange={e => setAnimation(e.target.value)}>
+                      <option value="none">None</option>
+                      <option value="slide">Slide</option>
+                      <option value="fade">Fade in</option>
+                    </select>
+                    <label>Animation</label>
+                  </div>
+                  <div className="form_row left">
+                    <input type="text" placeholder="1.0" style={{ width: 80 }}
+                      value={emoteScale} onChange={e => setEmoteScale(e.target.value)} />
+                    <label>Emote scale (0–3)</label>
+                  </div>
+                </div>
+
+                {/* Right — toggles */}
+                <div className="form_col">
+                  <div className="toggle-wrap">
+                    <label>7TV Emotes</label>
+                    <label className="toggle">
+                      <input type="checkbox" checked={sevenTVE} onChange={e => setSevenTVE(e.target.checked)} />
+                      <span className="toggle-slider" />
+                    </label>
+                  </div>
+                  <div className="toggle-wrap">
+                    <label>7TV Cosmetics</label>
+                    <label className="toggle">
+                      <input type="checkbox" checked={sevenTVC} onChange={e => setSevenTVC(e.target.checked)} />
+                      <span className="toggle-slider" />
+                    </label>
+                  </div>
+                  <div className="toggle-wrap">
+                    <label style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', gap:6, flex:1 }}>
+                      Fade old messages
+                      {fadeBool && (
+                        <span style={{ display:'inline-flex', alignItems:'center', gap:4 }}>
+                          <input type="text" value={fade} className="short"
+                            onChange={e => setFade(e.target.value)} style={{ width:46 }} />
+                          <span style={{ fontSize:'0.78rem', color:'#555' }}>sec</span>
                         </span>
-                      )}{' '}
-                      <span>
-                        {m.msg}
-                        {m.emotes.map((e, ei) => sevenTVE
-                          ? <img key={ei} className="pe" src={e.src} alt={e.alt} />
-                          : <span key={ei}> {e.alt}</span>
-                        )}
+                      )}
+                    </label>
+                    <label className="toggle">
+                      <input type="checkbox" checked={fadeBool}
+                        onChange={e => { setFadeBool(e.target.checked); if (e.target.checked && !fade) setFade('30'); }} />
+                      <span className="toggle-slider" />
+                    </label>
+                  </div>
+                  <div className="toggle-wrap">
+                    <label><strong>Bold</strong> messages</label>
+                    <label className="toggle">
+                      <input type="checkbox" checked={msgBold} onChange={e => setMsgBold(e.target.checked)} />
+                      <span className="toggle-slider" />
+                    </label>
+                  </div>
+                  <div className="toggle-wrap">
+                    <label>UPPERCASE messages</label>
+                    <label className="toggle">
+                      <input type="checkbox" checked={msgCaps} onChange={e => setMsgCaps(e.target.checked)} />
+                      <span className="toggle-slider" />
+                    </label>
+                  </div>
+                  <div className="toggle-wrap">
+                    <label><abbr title="Deletions, timeouts, bans and clears remove messages from the overlay">Moderation actions</abbr></label>
+                    <label className="toggle">
+                      <input type="checkbox" checked={modAction} onChange={e => setModAction(e.target.checked)} />
+                      <span className="toggle-slider" />
+                    </label>
+                  </div>
+                  <div className="toggle-wrap">
+                    <label><abbr title="Shadows on 7TV paints — may cost performance">Paint shadows</abbr></label>
+                    <label className="toggle">
+                      <input type="checkbox" checked={paintShadows} onChange={e => setPaintShadows(e.target.checked)} />
+                      <span className="toggle-slider" />
+                    </label>
+                  </div>
+                  <div className="toggle-wrap">
+                    <label>Hide usernames</label>
+                    <label className="toggle">
+                      <input type="checkbox" checked={hideNames} onChange={e => setHideNames(e.target.checked)} />
+                      <span className="toggle-slider" />
+                    </label>
+                  </div>
+                  <div className="toggle-wrap">
+                    <label><abbr title="Show pinned messages from your platforms (latest pin wins).">Pinned messages</abbr></label>
+                    <label className="toggle">
+                      <input type="checkbox" checked={showPin} onChange={e => setShowPin(e.target.checked)} />
+                      <span className="toggle-slider" />
+                    </label>
+                  </div>
+                  {showPin && (
+                    <div style={{ display:'flex', gap:6, justifyContent:'flex-end', margin:'-4px 0 11px', flexWrap:'wrap' }}>
+                      {PLATFORM_NAMES.map(p => {
+                        const on = pinPlats.includes(p);
+                        return (
+                          <button key={p} type="button"
+                            onClick={() => setPinPlats(prev => on ? prev.filter(x => x !== p) : [...prev, p])}
+                            style={{
+                              fontSize:'0.66rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em',
+                              padding:'3px 10px', borderRadius:999, cursor:'pointer',
+                              border: `1px solid ${on ? PLATFORM_COLOR[p] : 'var(--line)'}`,
+                              background: on ? `color-mix(in srgb, ${PLATFORM_COLOR[p]} 15%, transparent)` : 'transparent',
+                              color: on ? PLATFORM_COLOR[p] : 'var(--dim)',
+                            }}>{p}</button>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {showPin && pinPlats.includes('twitch') && (
+                    <div className="form_row left" style={{ marginTop: -2 }}>
+                      <span style={{ fontSize: '0.72rem', color: '#888' }}>
+                        Twitch pin: simulation only — real pins require OAuth setup
                       </span>
                     </div>
-                  ))}
-                  {/* user-injected test messages (UChat preview Send box) */}
-                  {customMsgs.map((m, i) => (
-                    <div key={`c${i}`} style={{ lineHeight: psz.lh }}>
-                      {!hideNames && (
-                        <span style={{ display:'inline-block' }}>
-                          <span className="ptag">{sourceTag('kick', 'icon')}</span>
-                          <span style={{ fontWeight: 800, color: m.color }}>{m.user}</span>
-                          <span className="pc">:</span>
-                        </span>
-                      )}{' '}
-                      <span>{mentionColor
-                        ? m.msg.split(' ').map((w, wi) => w.startsWith('@')
-                          ? <strong key={wi} style={{ color: '#53fc18' }}>{w} </strong>
-                          : w + ' ')
-                        : m.msg}</span>
-                    </div>
-                  ))}
+                  )}
+                  <div className="toggle-wrap">
+                    <label>Platform icons</label>
+                    <label className="toggle">
+                      <input type="checkbox" checked={platformIcons} onChange={e => setPlatformIcons(e.target.checked)} />
+                      <span className="toggle-slider" />
+                    </label>
+                  </div>
+                  <div className="toggle-wrap">
+                    <label><abbr title="Highlight @mentions in the mentioned user's name color (they must have chatted before)">Colored mentions</abbr></label>
+                    <label className="toggle">
+                      <input type="checkbox" checked={mentionColor} onChange={e => setMentionColor(e.target.checked)} />
+                      <span className="toggle-slider" />
+                    </label>
+                  </div>
+                  <div className="toggle-wrap">
+                    <label><abbr title="Chat background color. Transparent is the default — pick a color only if you don't want a see-through overlay">Background</abbr></label>
+                    <span style={{ display:'inline-flex', alignItems:'center', gap:6 }}>
+                      <button type="button"
+                        onClick={() => setBgColor('')}
+                        style={{
+                          fontSize:'0.72rem', padding:'2px 8px', borderRadius:4, cursor:'pointer',
+                          border: bgColor === '' ? '1px solid #4a84fa' : '1px solid #3a3a3a',
+                          background:'#2e2e2e', color: bgColor === '' ? '#4a84fa' : '#888',
+                        }}>Transparent</button>
+                      <input type="color" value={bgColor || '#191919'}
+                        onChange={e => setBgColor(e.target.value)}
+                        style={{ width:28, height:22, padding:0, border:'1px solid #3a3a3a', borderRadius:4, background:'none', cursor:'pointer' }} />
+                    </span>
+                  </div>
+                  <div style={{ borderTop:'1px solid #2a2a2a', marginTop:8, paddingTop:10 }}>
+                    <p style={{ margin:'0 0 6px', fontSize:'0.78rem', color:'#555', textAlign:'right' }}>Extra bots to hide (comma-separated)</p>
+                    <input type="text" placeholder="nightbot, streamelements…"
+                      style={{ width:'100%', fontSize:'0.78rem' }}
+                      value={botNames} onChange={e => setBotNames(e.target.value)} />
+                    <p style={{ margin:'10px 0 6px', fontSize:'0.78rem', color:'#555', textAlign:'right' }}>Username blacklist (space-separated)</p>
+                    <input type="text" placeholder="spammer1 botuser"
+                      style={{ width:'100%', fontSize:'0.78rem' }}
+                      value={userBL} onChange={e => setUserBL(e.target.value)} />
+                    <p style={{ margin:'10px 0 6px', fontSize:'0.78rem', color:'#555', textAlign:'right' }}>Message-prefix blacklist (space-separated)</p>
+                    <input type="text" placeholder="https:// scam "
+                      style={{ width:'100%', fontSize:'0.78rem' }}
+                      value={prefixBL} onChange={e => setPrefixBL(e.target.value)} />
+                  </div>
                 </div>
               </div>
-              {/* UChat-style test message box */}
-              <div style={{ display:'flex', gap:8, marginTop:8 }}>
-                <input type="text" placeholder="Send a test message… (try @Gxufy)"
-                  value={testInput}
-                  onChange={e => setTestInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); sendTestMsg(); } }}
-                  style={{ flex:1, fontSize:'0.82rem' }} />
-                <button type="button" onClick={sendTestMsg}
-                  style={{ background:'#4a84fa', color:'#fff', border:'none', borderRadius:5,
-                           fontWeight:800, fontSize:'0.8rem', padding:'0 16px', cursor:'pointer' }}>
-                  Send
+
+              {/* Preview + Generate */}
+              <div id="submit_container">
+                <div className="preview-wrap">
+                  <div className="preview-label">
+                    <span>click 👉 </span>
+                    <button type="button" onClick={() => setPreviewWhite(p => !p)} title="Toggle background">⚙️</button>
+                    <span>Preview:</span>
+                  </div>
+                  <div id="example" className={previewWhite ? 'white' : 'checkered'}
+                    style={bgColor ? { background: bgColor } : undefined}>
+                    <div className="example-inner" style={{
+                      fontFamily: fontCSS, fontSize: psz.fs, lineHeight: psz.lh,
+                      fontWeight: 800,
+                      color: fontColor || 'white',
+                      ...(pFilter ? { filter: pFilter } : {}),
+                      ...(pStroke ? { WebkitTextStroke: pStroke } : {}),
+                    }}>
+                      <style>{`
+                        .pb { width:${psz.bw}!important; height:${psz.bh}!important; min-width:${psz.bw}; min-height:${psz.bh}; max-width:${psz.bw}; max-height:${psz.bh}; vertical-align:middle; border-radius:10%; display:inline-block; margin-right:${psz.bmr}; margin-bottom:${psz.bmb}; }
+                        .pb:last-of-type { margin-right:${psz.blmr}; }
+                        .pb.pb-wide { width:auto!important; min-width:0; max-width:calc(${psz.bw} * 2.5); border-radius:0; }
+                        /* platform icon — same box/baseline as badges; !important
+                           beats the icon's inline height:1em (which tracks the
+                           preview font-size, not the badge row) */
+                        .ptag { display:inline-block; vertical-align:middle; margin-right:${psz.bmr}; margin-bottom:${psz.bmb}; line-height:0; }
+                        .ptag span { margin:0!important; vertical-align:middle!important; display:inline-flex!important; }
+                        .ptag svg, .ptag img { height:${psz.bh}!important; width:auto!important; display:inline-block; vertical-align:middle; }
+                        .pc { margin-right:${psz.cmr}; }
+                        .pe { max-height:${emoteH}; max-width:${emoteW}; height:auto; width:auto; vertical-align:middle; display:inline-block; margin-right:-3px; }
+                      `}</style>
+
+                      {/* Static preview messages — rendered through PreviewMsgLine (shared path) */}
+                      {PREVIEW_MSGS.map((m, i) => (
+                        <div key={`p${i}`} style={{ lineHeight: psz.lh }}>
+                          <PreviewMsgLine msg={m} sz={toPreviewSz(psz)} emoteMaxH={emoteH} emoteMaxW={emoteW}
+                            stroke="" hideNames={hideNames}
+                            tagMode={platformIcons ? 'icon' : 'none'} showAvatar={false} />
+                        </div>
+                      ))}
+
+                      {/* Dynamically injected messages (from simulator or live feed) */}
+                      {previewMessages.map((m, i) => (
+                        <div key={`c${i}`} style={{ lineHeight: psz.lh }}>
+                          <PreviewMsgLine msg={m} sz={toPreviewSz(psz)} emoteMaxH={emoteH} emoteMaxW={emoteW}
+                            stroke="" hideNames={hideNames}
+                            tagMode={platformIcons ? 'icon' : 'none'} showAvatar={false} />
+                        </div>
+                      ))}
+
+                      {/* Pin preview */}
+                      {pinnedPreview && (
+                        <PreviewPinBanner pinned={pinnedPreview} sz={toPreviewSz(psz)} fontFamily={FONT_FAMILIES[font] ?? 'inherit'} hideNames={hideNames} />
+                      )}
+
+                      {/* Filter toast — shown when a simulator message is blocked */}
+                      {filterToast && (
+                        <div style={{
+                          fontSize: '0.72rem', color: '#ff6b6b', background: 'rgba(255,80,80,0.1)',
+                          borderRadius: 4, padding: '4px 8px', marginTop: 4, fontWeight: 600,
+                          borderLeft: '3px solid #ff6b6b',
+                        }}>
+                          🚫 {filterToast}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display:'flex', justifyContent:'center', marginTop:14 }}>
+                <input type="submit" value="Generate & Copy" />
+              </div>
+            </form>
+
+            {/* URL result */}
+            <div id="result">
+              <div className="url-box">
+                <div className="url-code">{overlayUrl}</div>
+                <button onClick={copy} className={`url-copy${copied ? ' ok' : ''}`} type="button">
+                  {copied ? '✓ Copied' : 'Copy'}
                 </button>
+                <a href={overlayUrl} target="_blank" rel="noreferrer" className="url-copy" style={{ display:'inline-flex', alignItems:'center', background:'transparent', border:'1px solid rgba(74,132,250,.5)', color:'#4a84fa' }}>
+                  👁️ Test
+                </a>
               </div>
             </div>
           </div>
-          <div style={{ display:'flex', justifyContent:'center', marginTop:14 }}>
-            <input type="submit" value="Generate & Copy" />
-          </div>
-        </form>
 
-        {/* URL result */}
-        <div id="result">
-          <div className="url-box">
-            <div className="url-code">{overlayUrl}</div>
-            <button onClick={copy} className={`url-copy${copied ? ' ok' : ''}`} type="button">
-              {copied ? '✓ Copied' : 'Copy'}
-            </button>
-            <a href={overlayUrl} target="_blank" rel="noreferrer" className="url-copy" style={{ display:'inline-flex', alignItems:'center', background:'transparent', border:'1px solid rgba(74,132,250,.5)', color:'#4a84fa' }}>
-              👁️ Test
-            </a>
-          </div>
-        </div>
+          {/* ── RIGHT COLUMN: Viewer Counter ── */}
+          <div className="gen-col scrollable">
 
-        {/* Tabs — counter / commands / setup collapse into one bar */}
+            {/* Counter controls */}
+            <div className="setup-section">
+              <div className="section-title">Viewer Counter</div>
+              <div className="form_row left" style={{ flexWrap:'wrap', gap:8 }}>
+                <label>Display{' '}
+                  <select value={vcCombined} onChange={e => setVcCombined(e.target.value)}>
+                    <option value="true">Combined total</option>
+                    <option value="false">Per platform</option>
+                  </select>
+                </label>
+                <label>Font{' '}
+                  <select value={vcFont} onChange={e => setVcFont(e.target.value)}>
+                    <option value="dejavu">DejaVu Bold</option>
+                    <option value="montserrat">Montserrat Bold</option>
+                  </select>
+                </label>
+                <label>Icons{' '}
+                  <select value={vcIcons} onChange={e => setVcIcons(e.target.value)}>
+                    <option value="true">Show</option>
+                    <option value="false">Hide</option>
+                  </select>
+                </label>
+                <label>Background{' '}
+                  <select value={vcBg} onChange={e => setVcBg(e.target.value)}>
+                    <option value="true">On</option>
+                    <option value="false">Off</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            {/* Counter preview */}
+            <div className="setup-section" style={{ padding: 16 }}>
+              <div className="preview-label">Preview</div>
+              <div id="counter-example" className={previewWhite ? 'white' : 'checkered'}
+                style={{ border:'1px solid #444', borderRadius:6, overflow:'hidden', padding:'14px 12px' }}>
+                <CounterPreview
+                  combined={vcCombined === 'true'}
+                  font={vcFont}
+                  icons={vcIcons === 'true'}
+                  bg={vcBg === 'true'}
+                  textSize={textSize}
+                  textShadow={textShadow}
+                  stroke={stroke}
+                  counts={viewerCounts.counts}
+                  loading={viewerCounts.loading}
+                  hasError={viewerCounts.hasError}
+                  combinedValue={viewerCounts.combinedValue}
+                />
+              </div>
+            </div>
+
+            {/* Counter URL */}
+            <div className="setup-section" style={{ padding: 16 }}>
+              <div className="url-box">
+                <div className="url-code">{counterUrl}</div>
+                <button onClick={copyCounter} className={`url-copy${copiedCounter ? ' ok' : ''}`} type="button">
+                  {copiedCounter ? '✓ Copied' : 'Copy'}
+                </button>
+              </div>
+              <p style={{ color:'#555', fontSize:'0.74rem', margin:'8px 0 0' }}>
+                Real-time counts, offline platforms slide out. OBS size: 400 × 80.
+              </p>
+            </div>
+          </div>
+
+        </div> {/* /gen-grid */}
+
+        {/* Tabs — extra content collapses behind buttons */}
         <div className="tab-bar">
-          {([['counter','📊 Viewer Counter'],['commands','⚡ Commands'],['setup','🎥 OBS Setup']] as const).map(([key, label]) => (
+          {([['counter','📊 Viewer Counter'],['commands','⚡ Commands'],['simulator','🧪 Simulator'],['setup','🎥 OBS Setup']] as const).map(([key, label]) => (
             <button key={key} type="button"
               className={`tab-btn${activeTab === key ? ' on' : ''}`}
               onClick={() => setActiveTab(activeTab === key ? null : key)}>
@@ -751,6 +920,7 @@ export default function LandingPage() {
           ))}
         </div>
 
+        {/* Tab content — shown below grid on mobile / expanded */}
         {activeTab === 'counter' && (
         <div className="setup-section">
           <div className="form_row left" style={{ flexWrap:'wrap', gap:12 }}>
@@ -790,6 +960,10 @@ export default function LandingPage() {
               textSize={textSize}
               textShadow={textShadow}
               stroke={stroke}
+              counts={viewerCounts.counts}
+              loading={viewerCounts.loading}
+              hasError={viewerCounts.hasError}
+              combinedValue={viewerCounts.combinedValue}
             />
           </div>
           <div className="url-box" style={{ marginTop:8 }}>
@@ -806,6 +980,9 @@ export default function LandingPage() {
 
         {activeTab === 'commands' && (
         <div className="commands-section">
+          <p style={{ color:'#555', fontSize:'0.74rem', margin:'0 0 8px' }}>
+            Full command reference — also available in the left column above.
+          </p>
           <table className="cmd-table">
             <thead><tr><th>Command</th><th>Description</th><th>Access</th></tr></thead>
             <tbody>
@@ -820,6 +997,59 @@ export default function LandingPage() {
             </tbody>
           </table>
           <p style={{ color:'#555', fontSize:'0.74rem', margin:'6px 0 0' }}>Works from any connected platform&rsquo;s chat. <code style={{color:'#4a84fa'}}>!kickchat</code> is an alias.</p>
+        </div>
+        )}
+
+        {activeTab === 'simulator' && (
+        <div className="commands-section" style={{ paddingBottom: 16 }}>
+          <div className="section-title">Test Messages</div>
+          <TestMessageSimulator
+            onMessage={(um: UnifiedMessage) => {
+              const decision = filterMessage(um, { botNames, userBL, prefixBL, showSystemMsgs: true, showRedeems: true, modAction });
+              if (decision.result !== FilterResult.Pass) {
+                setFilterToast(`${decision.result === FilterResult.UserBlocked ? 'Blocked: ' : ''}${decision.username ?? decision.result}`);
+                setTimeout(() => setFilterToast(null), 2500);
+                return;
+              }
+              registerChatter(mentionCtxRef.current, um.username, um.color);
+              const parsed = makePreviewMessage(um, {
+                sevenTVCosmeticsEnabled: sevenTVC,
+                paintShadows,
+                emotes: [],
+                mentionCtx: mentionCtxRef.current,
+              });
+              setPreviewMessages(prev => [...prev.slice(-15), parsed]);
+            }}
+            onPin={(pin: UnifiedPin | null) => {
+              if (pin) {
+                setPinnedPreview({
+                  msg: makePreviewMessage(pin.message, { sevenTVCosmeticsEnabled: sevenTVC, paintShadows }),
+                  pinnedBy: pin.pinnedBy,
+                  phase: 'entering',
+                });
+              } else {
+                setPinnedPreview(null);
+              }
+            }}
+            onDelete={(opts) => {
+              if (!allowModAction({ modAction })) {
+                setFilterToast('Mod actions blocked (modAction = false)');
+                setTimeout(() => setFilterToast(null), 2500);
+                return;
+              }
+              if (opts.username) {
+                setPreviewMessages(prev => prev.filter(m => m.identity.username !== opts.username));
+              } else {
+                setPreviewMessages([]);
+              }
+            }}
+            onFilter={(msg) => {
+              setFilterToast(msg);
+              setTimeout(() => setFilterToast(null), 2500);
+            }}
+            modActionAllowed={modAction}
+            isWhite={previewWhite}
+          />
         </div>
         )}
 

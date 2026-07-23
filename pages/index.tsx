@@ -60,6 +60,7 @@ export default function Hub() {
         .tag { font-size: 0.74rem; font-weight: 600; color: var(--muted); background: rgba(255,255,255,.035); border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px; }
 
         .cards { display: grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 44px; }
+        @media (min-width: 720px) { .cards { grid-template-columns: 1fr 1fr; } }
         .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 26px; box-shadow: var(--shadow); transition: transform .15s, border-color .15s; display: block; }
         .card:hover { transform: translateY(-3px); border-color: rgba(74,132,250,.5); opacity: 1; }
         .card-kicker { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); margin: 0 0 8px; }
@@ -122,7 +123,23 @@ export default function Hub() {
             <p>
               Combine Kick, Twitch, YouTube &amp; TikTok chat into a single OBS browser source.
               7TV / BTTV / FFZ emotes, name paints, real platform badges, pinned messages,
-              gifts &amp; Super Chats, plus a real-time viewer counter. Works with just a channel name.
+              gifts &amp; Super Chats. Works with just a channel name.
+            </p>
+            <span className="card-cta">Open the generator →</span>
+          </a>
+          <a className="card" href="/counter?kick=yourchannel&combined=true">
+            <p className="card-kicker">Free tool</p>
+            <div className="card-badges">
+              <span className="cb cb-kick">Kick</span>
+              <span className="cb cb-tw">Twitch</span>
+              <span className="cb cb-yt">YouTube</span>
+              <span className="cb cb-tt">TikTok</span>
+            </div>
+            <h2>viewer counter — real-time counts</h2>
+            <p>
+              A minimal OBS overlay that tracks live viewer counts across
+              Kick, Twitch, YouTube &amp; TikTok. Combined or per-platform,
+              with smooth slide-in/out transitions.
             </p>
             <span className="card-cta">Open the generator →</span>
           </a>
