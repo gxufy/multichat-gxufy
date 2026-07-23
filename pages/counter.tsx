@@ -15,7 +15,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import { z } from 'zod';
 
 type Plat = 'kick' | 'twitch' | 'youtube' | 'tiktok';
@@ -200,22 +199,6 @@ export default function Counter() {
           svg { height: 100%; width: auto; display: block; }
         `}</style>
       </Head>
-      <Link
-        href="/"
-        aria-label="Back to home"
-        style={{
-          position: 'fixed', top: 12, left: 12, zIndex: 9999,
-          background: 'rgba(20,20,24,0.75)', backdropFilter: 'blur(8px)',
-          border: '1px solid rgba(74,132,250,0.35)', borderRadius: 8,
-          color: '#e2e2e8', fontSize: 13, fontWeight: 600,
-          padding: '5px 14px', textDecoration: 'none',
-          transition: 'all .15s', whiteSpace: 'nowrap',
-        }}
-        onFocus={e => { (e.target as HTMLAnchorElement).style.borderColor = '#4a84fa'; (e.target as HTMLAnchorElement).style.background = 'rgba(74,132,250,0.15)'; }}
-        onBlur={e => { (e.target as HTMLAnchorElement).style.borderColor = 'rgba(74,132,250,0.35)'; (e.target as HTMLAnchorElement).style.background = 'rgba(20,20,24,0.75)'; }}
-      >
-        ← Home
-      </Link>
       <div style={{ display: 'flex', gap: Math.round(fontSize * 0.5), padding: 8, flexWrap: 'wrap' }}>
         {cfg.combined ? (
           liveList.length > 0 && (

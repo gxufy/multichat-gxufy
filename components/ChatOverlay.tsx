@@ -2,13 +2,12 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import type { OverlayConfig } from '../pages/multichat';
 import type { ParsedMessage } from '../lib/kick';
-import type { PinPhase } from '../lib/pinController';
+import { sourceTag, PROVIDERS, type SourceTagMode } from '../lib/render';
+import type { Platform } from '../lib/types';
 
 export interface PinnedState {
   msg: ParsedMessage;
   pinnedBy?: string;
-  /** Lifecycle phase for entrance/exit animations. */
-  phase?: PinPhase;
 }
 
 interface Props {
@@ -62,8 +61,6 @@ const SIZE = {
 type SzKey = keyof typeof SIZE;
 
 /* Exact chatis shadow_*.css — filter: drop-shadow (NOT text-shadow) */
-import { PreviewMsgLine, PinSVG } from '../lib/previewRenderer';
-
 function getShadowFilter(s: string) {
   if (s === 'small')  return 'drop-shadow(2px 2px 0.2rem black)';
   if (s === 'medium') return 'drop-shadow(2px 2px 0.35rem black)';
@@ -378,16 +375,10 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
   );
 }
 
-/* PinBanner — 5-second lifecycle pin card.
- *
- * Phase-driven animations:
- *   entering  → ckPin keyframe (250 ms, opacity 0→1, translateY -6→0)
- *   visible   → normal display
- *   exiting   → CSS transition opacity 1→0 over 500 ms
- *
- * The pin controller (lib/pinController.ts) drives the phase;
- * when phase becomes 'gone' (pinnedMessage === null), the banner unmounts.
- */
+/* PinBanner — StreamNook-style persistent pin card.
+ * Stays visible while pinned (no auto-hide); after 15s collapses to a
+ * thin one-line bar (StreamNook's pinned_start_collapsed pattern).
+ * Glassmorphism card with pin header and "Pinned by X" footer. */
 function PinBanner({ pinned, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, strokeVal, hideNames }: {
   pinned: PinnedState; sz: typeof SIZE[SzKey];
   emoteMaxH:string; emoteMaxW:string; fontFamily:string;
@@ -395,35 +386,46 @@ function PinBanner({ pinned, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, st
   hideNames:boolean;
 }) {
   const { msg, pinnedBy } = pinned;
-  const phase = pinned.phase ?? 'visible'; // fallback: no lifecycle, just show
+  const [collapsed, setCollapsed] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout>|null>(null);
 
-  /* Entrance: ckPin keyframe (250 ms).
-   * Exit: CSS transition opacity 1→0 (500 ms). */
+  useEffect(() => {
+    setCollapsed(false);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setCollapsed(true), 15000);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [msg.id]);
+
   const shell: React.CSSProperties = {
     position:'absolute', top:0, left:0, right:0, zIndex:10,
     background:'rgba(12,12,16,0.72)',
     backdropFilter:'blur(16px) saturate(180%)', WebkitBackdropFilter:'blur(16px) saturate(180%)',
     borderBottom:'1px solid rgba(255,255,255,0.12)',
     borderRadius:'0 0 10px 10px',
+    animation:'ckPin 150ms ease-out',
     fontFamily, fontWeight:800,
     color:'white',
     wordBreak:'break-word', overflowWrap:'break-word',
     overflow:'hidden',
     ...(filterVal ? { filter:filterVal } : {}),
     ...(strokeVal ? { WebkitTextStroke:strokeVal } : {}),
-    /* Default: fully opaque. Phase overrides below. */
-    opacity: 1,
   };
 
-  if (phase === 'entering') {
-    shell.animation = 'ckPin 250ms ease-out';
-  } else if (phase === 'exiting') {
-    (shell as any).transition = 'opacity 500ms ease-in-out';
-    shell.opacity = 0;
+  if (collapsed) {
+    // Thin bar: pin icon + name + truncated single-line text
+    return (
+      <div style={{ ...shell, padding:'4px 10px', fontSize:'0.55em', display:'flex', alignItems:'center', gap:6 }}>
+        <span style={{ opacity:0.7, flexShrink:0, display:'inline-flex' }}><PinSVG /></span>
+        <span style={{ color:msg.identity.color, flexShrink:0 }}>{msg.identity.username}</span>
+        <span style={{ whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', opacity:0.9, fontWeight:600, minWidth:0 }}>
+          {msg.message.map((node,i) => <Fragment key={i}>{node}</Fragment>)}
+        </span>
+      </div>
+    );
   }
 
   return (
-    <div style={shell}>
+    <div style={{ ...shell, padding:'6px 10px 8px', fontSize:sz.fontSize }}>
       <div style={{ display:'flex', alignItems:'center', gap:4, paddingBottom:4, opacity:0.6, fontSize:'0.7em' }}>
         <PinSVG /> <span style={{ fontWeight:700 }}>Pinned Message</span>
       </div>
@@ -439,5 +441,115 @@ function PinBanner({ pinned, sz, emoteMaxH, emoteMaxW, fontFamily, filterVal, st
   );
 }
 
-/* MsgLine delegates to PreviewMsgLine (same signature). */
-const MsgLine = PreviewMsgLine;
+/* StreamNook event-card metadata: category → icon glyph + tint.
+   Rendered in 'plain' style: 2px provider-colored left border +
+   20%→transparent gradient wash (OverlayChat.tsx:682). */
+const CATEGORY_ICON: Record<string, string> = {
+  subscription: '★', gift: '🎁', raid: '👥', cheer: '💰',
+  milestone: '🔥', follow: '❤️', announcement: '📣',
+};
+
+function MsgLine({ msg, sz, emoteMaxH, emoteMaxW, stroke, hideNames, tagMode, showAvatar }: {
+  msg: ParsedMessage; sz: typeof SIZE[SzKey];
+  emoteMaxH:string; emoteMaxW:string; stroke:string;
+  hideNames:boolean;
+  tagMode:SourceTagMode; showAvatar:boolean;
+}) {
+  const isPaint = !!msg.identity.background;
+  const pill = msg.identity.namePill?.split('|');
+  const nameStyle: React.CSSProperties = pill
+    ? { background:pill[0], color:pill[1], borderRadius:'0.4em', padding:'0 0.35em',
+        WebkitTextStroke:'0px', textShadow:'none',
+        }    : isPaint
+    ? { background:msg.identity.background, filter:msg.identity.filter,
+        WebkitTextFillColor:'transparent', WebkitBackgroundClip:'text',
+        backgroundClip:'text', backgroundSize:'cover',
+        WebkitTextStroke:'0px', textShadow:'none' }
+    : { color:msg.identity.color, };
+
+  const tag = msg.platform ? sourceTag(msg.platform, tagMode) : null;
+
+  // StreamNook: avatars only for yt/tiktok, 1.5em circle, leads the line
+  const avatar = showAvatar && msg.avatar && (msg.platform === 'youtube' || msg.platform === 'tiktok') ? (
+    <img src={msg.avatar} alt="" loading="lazy" referrerPolicy="no-referrer"
+      style={{ width:'1.5em', height:'1.5em', minWidth:'1.5em', borderRadius:9999,
+               objectFit:'cover', marginRight:'0.4em', verticalAlign:'-0.32em',
+               display:'inline-block' }}
+      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+  ) : null;
+
+  const badgesNode = msg.identity.badges.length > 0 && (
+    <span className="ck-bw">
+      {msg.identity.badges.map((b,i) => <Fragment key={i}>{b}</Fragment>)}
+    </span>
+  );
+  const nameNode = <span style={nameStyle}>{msg.identity.username}</span>;
+
+  /* Event card (StreamNook 'plain' eventStyle): provider-colored left
+     border + gradient wash, category icon, regular-weight action text */
+  if (msg.kind === 'system') {
+    const color = msg.platform ? PROVIDERS[msg.platform as Platform].color : '#888';
+    return (
+      <div style={{ lineHeight:sz.lineHeight, wordBreak:'break-word', display:'flex', alignItems:'flex-start', gap:'0.3em' }}>
+        {tag && <span style={{ flexShrink:0 }}>{tag}</span>}
+        <div style={{
+          borderLeft:`2px solid ${color}`,
+          background:`linear-gradient(90deg, color-mix(in srgb, ${color} 20%, transparent), transparent)`,
+          padding:'0 8px', borderRadius:6, flex:1, minWidth:0,
+        }}>
+          <span style={{ marginRight:'0.35em' }}>{CATEGORY_ICON[msg.category ?? 'announcement'] ?? '📣'}</span>
+          <span style={{ fontWeight:400 }} className="ck-body">
+            {msg.message.map((node,i) => <Fragment key={i}>{node}</Fragment>)}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  /* Redeem / highlighted message: Twitch-style purple accent bar +
+     subtle wash (net-new — UChat only shows/hides these, StreamNook
+     routes them to event cards; the bar keeps them inline like Twitch) */
+  const redeemWrap = (inner: React.ReactNode) => (
+    <div style={{
+      borderLeft: '0.22em solid #9147ff',
+      background: 'linear-gradient(90deg, rgba(145,71,255,0.18), transparent 70%)',
+      padding: '0 0 0 0.4em', borderRadius: 3,
+    }}>
+      {typeof msg.redeem === 'string' && msg.redeem !== 'highlighted' && (
+        <div style={{ fontSize: '0.6em', opacity: 0.75, fontWeight: 700, lineHeight: 1.6 }}>
+          🎁 {msg.redeem}
+        </div>
+      )}
+      {inner}
+    </div>
+  );
+
+  const line = (
+    <div style={{ lineHeight:sz.lineHeight, wordBreak:'break-word' }}>
+      {tag}
+      {avatar}
+      {!hideNames && (
+        <span style={{ display:'inline' }}>
+          {/* StreamNook: YouTube renders name THEN badges; others badges-first */}
+          {msg.platform === 'youtube'
+            ? <>{nameNode}{badgesNode && <span style={{ marginLeft:'0.25em' }}>{badgesNode}</span>}</>
+            : <>{badgesNode}{nameNode}</>}
+          <span className="ck-colon">:</span>
+        </span>
+      )}
+      <span className="ck-body">
+        {msg.message.map((node,i) => <Fragment key={i}>{node}</Fragment>)}
+      </span>
+    </div>
+  );
+
+  return msg.redeem ? redeemWrap(line) : line;
+}
+
+function PinSVG() {
+  return (
+    <svg height={12} width={12} fill="currentColor" viewBox="0 0 490.125 490.125">
+      <path d="M300.625,5.025c-6.7-6.7-17.6-6.7-24.3,0l-72.6,72.6c-6.7,6.7-6.7,17.6,0,24.3l16.3,16.3l-40.3,40.3l-63.5-7c-3-0.3-6-0.5-8.9-0.5c-21.7,0-42.2,8.5-57.5,23.8l-20.8,20.8c-6.7,6.7-6.7,17.6,0,24.3l108.5,108.5l-132.4,132.4c-6.7,6.7-6.7,17.6,0,24.3c3.3,3.3,7.7,5,12.1,5s8.8-1.7,12.1-5l132.5-132.5l108.5,108.5c3.3,3.3,7.7,5,12.1,5s8.8-1.7,12.1-5l20.8-20.8c17.6-17.6,26.1-41.8,23.3-66.4l-7-63.5l40.3-40.3l16.2,16.2c6.7,6.7,17.6,6.7,24.3,0l72.6-72.6c3.2-3.2,5-7.6,5-12.1s-1.8-8.9-5-12.1L300.625,5.025z"/>
+    </svg>
+  );
+}

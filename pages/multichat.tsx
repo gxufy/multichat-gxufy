@@ -3,7 +3,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
 import { z } from 'zod';
 import {
   getSevenTVGlobalEmotes,
@@ -27,7 +26,6 @@ import { createCosmeticsFetcher } from '../lib/cosmetics';
 import LandingPage from '../components/LandingPage';
 import ChatOverlay, { type PinnedState } from '../components/ChatOverlay';
 import { SunsetBanner } from '../components/SunsetBanner';
-import { processPinEvent, tick as pinTick, resetState, INITIAL_PIN_STATE, type PinPhase } from '../lib/pinController';
 
 const QuerySchema = z.object({
   /** legacy param — same as kick= */
@@ -84,12 +82,12 @@ const QuerySchema = z.object({
   modAction: z.string().optional().transform(v => v !== 'false'),
   userBL: z.string().optional().transform(v => v ?? ''),
   prefixBL: z.string().optional().transform(v => v ?? ''),
-  /* per-platform pins: CSV of kick,twitch,youtube,tiktok
-   * - absent → default to all four
+  /* per-platform pins: CSV of kick,youtube,tiktok
+   * - absent → default to all three (backward compat)
    * - present but empty → [] (no pins at all)
    * - valid names → only those; invalid ignored, duplicates removed */
   pinPlatforms: z.string().optional().transform(v => {
-    const all = ['kick', 'twitch', 'youtube', 'tiktok'];
+    const all = ['kick', 'youtube', 'tiktok'];
     if (v === undefined) return all;       // param absent → default
     if (v === '') return [];                // param explicitly empty → none
     const picked = [...new Set(v.split(',').map(s => s.trim().toLowerCase()).filter(s => all.includes(s)))];
@@ -111,10 +109,6 @@ export default function Page() {
   const [showLoader, setShowLoader] = useState(false);
   const [pinnedMessage, setPinnedMessage] = useState<PinnedState | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  /* Pin controller — mutable state ref + reactive phase for rerender. */
-  const pinStateRef = useRef(INITIAL_PIN_STATE);
-  const [pinPhase, setPinPhase] = useState<PinPhase | null>(null);
 
   // Mutable state that doesn't trigger rerenders
   const stateRef = useRef<{
@@ -330,30 +324,7 @@ export default function Page() {
       if (!cfg.showPinEnabled) return;
       // per-platform pin toggle: latest pin from an enabled platform wins
       if (pin && !cfg.pinPlatforms.includes(pin.message.platform)) return;
-
-      const parsed = pin ? buildParsed(pin.message) : null;
-      const platform = pin?.message.platform;
-      const pinId = pin?.message.id;
-
-      if (pin && parsed && platform) {
-        pinStateRef.current = processPinEvent(pinStateRef.current, 'pin', {
-          msg: parsed,
-          pinnedBy: pin.pinnedBy,
-          platform,
-          pinId,
-        });
-        setPinnedMessage({
-          msg: parsed,
-          pinnedBy: pin.pinnedBy,
-          phase: pinStateRef.current.entry?.phase,
-        });
-        setPinPhase(pinStateRef.current.entry?.phase ?? null);
-      } else {
-        /* Unpin — clear everything */
-        pinStateRef.current = resetState(pinStateRef.current);
-        setPinnedMessage(null);
-        setPinPhase(null);
-      }
+      setPinnedMessage(pin ? { msg: buildParsed(pin.message), pinnedBy: pin.pinnedBy } : null);
     }
 
     /* ── Kick (incl. 7TV emotes/cosmetics) ── */
@@ -767,28 +738,6 @@ export default function Page() {
     };
   }, [router.isReady]);
 
-  /* Pin lifecycle tick — advances entering → visible → exiting → gone every 100 ms. */
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const prevPhase = pinStateRef.current.entry?.phase;
-      const next = pinTick(pinStateRef.current, Date.now());
-      if (next === null) {
-        /* Gone — clear everything. */
-        pinStateRef.current = resetState(pinStateRef.current);
-        setPinnedMessage(null);
-        setPinPhase(null);
-      } else if (next.entry && next.entry.phase !== prevPhase) {
-        /* Phase changed — update phase state (triggers rerender) and the
-           PinnedState on pinnedMessage so PinBanner can animate. */
-        pinStateRef.current = next;
-        const phase = next.entry.phase;
-        setPinPhase(phase);
-        setPinnedMessage(prev => prev ? { ...prev, phase } : null);
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
-
   if (!ready) return null;
 
   const hasChannel = !!(router.query.channel || router.query.kick || router.query.twitch || router.query.youtube || router.query.tiktok);
@@ -821,22 +770,6 @@ export default function Page() {
         <title>multichat-gxufy</title>
       </Head>
       <SunsetBanner variant="overlay" />
-      <Link
-        href="/"
-        aria-label="Back to home"
-        style={{
-          position: 'fixed', top: 12, left: 12, zIndex: 9999,
-          background: 'rgba(20,20,24,0.75)', backdropFilter: 'blur(8px)',
-          border: '1px solid rgba(74,132,250,0.35)', borderRadius: 8,
-          color: '#e2e2e8', fontSize: 13, fontWeight: 600,
-          padding: '5px 14px', textDecoration: 'none',
-          transition: 'all .15s', whiteSpace: 'nowrap',
-        }}
-        onFocus={e => { (e.target as HTMLAnchorElement).style.borderColor = '#4a84fa'; (e.target as HTMLAnchorElement).style.background = 'rgba(74,132,250,0.15)'; }}
-        onBlur={e => { (e.target as HTMLAnchorElement).style.borderColor = 'rgba(74,132,250,0.35)'; (e.target as HTMLAnchorElement).style.background = 'rgba(20,20,24,0.75)'; }}
-      >
-        ← Home
-      </Link>
       <ChatOverlay
         config={config}
         messages={messages}
