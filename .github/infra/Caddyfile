@@ -1,0 +1,40 @@
+# gxufy.com — the primary domain → local Next.js app
+gxufy.com {
+	encode gzip
+
+	# Long-lived chat SSE — disable buffering so events flush immediately.
+	@sse path /api/tiktok/* /api/youtube/stream
+	reverse_proxy @sse localhost:3000 {
+		header_up X-Gxufy-Client-IP {remote_host}
+		flush_interval -1
+	}
+
+	reverse_proxy localhost:3000 {
+		header_up X-Gxufy-Client-IP {remote_host}
+	}
+}
+
+# www → apex, permanent. The app has no www content of its own.
+www.gxufy.com {
+	redir https://gxufy.com{uri} permanent
+}
+
+# multichat-gxufy.com — the legacy compatibility domain → same local app.
+# Kept serving directly (NOT redirected): existing OBS browser sources carry
+# channel-parameter overlay URLs on this host, and those must keep rendering.
+# The app itself canonicalizes only the non-overlay generator/website routes to
+# gxufy.com, in middleware, so nothing here globally redirects.
+multichat-gxufy.com, www.multichat-gxufy.com {
+	encode gzip
+
+	# Long-lived chat SSE — disable buffering so events flush immediately.
+	@sse path /api/tiktok/* /api/youtube/stream
+	reverse_proxy @sse localhost:3000 {
+		header_up X-Gxufy-Client-IP {remote_host}
+		flush_interval -1
+	}
+
+	reverse_proxy localhost:3000 {
+		header_up X-Gxufy-Client-IP {remote_host}
+	}
+}

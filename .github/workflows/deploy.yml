@@ -1,0 +1,68 @@
+name: Deploy to VPS
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+
+permissions: {}
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        env:
+          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 15m
+          envs: DEPLOY_SHA
+          script: |
+            set -euo pipefail
+            case "${DEPLOY_SHA:-}" in
+              ''|*[!0-9a-fA-F]*)
+                echo "Invalid deployment SHA."
+                exit 1
+                ;;
+            esac
+            if [ "${#DEPLOY_SHA}" -ne 40 ]; then
+              echo "Invalid deployment SHA."
+              exit 1
+            fi
+
+            cd ~/multichat-gxufy
+            git fetch --no-tags origin '+refs/heads/main:refs/remotes/origin/main'
+            ORIGIN_MAIN_SHA="$(git rev-parse --verify 'refs/remotes/origin/main^{commit}')"
+            if [ "$ORIGIN_MAIN_SHA" != "$DEPLOY_SHA" ]; then
+              echo "Skipping stale deployment: CI-tested commit is no longer origin/main."
+              exit 0
+            fi
+
+            git reset --hard "$DEPLOY_SHA"
+            CURRENT_SHA="$(git rev-parse --verify 'HEAD^{commit}')"
+            if [ "$CURRENT_SHA" != "$DEPLOY_SHA" ]; then
+              echo "Deployment source verification failed."
+              exit 1
+            fi
+
+            npm ci
+            npm run build
+            pm2 startOrRestart .github/infra/ecosystem.config.js --update-env
+            pm2 save

@@ -1,0 +1,8 @@
+node_modules/
+**/.next/
+.vercel/
+*.local
+.env*
+!app/.env.example
+server.log
+**/tsconfig.tsbuildinfo
