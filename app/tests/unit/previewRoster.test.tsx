@@ -151,7 +151,8 @@ describe('curated Preview Identity roster', () => {
       'giovahni',
       'hvdras',
       'feelssunnyman',
-      'magicnxtup',
+      'br_winters',
+      'zo0x_',
     ]);
     expect(PREVIEW_ROSTER.map((entry) => entry.login)).toEqual([
       'gxufy',
@@ -166,7 +167,8 @@ describe('curated Preview Identity roster', () => {
       'giovahni',
       'hvdras',
       'feelssunnyman',
-      'magicnxtup',
+      'br_winters',
+      'zo0x_',
     ]);
     expect(PREVIEW_MESSAGES).toEqual([
       'MultiChat keeps every platform in one clean feed',
@@ -200,7 +202,11 @@ describe('curated Preview Identity roster', () => {
     expect(result.current.templates.map((template) => template.username))
       .toEqual(PREVIEW_ROSTER.map((entry) => entry.displayName));
     expect(result.current.templates.map((template) => template.text))
-      .toEqual(PREVIEW_MESSAGES.slice(0, PREVIEW_ROSTER.length));
+      .toEqual(
+        PREVIEW_ROSTER.map(
+          (_, index) => PREVIEW_MESSAGES[index % PREVIEW_MESSAGES.length],
+        ),
+      );
     expect(result.current.templates.map((template) => template.displayPlatform))
       .toEqual(PREVIEW_PLATFORM_SEQUENCE.slice(0, PREVIEW_ROSTER.length));
     expect(result.current.templates.every((template) => template.platform === 'twitch')).toBe(true);
@@ -262,6 +268,22 @@ describe('curated Preview Identity roster', () => {
     expect(new Set(badges.map((badge) => badge.url)).size).toBe(badges.length);
   });
 
+  it('keeps every roster member resolved badges attached only to that identity', () => {
+    const responses = new Map(
+      PREVIEW_ROSTER.map((entry) => [entry.login, responseFor(entry.login)] as const),
+    );
+    const templates = rosterTemplates(responses, 0);
+
+    for (const [index, entry] of PREVIEW_ROSTER.entries()) {
+      const expected = responseFor(entry.login).communityBadges ?? [];
+
+      expect(templates[index]!.senderUsername).toBe(entry.login);
+      expect(templates[index]!.badges).toEqual(expected);
+      expect(templates[index]!.badges.every((badge) => (
+        !badge.url || badge.url.includes(`/${entry.login}-`)
+      ))).toBe(true);
+    }
+  });
   it('uses the exact bChat Twitch visible-name rule for preview identities', () => {
     const providerCase = responseFor('gxufy');
 

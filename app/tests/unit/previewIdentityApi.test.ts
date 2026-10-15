@@ -82,7 +82,43 @@ function allProviderFetch(input: RequestInfo | URL, _init?: RequestInit): Promis
   }]));
   if (url === 'https://7tv.io/v3/emote-sets/global') return Promise.resolve(response({ emotes: [sevenEmote('sg', 'SevenGlobal')] }));
   if (url === 'https://7tv.io/v3/users/twitch/42') return Promise.resolve(response({ emote_set: { emotes: [sevenEmote('sc', 'SevenChannel'), sevenEmote('sz', 'SevenZero', 256)] }, user: { personal_emotes: [sevenEmote('sp', 'SevenPersonal')] } }));
-  if (url === 'https://7tv.io/v3/gql') return Promise.resolve(response({ data: { userByConnection: { style: { paint: { id: 'paint', function: 'LINEAR_GRADIENT', angle: 90, repeat: false, stops: [{ at: 0, color: 1 }], shadows: [] }, badge: { id: 'badge', host: { url: '//cdn.7tv.app/badge/badge' } } } } } }));
+  if (url === 'https://api.7tv.app/v4/gql') return Promise.resolve(response({
+    data: {
+      users: {
+        preview: {
+          style: {
+            activePaint: {
+              id: 'paint',
+              data: {
+                layers: [{
+                  opacity: 1,
+                  ty: {
+                    __typename: 'PaintLayerTypeLinearGradient',
+                    angle: 90,
+                    repeating: false,
+                    stops: [
+                      { at: 0, color: { hex: '#ff0000ff' } },
+                      { at: 1, color: { hex: '#0000ffff' } },
+                    ],
+                  },
+                }],
+                shadows: [],
+              },
+            },
+            activeBadge: {
+              id: 'badge',
+              images: [{
+                url: 'https://cdn.7tv.app/badge/badge/3x.webp',
+                mime: 'image/webp',
+                scale: 3,
+                frameCount: 1,
+              }],
+            },
+          },
+        },
+      },
+    },
+  }));
   throw new Error(`unexpected request ${url}`);
 }
 

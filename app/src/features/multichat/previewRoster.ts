@@ -44,7 +44,8 @@ export const PREVIEW_ROSTER = [
   { login: 'giovahni', displayName: 'giovahni', fallbackText: PREVIEW_MESSAGES[9], emoteCount: 1 },
   { login: 'hvdras', displayName: 'hvdras', fallbackText: PREVIEW_MESSAGES[10], emoteCount: 1 },
   { login: 'feelssunnyman', displayName: 'feelssunnyman', fallbackText: PREVIEW_MESSAGES[11], emoteCount: 1 },
-  { login: 'magicnxtup', displayName: 'magicnxtup', fallbackText: PREVIEW_MESSAGES[12], emoteCount: 1 },
+  { login: 'br_winters', displayName: 'br_winters', fallbackText: PREVIEW_MESSAGES[12], emoteCount: 1 },
+  { login: 'zo0x_', displayName: 'zo0x_', fallbackText: PREVIEW_MESSAGES[12], emoteCount: 1 },
 ] as const satisfies readonly PreviewRosterEntry[];
 
 export const PREVIEW_ROSTER_CONCURRENCY = 3;
