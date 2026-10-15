@@ -6,9 +6,9 @@ import {
   validateCosmeticAssetUrl,
 } from './cosmeticMetadata';
 
-const SEVENTV_V4_GQL = 'https://api.7tv.app/v4/gql';
+export const SEVENTV_V4_GQL = 'https://api.7tv.app/v4/gql';
 
-const SEVENTV_V4_STYLE_FIELDS = `
+export const SEVENTV_V4_STYLE_FIELDS = `
   style {
     activePaint {
       id
@@ -111,7 +111,7 @@ function chooseV4Image(value: unknown, preferredScale: number): string | null {
  * v4 paint has multiple visual layers we use the topmost supported non-empty
  * layer while preserving the paint's complete shadow stack.
  */
-function parseSevenTVV4Paint(value: unknown): SevenTVPaint | null {
+export function parseSevenTVV4Paint(value: unknown): SevenTVPaint | null {
   if (!isRecord(value) || typeof value.id !== 'string') return null;
   const data = isRecord(value.data) ? value.data : null;
   const layers = Array.isArray(data?.layers) ? data.layers : [];
@@ -208,7 +208,7 @@ function parseSevenTVV4Paint(value: unknown): SevenTVPaint | null {
   return null;
 }
 
-function parseSevenTVV4Badge(value: unknown): SevenTVBadge | null {
+export function parseSevenTVV4Badge(value: unknown): SevenTVBadge | null {
   if (!isRecord(value)) return null;
   const image = chooseV4Image(value.images, 3);
   return parseCosmeticBadge({ id: value.id, image }, '7tv');

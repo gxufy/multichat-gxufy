@@ -8,11 +8,13 @@ import type {
   TwitchPreviewIdentity,
 } from '@/features/multichat/previewIdentity';
 import type { SevenTVBadge, SevenTVPaint } from './kick';
+import { parseCosmeticBadge } from './cosmeticMetadata';
 import {
-  parseCosmeticBadge,
-  parseSevenTVBadge,
-  parseSevenTVPaint,
-} from './cosmeticMetadata';
+  SEVENTV_V4_GQL,
+  SEVENTV_V4_STYLE_FIELDS,
+  parseSevenTVV4Badge,
+  parseSevenTVV4Paint,
+} from './cosmetics';
 import { readBoundedFixedProviderJson } from './server/fixedProviderProxy';
 
 const TWITCH_GQL_URL = 'https://gql.twitch.tv/gql';
@@ -263,7 +265,13 @@ export async function loadSevenTVPreviewResources(userId: string): Promise<Previ
   const [globalResult, userResult, cosmeticsResult] = await Promise.allSettled([
     requestJson('https://7tv.io/v3/emote-sets/global'),
     requestJson(`https://7tv.io/v3/users/twitch/${userId}`),
-    requestJson('https://7tv.io/v3/gql', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: `query { userByConnection(platform: TWITCH, id: ${JSON.stringify(userId)}) { style { paint { id function color angle shape image_url repeat stops { at color } shadows { x_offset y_offset radius color } } badge { id host { url } } } } }` }) }),
+    requestJson(SEVENTV_V4_GQL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: `query { users { preview: userByConnection(platform: TWITCH, platformId: ${JSON.stringify(userId)}) { ${SEVENTV_V4_STYLE_FIELDS} } } }`,
+      }),
+    }),
   ]);
   let failed = false;
   let unavailable = false;
@@ -302,12 +310,24 @@ export async function loadSevenTVPreviewResources(userId: string): Promise<Previ
     }
   } else failed = true;
   if (cosmeticsResult.status === 'fulfilled' && cosmeticsResult.value.status >= 200 && cosmeticsResult.value.status < 300 && isPlainObject(cosmeticsResult.value.body) && isPlainObject(cosmeticsResult.value.body.data)) {
-    const user = cosmeticsResult.value.body.data.userByConnection;
-    if (user !== null && isPlainObject(user) && isPlainObject(user.style)) {
-      paint = user.style.paint === null ? null : parseSevenTVPaint(user.style.paint);
-      badge = user.style.badge === null ? null : parseSevenTVBadge(user.style.badge);
-      if (user.style.paint !== null && !paint) failed = true;
-      if (user.style.badge !== null && !badge) failed = true;
+    const root = cosmeticsResult.value.body.data;
+    const users = isPlainObject(root.users) ? root.users : root;
+    const user = isPlainObject(users) ? users.preview : undefined;
+
+    if (user !== null && user !== undefined && isPlainObject(user) && isPlainObject(user.style)) {
+      const rawPaint = user.style.activePaint;
+      const rawBadge = user.style.activeBadge;
+
+      paint = rawPaint === null || rawPaint === undefined
+        ? null
+        : parseSevenTVV4Paint(rawPaint);
+
+      badge = rawBadge === null || rawBadge === undefined
+        ? null
+        : parseSevenTVV4Badge(rawBadge);
+
+      if (rawPaint !== null && rawPaint !== undefined && !paint) failed = true;
+      if (rawBadge !== null && rawBadge !== undefined && !badge) failed = true;
     }
   } else failed = true;
   return { status: failed ? 'failed' : unavailable ? 'unavailable' : 'loaded', resources: { globalEmotes, channelEmotes, personalEmotes, paint, badge } };
