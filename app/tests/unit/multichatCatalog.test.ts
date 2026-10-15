@@ -506,7 +506,7 @@ describe('serializer byte identity', () => {
       { ...D, fadeEnabled: false },
       { ...D, msgBold: false, msgCaps: true, hideNames: true, mentionColor: false },
       { ...D, bgColor: '#191919', fontColor: '#ff0000', emoteScale: '1.5' },
-      { ...D, botNames: 'nightbot, streamelements', userBL: 'a b', prefixBL: 'https://' },
+      { ...D, botNames: 'legacybot', permittedBots: 'nightbot, moobot', userBL: 'a b', prefixBL: 'https://' },
     ];
     for (const style of states) expectIdentical({ kick: 'someone' }, style);
   });

@@ -52,8 +52,8 @@ describe('FFZ badge colors', () => {
       return jsonResponse({}, false);
     }));
 
-    const supporter = await resolveTwitchCommunityBadges('1', 'SupporterUser');
-    const subwoofer = await resolveTwitchCommunityBadges('2', 'SubwooferUser');
+    const supporter = await resolveTwitchCommunityBadges({ userId: '1', login: 'supporteruser', displayName: 'SupporterUser' });
+    const subwoofer = await resolveTwitchCommunityBadges({ userId: '2', login: 'subwooferuser', displayName: 'SubwooferUser' });
 
     expect(supporter).toContainEqual({
       type: 'community:ffz:3',

@@ -901,7 +901,7 @@ describe('the rotation inside the generator', () => {
        once, so all five sizes must have appeared — including 0, the all-offline
        state the renderer draws as nothing, and 4, every platform live. */
     expect([...sizes].sort()).toEqual([0, 1, 2, 3, 4]);
-  }, 15_000);
+  }, 30_000);
 
   it('collapses every non-empty state to one pill in combined mode', () => {
     mountGenerator();

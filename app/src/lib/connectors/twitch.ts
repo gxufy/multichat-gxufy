@@ -7,6 +7,16 @@ import { resolveTwitchCheerMessage } from '../twitchCheermotes';
 import { resolveTwitchCommunityBadges } from '../communityBadges';
 import type { LimerinoBadgeRenderOptions } from '../limerinoBadges';
 
+/** bChat parity: preserve Twitch's display casing when login/display differ
+ * only by case; otherwise show the canonical login followed by display name. */
+export function formatTwitchVisibleUsername(login: string, displayName: string): string {
+  const normalizedLogin = login.trim().toLowerCase();
+  const normalizedDisplayName = displayName.trim().toLowerCase();
+  return normalizedLogin === normalizedDisplayName
+    ? displayName || 'Unknown'
+    : `${login || 'Unknown'} (${displayName || 'Unknown'})`;
+}
+
 const IRC_URL = 'wss://irc-ws.chat.twitch.tv:443';
 
 const PRIORITY_BADGES = ['predictions', 'admin', 'global_mod', 'staff', 'twitchbot', 'broadcaster', 'lead_moderator', 'moderator', 'vip'];
@@ -252,8 +262,11 @@ export function createTwitchConnector(opts: TwitchConnectorOpts): Connector {
     if (!communityBadgesEnabled() || !message.senderId) return;
     const ownedGeneration = generation;
     void resolveTwitchCommunityBadges(
-      message.senderId,
-      message.username,
+      {
+        userId: message.senderId,
+        login: message.senderUsername ?? '',
+        displayName: message.senderDisplayName ?? '',
+      },
       opts.communityBadgeRenderOptions,
     ).then(communityBadges => {
       if (stopped || generation !== ownedGeneration || !communityBadges.length) return;
@@ -273,6 +286,7 @@ export function createTwitchConnector(opts: TwitchConnectorOpts): Connector {
     const sourceRoomId = tags['source-room-id'];
     const localRoomId = tags['room-id'];
     const sharedChat = Boolean(sourceRoomId && sourceRoomId !== localRoomId);
+    const displayName = tags['display-name'] || '';
     const replyUsername = tags['reply-parent-display-name'] || tags['reply-parent-user-login'];
     const hasReplyBody = Object.prototype.hasOwnProperty.call(tags, 'reply-parent-msg-body');
     const reply = replyUsername && (tags['reply-parent-msg-id'] || hasReplyBody)
@@ -289,7 +303,8 @@ export function createTwitchConnector(opts: TwitchConnectorOpts): Connector {
       id: tags['id'] || `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       senderId: tags['user-id'] ?? '',
       ...(login ? { senderUsername: login } : {}),
-      username: tags['display-name'] || login || 'unknown',
+      ...(displayName ? { senderDisplayName: displayName } : {}),
+      username: formatTwitchVisibleUsername(login, displayName),
       color: tags['color'] || '',
       badges: parseBadges(tags['badges'] ?? '', badgeMap),
       text,

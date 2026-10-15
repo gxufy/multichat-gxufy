@@ -11,6 +11,10 @@ function jsonResponse(body: unknown, ok = true): Response {
   });
 }
 
+function twitchIdentity(userId: string, login: string, displayName = login) {
+  return { userId, login, displayName };
+}
+
 describe('Twitch community badges', () => {
   beforeEach(() => {
     __resetCommunityBadgeCache();
@@ -66,7 +70,7 @@ describe('Twitch community badges', () => {
       return jsonResponse({}, false);
     }));
 
-    const badges = await resolveTwitchCommunityBadges('123', 'TargetUser');
+    const badges = await resolveTwitchCommunityBadges(twitchIdentity('123', 'targetuser', 'TargetUser'));
 
     expect(badges).toEqual(expect.arrayContaining([
       {
@@ -97,7 +101,7 @@ describe('Twitch community badges', () => {
       return jsonResponse({}, false);
     }));
 
-    const badges = await resolveTwitchCommunityBadges('999', 'targetuser');
+    const badges = await resolveTwitchCommunityBadges(twitchIdentity('999', 'targetuser', 'TargetUser'));
     expect(badges).toContainEqual({
       type: 'community:ffz:7',
       url: 'https://cdn.example/ffz.png',
@@ -126,7 +130,7 @@ describe('Twitch community badges', () => {
       return jsonResponse({}, false);
     }));
 
-    const badges = await resolveTwitchCommunityBadges('123', 'targetuser');
+    const badges = await resolveTwitchCommunityBadges(twitchIdentity('123', 'targetuser'));
 
     expect(badges.filter((badge) => badge.url === 'https://cdn.example/ffz.png')).toEqual([
       {
@@ -164,7 +168,7 @@ describe('Twitch community badges', () => {
       return jsonResponse({}, false);
     }));
 
-    const badges = await resolveTwitchCommunityBadges('123', 'targetuser');
+    const badges = await resolveTwitchCommunityBadges(twitchIdentity('123', 'targetuser'));
     const ffzFamily = badges.filter((badge) =>
       badge.type.startsWith('community:ffz:') || badge.type.startsWith('community:turteg:'),
     );
@@ -195,7 +199,7 @@ describe('Twitch community badges', () => {
       return jsonResponse({}, false);
     }));
 
-    const badges = await resolveTwitchCommunityBadges('123', 'TargetUser');
+    const badges = await resolveTwitchCommunityBadges(twitchIdentity('123', 'targetuser', 'TargetUser'));
     expect(badges).toEqual(expect.arrayContaining([
       {
         type: 'community:chatty:supporter',
@@ -234,8 +238,8 @@ describe('Twitch community badges', () => {
     });
     vi.stubGlobal('fetch', fetchMock);
 
-    const first = await resolveTwitchCommunityBadges('123', 'TargetUser');
-    const second = await resolveTwitchCommunityBadges('123', 'TargetUser');
+    const first = await resolveTwitchCommunityBadges(twitchIdentity('123', 'targetuser', 'TargetUser'));
+    const second = await resolveTwitchCommunityBadges(twitchIdentity('123', 'targetuser', 'TargetUser'));
     expect(first).toEqual(expect.arrayContaining([
       {
         type: 'community:ffzap:supporter', title: 'FFZ:AP Supporter',
@@ -281,9 +285,9 @@ describe('Twitch community badges', () => {
       return jsonResponse({}, false);
     }));
 
-    const firstOwner = await resolveTwitchCommunityBadges('111', 'FirstOwner');
-    const secondOwner = await resolveTwitchCommunityBadges('222', 'SecondOwner');
-    const nonOwner = await resolveTwitchCommunityBadges('333', 'NonOwner');
+    const firstOwner = await resolveTwitchCommunityBadges(twitchIdentity('111', 'firstowner', 'FirstOwner'));
+    const secondOwner = await resolveTwitchCommunityBadges(twitchIdentity('222', 'secondowner', 'SecondOwner'));
+    const nonOwner = await resolveTwitchCommunityBadges(twitchIdentity('333', 'nonowner', 'NonOwner'));
 
     expect(firstOwner).toEqual([{
       type: 'community:chatterino:purple-star',
@@ -310,7 +314,7 @@ describe('Twitch community badges', () => {
       return jsonResponse({}, false);
     }));
 
-    const badges = await resolveTwitchCommunityBadges('123', 'TargetUser');
+    const badges = await resolveTwitchCommunityBadges(twitchIdentity('123', 'targetuser', 'TargetUser'));
     expect(badges).toContainEqual({
       type: 'community:ffzap:supporter', title: 'FFZ:AP Supporter',
       url: 'https://api.ffzap.com/v1/user/badge/123/3',
@@ -340,7 +344,7 @@ describe('Twitch community badges', () => {
       return jsonResponse({}, false);
     }));
 
-    const badges = await resolveTwitchCommunityBadges('123', 'IgnoredUsername', {
+    const badges = await resolveTwitchCommunityBadges(twitchIdentity('123', 'ignoredusername', 'IgnoredUsername'), {
       slotSizePx: 28,
       displayScale: 2,
       reducedMotion: false,
@@ -357,6 +361,75 @@ describe('Twitch community badges', () => {
         fallbackUrl: 'https://api.limerino.com/v1/badges/art/second/1/72px.png',
       },
     ]);
+  });
+
+  it('matches immutable id, canonical login, and display name as separate aliases', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === 'https://api.chatterino.com/badges') {
+        return jsonResponse({ badges: [{
+          id: 'by-id',
+          tooltip: 'By ID',
+          image3: 'https://cdn.example/by-id.png',
+          users: ['123'],
+        }] });
+      }
+      if (url === 'https://chatterinohomies.com/api/badges/list') {
+        return jsonResponse({ badges: [{
+          badgeId: 'by-login',
+          tooltip: 'By Login',
+          image3: 'https://cdn.example/by-login.png',
+          username: 'canonical_login',
+        }] });
+      }
+      if (url === 'https://api.frankerfacez.com/v1/badges') {
+        return jsonResponse({
+          badges: [
+            { id: 2, title: 'By Display', urls: { '4': 'https://cdn.example/by-display.png' } },
+            { id: 3, title: 'Concatenated', urls: { '4': 'https://cdn.example/concatenated.png' } },
+          ],
+          users: {
+            '2': ['Localized Name'],
+            '3': ['canonical_login (Localized Name)'],
+          },
+        });
+      }
+      return jsonResponse({}, false);
+    }));
+
+    const badges = await resolveTwitchCommunityBadges({
+      userId: '123',
+      login: 'canonical_login',
+      displayName: 'Localized Name',
+    });
+
+    expect(badges.map((badge) => badge.url)).toEqual(expect.arrayContaining([
+      'https://cdn.example/by-id.png',
+      'https://cdn.example/by-login.png',
+      'https://cdn.example/by-display.png',
+    ]));
+    expect(badges.some((badge) => badge.url === 'https://cdn.example/concatenated.png')).toBe(false);
+  });
+
+  it('accepts the current Folhinha dev field without inventing ownership', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input) === 'https://api.folhinhabot.com/plus') {
+        return jsonResponse({
+          badges: { dev: { '4': 'https://cdn.example/folhinha-dev.png' } },
+          dev: [{ userId: '123', currAlias: 'owner' }],
+        });
+      }
+      return jsonResponse({}, false);
+    }));
+
+    const owner = await resolveTwitchCommunityBadges(twitchIdentity('123', 'owner'));
+    const nonOwner = await resolveTwitchCommunityBadges(twitchIdentity('999', 'viewer'));
+
+    expect(owner).toContainEqual({
+      type: 'community:folhinha:dev-0',
+      url: 'https://cdn.example/folhinha-dev.png',
+    });
+    expect(nonOwner.some((badge) => badge.type.startsWith('community:folhinha:'))).toBe(false);
   });
 
 });

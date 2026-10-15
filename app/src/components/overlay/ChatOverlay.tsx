@@ -86,6 +86,16 @@ interface Props {
  */
 export const FONT_FAMILIES = OVERLAY_FONT_FAMILIES;
 
+export const CHAT_OVERLAY_FADE_GROUP_CSS = `
+  @keyframes gxFadeGroupIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  .gx-fade-group {
+    animation: gxFadeGroupIn 220ms ease-in-out;
+  }
+`;
+
 const SIZE = {
   small: {
     fontSize:'20px', lineHeight:'30px',
@@ -598,7 +608,11 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
     fontItalic: cfg.fontItalic,
   });
   
-  const smoothRuntime = cfg.smoothScroll && cfg.animation !== 'slide';
+  /* The main animation mode is authoritative. Slide owns the approved measured
+     height reveal; Fade owns opacity only; None is a direct render. The legacy
+     smoothScroll query still parses for copied URLs, but must not add position
+     motion behind either None or Fade. */
+  const smoothRuntime = false;
   const loaderPhase: StartupLoaderPhase = showLoader === true
     ? 'visible'
     : showLoader === false
@@ -759,13 +773,7 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
           visibility: hidden;
           pointer-events: none;
         }
-        @keyframes gxFadeGroupIn {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-          }
-          .gx-fade-group {
-            animation: gxFadeGroupIn 220ms ease-in-out;
-          }
+        ${CHAT_OVERLAY_FADE_GROUP_CSS}
           @media (prefers-reduced-motion: reduce) {
             .gx-message-row {
               animation: none !important;
@@ -2089,12 +2097,15 @@ export default function ChatOverlay({ config, messages, fadingIds, pinnedMessage
         fontSize:   sz.fontSize,
       }}>
         {batches.map(({ id, messageIds, animate }) => {
+          const batchEntryAnimation = animate && cfg.animation === 'slide'
+            ? cfg.entryAnimation
+            : 'none';
           const content = messageIds
             .map((messageId) => messagesById.get(messageId))
             .filter((message): message is ParsedMessage => Boolean(message))
             .map((message) => renderMsg(
               message,
-              animate ? cfg.entryAnimation : 'none',
+              batchEntryAnimation,
             ));
           if (animate && cfg.animation==='slide') return (
             <SlideGroup

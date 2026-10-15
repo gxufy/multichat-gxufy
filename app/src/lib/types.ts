@@ -185,6 +185,8 @@ export interface UnifiedMessage {
   senderId: string;
   /** Provider-controlled login, slug, handle, or uniqueId when available. */
   senderUsername?: string;
+  /** Provider-controlled display name, retained separately from visible formatting. */
+  senderDisplayName?: string;
   /** Display-facing name or nickname used by the renderer. */
   username: string;
   /** hex color or '' (yt/tiktok have none) */

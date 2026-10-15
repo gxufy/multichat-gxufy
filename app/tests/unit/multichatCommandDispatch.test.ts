@@ -1,14 +1,14 @@
-/* Commands, executed — through each platform's real connector.
+/* Commands, executed â€” through each platform's real connector.
  *
  * The point of this file is that it does not construct a UnifiedMessage. Each
- * platform's ingestion runs for real: the Kick connector binds to a fake Pusher and
- * receives an actual `ChatMessageEvent` payload, the Twitch connector parses an
+ * platform's ingestion runs for real: the Kick connector reads an actual SSE event and
+ * receives a real `ChatMessageEvent` envelope, the Twitch connector parses an
  * actual IRC line off a fake socket, the YouTube connector polls a fake InnerTube
  * response, and the TikTok connector reads an actual SSE frame. Whatever those
  * connectors build is what the dispatcher is handed.
  *
  * That distinction matters because the per-platform failure this guards against is
- * not "the parser cannot read the string" — it is "this platform's connector puts
+ * not "the parser cannot read the string" â€” it is "this platform's connector puts
  * the text somewhere else, or spells the moderator badge differently, so the
  * command silently never fires from that chat". Four calls to the parser with a
  * handwritten string would pass in exactly the world where that bug exists.
@@ -23,33 +23,7 @@ import {
 import { MULTICHAT_COMMANDS } from '@/lib/multichatCommands';
 import type { Connector, Platform, UnifiedMessage } from '@/lib/types';
 
-/* ── Fake Pusher, for the Kick connector ── */
 
-type Binding = (data: unknown) => void;
-const pusherBindings = new Map<string, Map<string, Binding[]>>();
-
-class FakePusherChannel {
-  constructor(private readonly name: string) {}
-  bind(event: string, cb: Binding) {
-    const events = pusherBindings.get(this.name) ?? new Map<string, Binding[]>();
-    events.set(event, [...(events.get(event) ?? []), cb]);
-    pusherBindings.set(this.name, events);
-    return this;
-  }
-}
-
-class FakePusher {
-  connection = { state: 'connected', bind: () => {} };
-  subscribe(name: string) {
-    return new FakePusherChannel(name);
-  }
-  channel(name: string) {
-    return pusherBindings.has(name) ? new FakePusherChannel(name) : undefined;
-  }
-  disconnect() {}
-}
-
-vi.mock('pusher-js', () => ({ default: FakePusher }));
 
 vi.mock('@/lib/kick', async (importOriginal) => ({
   ...((await importOriginal()) as object),
@@ -62,7 +36,7 @@ vi.mock('@/lib/kick', async (importOriginal) => ({
   })),
 }));
 
-/* ── Fake WebSocket, for the Twitch connector ── */
+/* â”€â”€ Fake WebSocket, for the Twitch connector â”€â”€ */
 
 class FakeSocket {
   static last: FakeSocket | null = null;
@@ -80,7 +54,7 @@ class FakeSocket {
   close() {}
 }
 
-/* ── Fake EventSource, for the TikTok connector ── */
+/* â”€â”€ Fake EventSource, for the TikTok connector â”€â”€ */
 
 class FakeEventSource {
   static last: FakeEventSource | null = null;
@@ -95,7 +69,7 @@ class FakeEventSource {
   }
 }
 
-/* ── The recording host ── */
+/* â”€â”€ The recording host â”€â”€ */
 
 type Recorded = {
   floats: { slot: number; message: string }[];
@@ -171,7 +145,7 @@ function createHost(overrides: Partial<CommandHost> = {}) {
   };
 }
 
-/* ── Per-platform ingestion, using each real connector ── */
+/* â”€â”€ Per-platform ingestion, using each real connector â”€â”€ */
 
 /* Connectors started earlier in a test are stopped before the next one starts.
    Without this, a live connector keeps polling whenever a later ingest advances
@@ -186,7 +160,6 @@ function retire(connector: Connector): Connector {
 
 function stopActive() {
   while (active.length) active.pop()!.stop();
-  pusherBindings.clear();
 }
 
 /** Drives one platform's connector and delivers `text` as a chat message. */
@@ -205,36 +178,80 @@ const KICK_BADGES = {
 
 const ingestKick: Ingest = async (onMessage, text, role, id = 'k1') => {
   stopActive();
-  const { createKickConnector } = await import('@/lib/connectors/kick');
-  const connector = retire(createKickConnector({
-    channel: 'streamer',
-    onMessage,
-    onDelete: () => {},
-    onPin: () => {},
-    onStatus: () => {},
-  }));
+
+  const {
+    createKickConnector,
+  } = await import('@/lib/connectors/kick');
+
+  const connector = retire(
+    createKickConnector({
+      channel: 'streamer',
+      onMessage,
+      onDelete: () => {},
+      onPin: () => {},
+      onStatus: () => {},
+    }),
+  );
+
   connector.start();
-  await vi.waitFor(() => expect(pusherBindings.has('chatrooms.700.v2')).toBe(true));
-  const handlers = pusherBindings.get('chatrooms.700.v2')!.get('App\\Events\\ChatMessageEvent')!;
-  const sender = role === 'broadcaster'
-    ? { username: 'StreamerDisplay', slug: 'streamer' }
-    : role === 'moderator'
-      ? { username: 'SomeModDisplay', slug: 'somemod' }
-      : { username: 'streamer', slug: 'differentviewer' };
-  for (const handler of handlers) {
-    handler({
-      id,
-      content: text,
-      sender: {
-        id: 42,
-        ...sender,
-        identity: { color: '#fff', badges: KICK_BADGES[role] },
+
+  await vi.waitFor(() => {
+    expect(
+      FakeEventSource.last,
+    ).not.toBeNull();
+  });
+
+  const sender =
+    role === 'broadcaster'
+      ? {
+          username: 'StreamerDisplay',
+          slug: 'streamer',
+        }
+      : role === 'moderator'
+        ? {
+            username: 'SomeModDisplay',
+            slug: 'somemod',
+          }
+        : {
+            username: 'streamer',
+            slug: 'differentviewer',
+          };
+
+  FakeEventSource.last!.onmessage?.({
+    data: JSON.stringify({
+      type: 'event',
+      sequence: 1,
+      channel: 'chatrooms.700.v2',
+      event:
+        'App\\Events\\ChatMessageEvent',
+      data: {
+        id,
+        content: text,
+        type: 'message',
+        created_at:
+          new Date().toISOString(),
+        sender: {
+          id: 42,
+          ...sender,
+          identity: {
+            color: '#fff',
+            badges:
+              KICK_BADGES[role],
+            badges_v2: [],
+          },
+        },
       },
-    });
-  }
+    }),
+  });
+
+  /*
+   * Allow the optional history bootstrap to finish and release any live
+   * message that arrived during its startup race window.
+   */
+  await vi.advanceTimersByTimeAsync(0);
+
   return connector;
 };
-
 const TWITCH_BADGES = {
   broadcaster: 'broadcaster/1',
   moderator: 'moderator/1',
@@ -391,7 +408,6 @@ const PLATFORMS: readonly (readonly [string, Ingest])[] = [
 beforeEach(() => {
   vi.useFakeTimers();
   active.length = 0;
-  pusherBindings.clear();
   FakeSocket.last = null;
   FakeEventSource.last = null;
   vi.stubGlobal('WebSocket', FakeSocket);
@@ -443,14 +459,14 @@ describe('ingestion actually reaches the dispatcher', () => {
         );
       }
       /* Fails closed for the viewer, and the two privileged roles are distinct
-         from it — whatever spelling this platform uses for its badges. */
+         from it â€” whatever spelling this platform uses for its badges. */
       expect(levels).toEqual([1000, 500, 0]);
     });
   }
 
   it.each([
     ['kick', ingestKick, 'streamer', 'StreamerDisplay'],
-    ['twitch', ingestTwitch, 'streamer', 'StyledStreamer'],
+    ['twitch', ingestTwitch, 'streamer', 'streamer (StyledStreamer)'],
     ['youtube', ingestYouTube, '@streamer', '@streamer'],
     ['tiktok', ingestTikTok, 'streamer', 'CompletelyDifferent'],
   ] as const)('keeps %s canonical and display names separate', async (
@@ -463,6 +479,16 @@ describe('ingestion actually reaches the dispatcher', () => {
     await ingest((message) => { seen.push(message); }, 'hello', 'broadcaster');
     expect(seen).toHaveLength(1);
     expect(seen[0]).toMatchObject({ senderUsername, username });
+  });
+
+  it('retains the raw Twitch display name beside bChat-compatible visible formatting', async () => {
+    const seen: UnifiedMessage[] = [];
+    await ingestTwitch((message) => { seen.push(message); }, 'hello', 'broadcaster');
+    expect(seen[0]).toMatchObject({
+      senderUsername: 'streamer',
+      senderDisplayName: 'StyledStreamer',
+      username: 'streamer (StyledStreamer)',
+    });
   });
 });
 
@@ -850,7 +876,7 @@ describe('every command runs from every platform', () => {
 
       it('runs each documented command name from this platform', async () => {
         /* The registry drives the loop, so a command added later is covered here
-           without this file being edited — it will fail until it dispatches. The
+           without this file being edited â€” it will fail until it dispatches. The
            dispatched names are collected rather than asserted inside the callback,
            so a platform that delivers nothing at all fails on the comparison
            instead of passing an assertion that never ran. */
@@ -999,8 +1025,8 @@ describe('parsing, per platform', () => {
     });
 
     it(`keeps argument casing and unicode intact from ${platform}`, async () => {
-      const { log } = await run(ingest, '!multichat tts Héllo Wörld ツ');
-      expect(log.spoken).toEqual(['Héllo Wörld ツ']);
+      const { log } = await run(ingest, '!multichat tts HÃ©llo WÃ¶rld ãƒ„');
+      expect(log.spoken).toEqual(['HÃ©llo WÃ¶rld ãƒ„']);
     });
 
     it(`ignores an unknown command from ${platform}`, async () => {
@@ -1031,7 +1057,7 @@ describe('one message dispatches once', () => {
     });
 
     it(`still accepts a distinct later command from ${platform}`, async () => {
-      /* Same runner, two ingested messages with different ids — the dedupe must be
+      /* Same runner, two ingested messages with different ids â€” the dedupe must be
          per message, not a one-command-per-session lock. */
       const harness = createHost();
       const deliver = (m: UnifiedMessage) => harness.runner.handle(m);

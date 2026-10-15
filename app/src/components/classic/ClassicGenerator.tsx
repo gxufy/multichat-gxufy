@@ -189,7 +189,7 @@ const MC_SHOW_PIN = toggleSetting(MC, 'showPinEnabled');
 const MC_PIN_PLATFORMS = multiSelectSetting(MC, 'pinPlatforms');
 const MC_BG_COLOR = colorSetting(MC, 'bgColor');
 const MC_FONT_COLOR = colorSetting(MC, 'fontColor');
-const MC_BOT_NAMES = textSetting(MC, 'botNames');
+const MC_PERMITTED_BOTS = textSetting(MC, 'permittedBots');
 const MC_USER_BL = textSetting(MC, 'userBL');
 const MC_PREFIX_BL = textSetting(MC, 'prefixBL');
 
@@ -1395,7 +1395,7 @@ export default function ClassicGenerator({
             bodyClassName="settings-filter-grid"
           >
             <div className="form_col">
-              {chat(MC_BOT_NAMES)}
+              {chat(MC_PERMITTED_BOTS)}
               {chat(MC_PREFIX_BL)}
             </div>
             <div className="form_col">

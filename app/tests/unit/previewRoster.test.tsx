@@ -38,6 +38,27 @@ const responseFor = (login: string): PreviewIdentityResponse => ({
     login,
     displayName: 'ProviderCase',
   },
+  communityBadges: [
+    {
+      type: 'community:chatterino:owner',
+      url: `https://cdn.example/${login}-community-owner.png`,
+    },
+    {
+      type: 'community:moltorino:friend',
+      title: 'Moltorino Friend',
+      url: `https://cdn.example/${login}-community-friend.png`,
+      fallbackUrl: `https://cdn.example/${login}-community-friend-fallback.png`,
+      backgroundColor: '#123456',
+    },
+    {
+      type: 'community:bttv:bttv-owner',
+      url: `https://cdn.example/${login}-bttv-owner.png`,
+    },
+    {
+      type: 'community:ffz:ffz-owner',
+      url: `https://cdn.example/${login}-ffz-owner.png`,
+    },
+  ],
   providers: {
     Twitch: {
       status: 'loaded',
@@ -126,6 +147,7 @@ describe('curated Preview Identity roster', () => {
       'Said',
       'slaiqe',
       'wtwfrxsty',
+      'tuk7',
       'giovahni',
       'hvdras',
       'feelssunnyman',
@@ -140,6 +162,7 @@ describe('curated Preview Identity roster', () => {
       'said',
       'slaiqe',
       'wtwfrxsty',
+      'tuk7',
       'giovahni',
       'hvdras',
       'feelssunnyman',
@@ -198,7 +221,7 @@ describe('curated Preview Identity roster', () => {
     expect(templates[1]!.text).toBe(PREVIEW_MESSAGES[1]);
   });
 
-  it('borrows another loaded preview identity when the row owner has no usable 7TV artwork', () => {
+  it('never borrows another preview identity 7TV artwork', () => {
     const gxufy = withoutSevenTV('gxufy');
     const hvdras = responseFor('hvdras');
     const responses = new Map<string, PreviewIdentityResponse>([
@@ -206,24 +229,66 @@ describe('curated Preview Identity roster', () => {
       ['hvdras', hvdras],
     ]);
 
-    expect(resolvedSevenTVResponse(gxufy, responses)).toBe(hvdras);
+    expect(resolvedSevenTVResponse(gxufy, responses)).toBeUndefined();
+
     const templates = rosterTemplates(responses, 0);
-    expect(templates[0]!.text).toBe(`${PREVIEW_MESSAGES[0]} LOL`);
+    expect(templates[0]!.text).toBe(PREVIEW_MESSAGES[0]);
+    expect(templates[0]!.text).not.toContain('LOL');
     expect(templates[0]!.text).not.toContain('ZeroOverlay');
   });
 
-  it('uses resolved community badges and never invents native Twitch entitlements', () => {
+  it('uses full resolved community badges and ignores flattened Twitch badge-map copies', () => {
     const response = responseFor('gxufy');
     const badges = curatedBadges(PREVIEW_ROSTER[0]!, response, 0);
+
     expect(badges.map((badge) => badge.type)).toEqual([
       'community:chatterino:owner',
       'community:moltorino:friend',
       'community:bttv:bttv-owner',
       'community:ffz:ffz-owner',
     ]);
+
     expect(badges.some((badge) => badge.type === 'moderator')).toBe(false);
     expect(badges.some((badge) => badge.type === 'subscriber')).toBe(false);
+
+    expect(badges[1]).toMatchObject({
+      type: 'community:moltorino:friend',
+      title: 'Moltorino Friend',
+      url: 'https://cdn.example/gxufy-community-friend.png',
+      fallbackUrl: 'https://cdn.example/gxufy-community-friend-fallback.png',
+      backgroundColor: '#123456',
+    });
+
     expect(new Set(badges.map((badge) => badge.url)).size).toBe(badges.length);
+  });
+
+  it('uses the exact bChat Twitch visible-name rule for preview identities', () => {
+    const providerCase = responseFor('gxufy');
+
+    const tuk7Base = responseFor('tuk7');
+    const tuk7: PreviewIdentityResponse = {
+      ...tuk7Base,
+      identity: {
+        ...tuk7Base.identity,
+        displayName: 'TUK7',
+      },
+    };
+
+    const responses = new Map<string, PreviewIdentityResponse>([
+      ['gxufy', providerCase],
+      ['tuk7', tuk7],
+    ]);
+
+    const templates = rosterTemplates(responses, 0);
+    const tuk7Index = PREVIEW_ROSTER.findIndex((entry) => entry.login === 'tuk7');
+
+    // Different ignoring case => login (display-name)
+    expect(templates[0]!.username).toBe('gxufy (ProviderCase)');
+
+    // Same ignoring case => Twitch display-name only
+    expect(tuk7Index).toBeGreaterThanOrEqual(0);
+    expect(templates[tuk7Index]!.username).toBe('TUK7');
+    expect(templates[tuk7Index]!.senderUsername).toBe('tuk7');
   });
 
   it('bounds identity loading concurrency and continues after an independent failure', async () => {
@@ -251,7 +316,7 @@ describe('curated Preview Identity roster', () => {
     await waitFor(() => expect(resolvers.has('xslash58')).toBe(true));
     await act(async () => resolvers.get('gxufy')!.resolve(jsonResponse(responseFor('gxufy'))));
     await waitFor(() => expect(result.current.responses.has('gxufy')).toBe(true));
-    expect(result.current.templates[0]!.username).toBe('gxufy');
+    expect(result.current.templates[0]!.username).toBe('gxufy (ProviderCase)');
     expect(result.current.templates[0]!.text).toBe(`${PREVIEW_MESSAGES[0]} LOL`);
     expect(peak).toBe(PREVIEW_ROSTER_CONCURRENCY);
   });

@@ -57,20 +57,20 @@ describe('smooth message handling', () => {
     expect(observerConstructed).not.toHaveBeenCalled();
   });
 
-  it('keeps smooth scrolling available for non-Slide animation modes', () => {
+  it.each(['none', 'fade'] as const)('keeps %s free of animated position following', (animation) => {
     const observerConstructed = vi.fn();
     vi.stubGlobal('MutationObserver', class {
       constructor() { observerConstructed(); }
       observe() {}
       disconnect() {}
     });
-    const config = MultichatQuerySchema.parse({ twitch: 'gxufy', animation: 'fade', smoothScroll: '1' });
+    const config = MultichatQuerySchema.parse({ twitch: 'gxufy', animation, smoothScroll: '1' });
     const raw = SAMPLE_MESSAGES[0].message;
     const parsed = buildParsedMessage(raw, config, SAMPLE_COSMETICS, { enabled: config.mentionColor, colors: new Map() }, raw.timestamp);
     const { container } = render(<ChatOverlay config={config} messages={[parsed]} fadingIds={new Set()} pinnedMessage={null} showLoader={false} sourceTagExplicit />);
     const chat = container.querySelector('#chat_container') as HTMLElement;
-    expect(chat.style.display).toBe('flex');
-    expect(chat.style.maxHeight).toBe('calc(100vh - 20px)');
-    expect(observerConstructed).toHaveBeenCalledTimes(1);
+    expect(chat.style.display).toBe('');
+    expect(chat.style.maxHeight).toBe('');
+    expect(observerConstructed).not.toHaveBeenCalled();
   });
 });

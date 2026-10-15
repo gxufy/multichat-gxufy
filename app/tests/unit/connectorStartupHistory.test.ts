@@ -1,21 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { UnifiedMessage } from '@/lib/types';
 
-/* Kick's connector needs a Pusher surface even though these tests only exercise
- * its startup history path. */
-class FakePusherChannel {
-  bind() { return this; }
-}
+/* Kick now consumes the shared server realtime feed through EventSource. */
+class FakeEventSource {
+  onmessage: ((event: { data: string }) => void) | null = null;
+  onerror: (() => void) | null = null;
 
-class FakePusher {
-  connection = { state: 'connected', bind: () => {} };
-  subscribe() { return new FakePusherChannel(); }
-  channel() { return new FakePusherChannel(); }
-  disconnect() {}
-  connect() {}
-}
+  constructor(readonly url: string) {}
 
-vi.mock('pusher-js', () => ({ default: FakePusher }));
+  close() {}
+}
 
 vi.mock('@/lib/kick', async (importOriginal) => ({
   ...((await importOriginal()) as object),
@@ -31,6 +25,7 @@ vi.mock('@/lib/kick', async (importOriginal) => ({
 beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(10_000);
+  vi.stubGlobal('EventSource', FakeEventSource);
 });
 
 afterEach(() => {

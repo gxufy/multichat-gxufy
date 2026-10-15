@@ -1,224 +1,408 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+﻿import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Connector } from '@/lib/types';
 
-type ConnectionHandler = (value?: any) => void;
+class FakeEventSource {
+  static instances: FakeEventSource[] = [];
 
-class FakePusherChannel {
-  bind() { return this; }
-}
+  onmessage: ((event: { data: string }) => void) | null = null;
+  onerror: (() => void) | null = null;
+  closed = false;
 
-class FakePusherConnection {
-  state = 'connected';
-  private readonly handlers = new Map<string, ConnectionHandler[]>();
-
-  bind(event: string, handler: ConnectionHandler) {
-    const current = this.handlers.get(event) ?? [];
-    current.push(handler);
-    this.handlers.set(event, current);
+  constructor(readonly url: string) {
+    FakeEventSource.instances.push(this);
   }
 
-  emit(event: string, value?: any) {
-    for (const handler of this.handlers.get(event) ?? []) handler(value);
-  }
-}
-
-class FakePusher {
-  static instances: FakePusher[] = [];
-
-  readonly connection = new FakePusherConnection();
-  readonly channels = new Map<string, FakePusherChannel>();
-  connectCalls = 0;
-  disconnectCalls = 0;
-
-  constructor() {
-    FakePusher.instances.push(this);
+  close() {
+    this.closed = true;
   }
 
-  subscribe(name: string) {
-    let channel = this.channels.get(name);
-    if (!channel) {
-      channel = new FakePusherChannel();
-      this.channels.set(name, channel);
-    }
-    return channel;
+  emit(data: unknown) {
+    this.onmessage?.({
+      data: JSON.stringify(data),
+    });
   }
 
-  channel(name: string) {
-    return this.channels.get(name) ?? null;
-  }
-
-  connect() {
-    this.connectCalls += 1;
-  }
-
-  disconnect() {
-    this.disconnectCalls += 1;
-    this.connection.state = 'disconnected';
-    this.connection.emit('state_change', { current: 'disconnected' });
-  }
-
-  emitDisconnected() {
-    this.connection.state = 'disconnected';
-    this.connection.emit('state_change', { current: 'disconnected' });
-  }
-
-  emitConnected() {
-    this.connection.state = 'connected';
-    this.connection.emit('connected');
+  fail() {
+    this.onerror?.();
   }
 }
-
-vi.mock('pusher-js', () => ({ default: FakePusher }));
 
 vi.mock('@/lib/kick', async (importOriginal) => ({
   ...((await importOriginal()) as object),
+
   getKickChannel: vi.fn(async (channel: string) => ({
     id: channel === 'second' ? 8 : 7,
     user_id: channel === 'second' ? 88 : 77,
-    chatroom: { id: channel === 'second' ? 800 : 700 },
-    user: { id: channel === 'second' ? 88 : 77, username: channel },
+    slug: channel,
+    chatroom: {
+      id: channel === 'second' ? 800 : 700,
+    },
+    user: {
+      id: channel === 'second' ? 88 : 77,
+      username: channel,
+    },
     subscriber_badges: [],
   })),
 }));
 
 const connectors: Connector[] = [];
 
-async function startConnector(channel = 'streamer') {
-  const { createKickConnector } = await import('@/lib/connectors/kick');
+function kickChatEnvelope(
+  id: string,
+  text = 'hello',
+) {
+  return {
+    type: 'event',
+    sequence: 1,
+    channel: 'chatrooms.700.v2',
+    event: 'App\\Events\\ChatMessageEvent',
+    data: {
+      id,
+      content: text,
+      type: 'message',
+      created_at: new Date(Date.now()).toISOString(),
+      sender: {
+        id: 42,
+        username: 'Viewer',
+        slug: 'viewer',
+        identity: {
+          color: '#fff',
+          badges: [],
+          badges_v2: [],
+        },
+      },
+    },
+  };
+}
+
+async function startConnector(
+  channel = 'streamer',
+) {
+  const {
+    createKickConnector,
+  } = await import('@/lib/connectors/kick');
+
+  const onMessage = vi.fn();
+  const onDelete = vi.fn();
+  const onPin = vi.fn();
+  const onStatus = vi.fn();
+
   const connector = createKickConnector({
     channel,
-    onMessage: vi.fn(),
-    onDelete: vi.fn(),
-    onPin: vi.fn(),
-    onStatus: vi.fn(),
+    onMessage,
+    onDelete,
+    onPin,
+    onStatus,
   });
+
   connectors.push(connector);
+
   connector.start();
+
   await vi.advanceTimersByTimeAsync(0);
-  const pusher = FakePusher.instances.at(-1);
-  expect(pusher).toBeDefined();
-  return { connector, pusher: pusher! };
+
+  const eventSource =
+    FakeEventSource.instances.at(-1);
+
+  expect(eventSource).toBeDefined();
+
+  return {
+    connector,
+    eventSource: eventSource!,
+    onMessage,
+    onDelete,
+    onPin,
+    onStatus,
+  };
 }
 
 beforeEach(() => {
   vi.useFakeTimers();
-  FakePusher.instances = [];
-  vi.stubGlobal('fetch', vi.fn(async () => ({
-    ok: true,
-    json: async () => ({ data: { messages: [] } }),
-  } as Response)));
+
+  vi.setSystemTime(
+    new Date(
+      '2026-10-15T00:00:00.000Z',
+    ),
+  );
+
+  FakeEventSource.instances = [];
+
+  vi.stubGlobal(
+    'EventSource',
+    FakeEventSource,
+  );
+
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        data: {
+          messages: [],
+        },
+      }),
+    } as Response)),
+  );
 });
 
 afterEach(() => {
-  for (const connector of connectors.splice(0)) connector.stop();
+  for (
+    const connector of
+    connectors.splice(0)
+  ) {
+    connector.stop();
+  }
+
   vi.clearAllTimers();
   vi.useRealTimers();
   vi.unstubAllGlobals();
 });
 
-describe('Kick connector reconnect lifecycle', () => {
-  it('creates only one transport when start is requested repeatedly', async () => {
-    const { createKickConnector } = await import('@/lib/connectors/kick');
-    const connector = createKickConnector({
-      channel: 'streamer',
-      onMessage: vi.fn(),
-      onDelete: vi.fn(),
-      onPin: vi.fn(),
-      onStatus: vi.fn(),
-    });
-    connectors.push(connector);
+describe(
+  'Kick connector EventSource lifecycle',
+  () => {
+    it(
+      'creates only one realtime transport when start is requested repeatedly',
+      async () => {
+        const {
+          createKickConnector,
+        } = await import(
+          '@/lib/connectors/kick'
+        );
 
-    connector.start();
-    connector.start();
-    await vi.advanceTimersByTimeAsync(0);
+        const connector =
+          createKickConnector({
+            channel: 'streamer',
+            onMessage: vi.fn(),
+            onDelete: vi.fn(),
+            onPin: vi.fn(),
+            onStatus: vi.fn(),
+          });
 
-    expect(FakePusher.instances).toHaveLength(1);
-  });
+        connectors.push(connector);
 
-  it('coalesces repeated disconnect signals into one reconnect', async () => {
-    const { pusher } = await startConnector();
+        connector.start();
+        connector.start();
 
-    pusher.emitDisconnected();
-    pusher.emitDisconnected();
-    pusher.emitDisconnected();
-    await vi.advanceTimersByTimeAsync(1_999);
-    expect(pusher.connectCalls).toBe(0);
-    await vi.advanceTimersByTimeAsync(1);
-    expect(pusher.connectCalls).toBe(1);
-  });
+        await vi.advanceTimersByTimeAsync(
+          0,
+        );
 
-  it('clears timer ownership when it fires and reconnects normally again', async () => {
-    const { pusher } = await startConnector();
+        expect(
+          FakeEventSource.instances,
+        ).toHaveLength(1);
+      },
+    );
 
-    pusher.emitDisconnected();
-    await vi.advanceTimersByTimeAsync(2_000);
-    expect(pusher.connectCalls).toBe(1);
+    it(
+      'uses the resolved channel and chatroom ids in the realtime SSE URL',
+      async () => {
+        const {
+          eventSource,
+        } =
+          await startConnector();
 
-    pusher.emitDisconnected();
-    await vi.advanceTimersByTimeAsync(2_000);
-    expect(pusher.connectCalls).toBe(2);
-  });
+        expect(
+          eventSource.url,
+        ).toBe(
+          '/api/kick/realtime?channelId=7&chatroomId=700',
+        );
+      },
+    );
 
-  it('cancels a pending reconnect when Pusher recovers by itself', async () => {
-    const { pusher } = await startConnector();
+    it(
+      'forwards realtime status and chat events',
+      async () => {
+        const {
+          eventSource,
+          onMessage,
+          onStatus,
+        } =
+          await startConnector();
 
-    pusher.emitDisconnected();
-    pusher.emitConnected();
-    await vi.advanceTimersByTimeAsync(2_000);
-    expect(pusher.connectCalls).toBe(0);
-  });
+        eventSource.emit({
+          type: 'status',
+          status: 'connected',
+          detail:
+            'Kick chat connected',
+        });
 
-  it('coalesces watchdog failure and disconnect events into one reconnect', async () => {
-    const { pusher } = await startConnector();
+        eventSource.emit(
+          kickChatEnvelope(
+            'kick-live-1',
+          ),
+        );
 
-    pusher.connection.state = 'unavailable';
-    await vi.advanceTimersByTimeAsync(10_000);
-    expect(pusher.disconnectCalls).toBe(1);
-    expect(pusher.connectCalls).toBe(0);
-    await vi.advanceTimersByTimeAsync(2_000);
-    expect(pusher.connectCalls).toBe(1);
-  });
+        await vi.advanceTimersByTimeAsync(
+          0,
+        );
 
-  it('stop cancels pending work, ignores stale events, and is idempotent', async () => {
-    const { connector, pusher } = await startConnector();
+        expect(
+          onStatus,
+        ).toHaveBeenLastCalledWith(
+          'connected',
+          'Kick chat connected',
+        );
 
-    pusher.emitDisconnected();
-    connector.stop();
-    connector.stop();
-    pusher.emitDisconnected();
-    pusher.emitConnected();
-    await vi.advanceTimersByTimeAsync(30_000);
+        expect(
+          onMessage,
+        ).toHaveBeenCalledTimes(1);
 
-    expect(pusher.connectCalls).toBe(0);
-    expect(pusher.disconnectCalls).toBe(1);
-  });
+        expect(
+          onMessage.mock.calls[0][0],
+        ).toMatchObject({
+          platform: 'kick',
+          id: 'kick-live-1',
+          senderId: '42',
+          senderUsername: 'viewer',
+          username: 'Viewer',
+          text: 'hello',
+        });
+      },
+    );
 
-  it('rechecks lifecycle state if a cancelled timer callback is already queued', async () => {
-    const timeoutSpy = vi.spyOn(globalThis, 'setTimeout');
-    const { connector, pusher } = await startConnector();
+    it(
+      'leaves reconnect ownership to native EventSource after an SSE error',
+      async () => {
+        const {
+          eventSource,
+          onStatus,
+        } =
+          await startConnector();
 
-    pusher.emitDisconnected();
-    const reconnectCall = timeoutSpy.mock.calls.find(([, delay]) => delay === 2_000);
-    expect(reconnectCall).toBeDefined();
-    const staleCallback = reconnectCall![0] as () => void;
+        eventSource.fail();
 
-    connector.stop();
-    staleCallback();
+        await vi.advanceTimersByTimeAsync(
+          30_000,
+        );
 
-    expect(pusher.connectCalls).toBe(0);
-  });
+        expect(
+          eventSource.closed,
+        ).toBe(false);
 
-  it('keeps stale events isolated from a replacement connector instance', async () => {
-    const first = await startConnector('first');
-    first.connector.stop();
-    const second = await startConnector('second');
+        expect(
+          FakeEventSource.instances,
+        ).toHaveLength(1);
 
-    first.pusher.emitDisconnected();
-    second.pusher.emitDisconnected();
-    await vi.advanceTimersByTimeAsync(2_000);
+        expect(
+          onStatus,
+        ).toHaveBeenLastCalledWith(
+          'connecting',
+          'Kick chat reconnecting',
+        );
+      },
+    );
 
-    expect(first.pusher.connectCalls).toBe(0);
-    expect(second.pusher.connectCalls).toBe(1);
-    expect(FakePusher.instances).toHaveLength(2);
-  });
-});
+    it(
+      'deduplicates a replayed realtime message id',
+      async () => {
+        const {
+          eventSource,
+          onMessage,
+        } =
+          await startConnector();
+
+        const event =
+          kickChatEnvelope(
+            'kick-duplicate',
+          );
+
+        eventSource.emit(event);
+        eventSource.emit(event);
+
+        await vi.advanceTimersByTimeAsync(
+          0,
+        );
+
+        expect(
+          onMessage,
+        ).toHaveBeenCalledTimes(1);
+      },
+    );
+
+    it(
+      'stop closes the EventSource, ignores stale events, and is idempotent',
+      async () => {
+        const {
+          connector,
+          eventSource,
+          onMessage,
+        } =
+          await startConnector();
+
+        connector.stop();
+        connector.stop();
+
+        eventSource.emit(
+          kickChatEnvelope(
+            'kick-after-stop',
+          ),
+        );
+
+        await vi.advanceTimersByTimeAsync(
+          30_000,
+        );
+
+        expect(
+          eventSource.closed,
+        ).toBe(true);
+
+        expect(
+          onMessage,
+        ).not.toHaveBeenCalled();
+
+        expect(
+          FakeEventSource.instances,
+        ).toHaveLength(1);
+      },
+    );
+
+    it(
+      'keeps stale events isolated from a replacement connector instance',
+      async () => {
+        const first =
+          await startConnector(
+            'first',
+          );
+
+        first.connector.stop();
+
+        const second =
+          await startConnector(
+            'second',
+          );
+
+        first.eventSource.emit(
+          kickChatEnvelope(
+            'stale-first',
+          ),
+        );
+
+        second.eventSource.emit({
+          ...kickChatEnvelope(
+            'live-second',
+          ),
+          channel:
+            'chatrooms.800.v2',
+        });
+
+        await vi.advanceTimersByTimeAsync(
+          0,
+        );
+
+        expect(
+          first.onMessage,
+        ).not.toHaveBeenCalled();
+
+        expect(
+          second.onMessage,
+        ).toHaveBeenCalledTimes(1);
+
+        expect(
+          FakeEventSource.instances,
+        ).toHaveLength(2);
+      },
+    );
+  },
+);

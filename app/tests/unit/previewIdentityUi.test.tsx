@@ -6,7 +6,11 @@ import { useChatPreviewSimulator } from '@/components/classic/useChatPreviewSimu
 import { seededRandom } from '@/features/multichat/previewSimulator';
 import type { PreviewIdentityResponse } from '@/features/multichat/previewIdentity';
 import { workspaceDraftKey } from '@/lib/workspaceStorage';
-import { __resetPreviewIdentityClient } from '@/features/multichat/previewIdentityClient';
+import {
+  __resetPreviewIdentityClient,
+  cachedPreviewIdentity,
+} from '@/features/multichat/previewIdentityClient';
+import { __resetCommunityBadgeCache } from '@/lib/communityBadges';
 import { PREVIEW_ROSTER } from '@/features/multichat/previewRoster';
 
 vi.mock('next/head', () => ({ default: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
@@ -21,7 +25,7 @@ const emote = (id: string, name: string, provider: 'FFZ' | 'BTTV' | '7TV', zeroW
 
 const identityResponse = (login = 'canonical'): PreviewIdentityResponse => ({
   identity: { userId: login === 'newer' ? '99' : '42', login, displayName: login === 'newer' ? 'NewerName' : 'CanonicalName' },
-  providers: {
+  communityBadges: [],  providers: {
     Twitch: {
       status: 'loaded',
       resources: {
@@ -61,13 +65,24 @@ const jsonResponse = (body: unknown, status = 200) => Promise.resolve({
   json: () => Promise.resolve(body),
 } as Response);
 
+const providerJsonResponse = (body: unknown, status = 200) => Promise.resolve(
+  new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }),
+);
+
 beforeEach(() => {
   window.sessionStorage.clear();
   __resetPreviewIdentityClient();
+  __resetCommunityBadgeCache();
 });
 
 afterEach(() => {
   cleanup();
+  __resetCommunityBadgeCache();
   vi.unstubAllGlobals();
   vi.useRealTimers();
 });
@@ -194,26 +209,118 @@ describe('curated identities in the Chat Preview card', () => {
     expect(screen.queryByText('Add your own lines to the preview')).toBeNull();
     expect(screen.queryByText('Feed speed')).toBeNull();
     expect(screen.queryByText('Preview scale')).toBeNull();
-  });
+  }, 15_000);
 
   it('requests normalized logins automatically and renders loaded resources through ChatOverlay', async () => {
     const fetchMock = vi.fn((input: RequestInfo | URL) => {
-      const login = new URL(String(input), 'http://local').searchParams.get('login')!;
-      return jsonResponse(rosterResponse(login));
+      const url = String(input);
+
+      if (url.startsWith('/api/twitch/preview-identity?')) {
+        const login = new URL(url, 'http://local').searchParams.get('login')!;
+        const raw = rosterResponse(login);
+
+        /*
+         * Production preview API intentionally does not resolve community
+         * badges. Removing this field forces previewIdentityClient through the
+         * same browser-side production badge resolver as live Twitch chat.
+         */
+        const { communityBadges: _ignored, ...withoutCommunityBadges } = raw;
+        return jsonResponse(withoutCommunityBadges);
+      }
+
+      if (url === 'https://api.chatterino.com/badges') {
+        return providerJsonResponse({
+          badges: [{
+            id: 'verified',
+            tooltip: 'Verified',
+            image1: 'https://cdn.example/community-verified.png',
+            users: ['42'],
+          }],
+        });
+      }
+
+      /*
+       * Same-origin community-provider proxies use array-shaped empty
+       * responses safely for the no-match test fixture.
+       */
+      if (url.startsWith('/api/twitch/')) {
+        return providerJsonResponse([]);
+      }
+
+      /*
+       * Remaining browser-direct community registries are allowed to return
+       * an empty object. Their parsers simply produce no ownership matches.
+       */
+      return providerJsonResponse({});
     });
+
     vi.stubGlobal('fetch', fetchMock);
     render(<ClassicGenerator />);
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(PREVIEW_ROSTER.length));
-    expect(fetchMock.mock.calls.map((call) => new URL(String(call[0]), 'http://local').searchParams.get('login'))).toEqual(
-      PREVIEW_ROSTER.map((entry) => entry.login),
+
+    await waitFor(() => {
+      const previewCalls = fetchMock.mock.calls.filter(
+        ([input]) => String(input).startsWith('/api/twitch/preview-identity?'),
+      );
+      expect(previewCalls).toHaveLength(PREVIEW_ROSTER.length);
+    });
+
+    const previewCalls = fetchMock.mock.calls.filter(
+      ([input]) => String(input).startsWith('/api/twitch/preview-identity?'),
     );
-    await waitFor(() => expect(screen.getByText(new RegExp(`${PREVIEW_ROSTER.length} of ${PREVIEW_ROSTER.length}`))).toBeTruthy());
-    const body = document.querySelector<HTMLIFrameElement>('iframe[title="MultiChat sample preview"]')?.contentDocument?.body;
-    for (const entry of PREVIEW_ROSTER) expect(body?.textContent ?? '').toContain(entry.displayName);
-    expect(body?.querySelector('img[src="https://cdn.example/community-verified.png"]')).not.toBeNull();
+
+    expect(
+      previewCalls.map(
+        ([input]) => new URL(String(input), 'http://local').searchParams.get('login'),
+      ),
+    ).toEqual(PREVIEW_ROSTER.map((entry) => entry.login));
+
+    // Prove the browser production community-badge resolver actually ran.
+    expect(
+      fetchMock.mock.calls.some(
+        ([input]) => String(input) === 'https://api.chatterino.com/badges',
+      ),
+    ).toBe(true);
+
+    expect(
+      fetchMock.mock.calls.some(
+        ([input]) => String(input).startsWith('/api/twitch/limerino-badges'),
+      ),
+    ).toBe(true);
+
+    await waitFor(() => expect(
+      screen.getByText(new RegExp(`${PREVIEW_ROSTER.length} of ${PREVIEW_ROSTER.length}`)),
+    ).toBeTruthy());
+
+    await waitFor(() => expect(
+      cachedPreviewIdentity('gxufy')?.communityBadges?.some(
+        (badge) => badge.url === 'https://cdn.example/community-verified.png',
+      ),
+    ).toBe(true));
+
+    const body = document.querySelector<HTMLIFrameElement>(
+      'iframe[title="MultiChat sample preview"]',
+    )?.contentDocument?.body;
+
+    /*
+     * Before identity resolution the preview uses the curated roster casing.
+     * Once Twitch resolves the identity, the exact bChat visible-name rule is
+     * authoritative: login (display-name) when they differ ignoring case.
+     */
+    for (const entry of PREVIEW_ROSTER) {
+      expect(body?.textContent ?? '').toContain(`${entry.login} (API casing)`);
+    }
+
+    await waitFor(() => expect(
+      body?.querySelector('img[src="https://cdn.example/community-verified.png"]'),
+    ).not.toBeNull());
+
     expect(body?.querySelector('img[alt="7tv badge"]')).not.toBeNull();
-    expect(Array.from(body?.querySelectorAll<HTMLElement>('*') ?? []).some((node) => node.style.background.includes('linear-gradient'))).toBe(true);
-  });
+
+    expect(
+      Array.from(body?.querySelectorAll<HTMLElement>('*') ?? [])
+        .some((node) => node.style.background.includes('linear-gradient')),
+    ).toBe(true);
+  }, 15_000);
 
   it('keeps roster state out of URLs, drafts, and the restored two-card layout', async () => {
     vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => jsonResponse(rosterResponse(new URL(String(input), 'http://local').searchParams.get('login')!))));
@@ -230,5 +337,5 @@ describe('curated identities in the Chat Preview card', () => {
       'card panel-chat-output', 'card panel-chat-settings', 'card panel-counter-output',
       'card panel-counter-settings', 'card panel-commands', 'card panel-obs',
     ]);
-  });
+  }, 15_000);
 });

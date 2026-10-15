@@ -11,13 +11,11 @@ import {
   loadSevenTVPreviewResources,
   loadTwitchPreviewIdentity,
 } from '@/lib/previewIdentityProviders';
-import { resolveTwitchCommunityBadges } from '@/lib/communityBadges';
 import {
   FixedProviderAdmissionError,
   fixedProviderClientKey,
   runFixedProviderWork,
 } from '@/lib/server/fixedProviderProxy';
-import { resolveVanityCommunityBadges } from '@/lib/server/vanityCommunityBadges';
 
 const GENERIC_ERROR = { error: 'Unable to load Twitch preview identity.' };
 const PREVIEW_IDENTITY_WORK_COST = 8;
@@ -38,39 +36,11 @@ function requestedProviders(value: string | string[] | undefined): PreviewIdenti
 async function loadPreviewIdentity(
   login: string,
   providers: PreviewIdentityProvider[],
-  clientKey: string,
 ): Promise<{ status: 200 | 404; body: PreviewIdentityResponse | { error: string } }> {
   const twitch = await loadTwitchPreviewIdentity(login);
   if (!twitch) return { status: 404, body: { error: 'Twitch user not found.' } };
 
-  let twitchOutcome = twitch.outcome;
-  if (providers.includes('Twitch')) {
-    const [communityResult, vanityResult] = await Promise.allSettled([
-      resolveTwitchCommunityBadges(twitch.identity.userId, twitch.identity.login),
-      resolveVanityCommunityBadges(twitch.identity.userId, clientKey),
-    ]);
-    const communityBadges = communityResult.status === 'fulfilled' ? communityResult.value : [];
-    const vanityBadges = vanityResult.status === 'fulfilled' ? vanityResult.value : [];
-    const communityBadgeMap = Object.fromEntries(
-      [
-        ...communityBadges.flatMap((badge) => badge.url ? [[`${badge.type}/1`, badge.url] as const] : []),
-        ...vanityBadges.map((badge) => [
-          `community:${badge.provider}:${badge.id.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'badge'}/1`,
-          badge.url,
-        ] as const),
-      ],
-    );
-    twitchOutcome = {
-      ...twitch.outcome,
-      resources: {
-        ...twitch.outcome.resources,
-        globalBadges: {
-          ...twitch.outcome.resources.globalBadges,
-          ...communityBadgeMap,
-        },
-      },
-    };
-  }
+  const twitchOutcome = twitch.outcome;
 
   const outcomes = await Promise.all(providers.map(async (provider) => {
     try {
@@ -99,7 +69,10 @@ async function loadPreviewIdentity(
   }));
 
   const providerMap = Object.fromEntries(outcomes) as Partial<PreviewIdentityProviderMap>;
-  const body: PreviewIdentityResponse = { identity: twitch.identity, providers: providerMap };
+  const body: PreviewIdentityResponse = {
+    identity: twitch.identity,
+    providers: providerMap,
+  };
   return { status: 200, body };
 }
 
@@ -120,7 +93,7 @@ const handler: NextApiHandler = async (req, res) => {
       key: `twitch-preview-identity:${login}:${keyProviders}`,
       clientKey,
       cost: PREVIEW_IDENTITY_WORK_COST,
-      run: () => loadPreviewIdentity(login, providers, clientKey),
+      run: () => loadPreviewIdentity(login, providers),
     });
     return res.status(result.status).json(result.body);
   } catch (error) {

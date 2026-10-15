@@ -4,6 +4,7 @@ import {
   type PreviewIdentityProvider,
   type PreviewIdentityResponse,
 } from '@/features/multichat/previewIdentity';
+import { resolveTwitchCommunityBadges } from '@/lib/communityBadges';
 
 type InFlightRequest = {
   readonly controller: AbortController;
@@ -52,8 +53,42 @@ export function acquirePreviewIdentity(
         ? mergePreviewIdentityRetry(current, parsed)
         : parsed;
       if (!merged) throw new Error('invalid-response');
-      cache.set(login, merged);
-      return merged;
+
+      /*
+       * Preview identities use the exact same browser-side community badge
+       * resolver as live Twitch chat. The API provides the canonical Twitch
+       * identity first; ownership is then resolved against that immutable
+       * user ID plus Twitch login/display-name aliases.
+       *
+       * Retry responses preserve an already-resolved badge set, so provider
+       * retries do not re-fetch the entire community registry.
+       */
+      let enriched: PreviewIdentityResponse = merged;
+
+      if (merged.communityBadges === undefined) {
+        try {
+          const communityBadges = await resolveTwitchCommunityBadges({
+            userId: merged.identity.userId,
+            login: merged.identity.login,
+            displayName: merged.identity.displayName,
+          });
+
+          enriched = {
+            ...merged,
+            communityBadges,
+          };
+        } catch {
+          /*
+           * A community badge outage must never discard otherwise valid
+           * Twitch/FFZ/BTTV/7TV preview resources. The production resolver
+           * already isolates individual provider failures; this is the final
+           * fail-safe for an unexpected resolver-level failure.
+           */
+        }
+      }
+
+      cache.set(login, enriched);
+      return enriched;
     }).finally(() => {
       next.settled = true;
       inFlight.delete(key);

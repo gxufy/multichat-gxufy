@@ -73,6 +73,7 @@ describe('MultiChat, complete strings', () => {
       pinPlatforms: [],
       hideNames: true,
       botNames: 'nightbot, streamelements',
+      permittedBots: 'moobot',
       userBL: 'someone',
       prefixBL: '!, ?',
       sourceTag: 'label',
@@ -93,7 +94,7 @@ describe('MultiChat, complete strings', () => {
         '&sourceTag=label&mentionColor=false&bgColor=112233' +
         '&emoteScale=1.5&msgBold=false&msgCaps=true&modAction=false&paintShadows=false' +
         '&fontColor=ff0000&hideNames=true' +
-        '&botNames=nightbot%2C+streamelements&userBL=someone&prefixBL=%21%2C+%3F',
+        '&botNames=nightbot%2C+streamelements&permittedBots=moobot&userBL=someone&prefixBL=%21%2C+%3F',
     );
   });
 

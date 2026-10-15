@@ -1,12 +1,10 @@
-import Pusher from 'pusher-js';
-import { getKickChannel, type KickChannel } from '../kick';
+﻿import { getKickChannel, type KickChannel } from '../kick';
 import type { Connector, ConnectorCallbacks, UnifiedBadge, UnifiedEmote, UnifiedMessage } from '../types';
 import { isMessageFromCurrentOverlaySession } from '../startupMessageBaseline';
 
 const KICK_EMOTE_RE = /\[(?:emote|emoji):(\w+):([^\]]*)\]/g;
 export const KICK_HISTORY_MAX = 40;
 const KICK_HISTORY_TIMEOUT_MS = 2_500;
-const KICK_RECONNECT_DELAY_MS = 2_000;
 const KICK_SEEN_MAX = 512;
 
 function decodeKickPayload(value: any): any {
@@ -192,45 +190,66 @@ export interface KickConnectorOpts extends ConnectorCallbacks {
 }
 
 export function createKickConnector(opts: KickConnectorOpts): Connector {
-  let pusher: Pusher | null = null;
-  let watchdog: ReturnType<typeof setInterval> | null = null;
-  let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  let es: EventSource | null = null;
   let historyAbort: AbortController | null = null;
   let starting = false;
   let stopped = false;
+
   const startedAt = Date.now();
+
   let bootstrappingHistory = true;
   const pendingLive: UnifiedMessage[] = [];
+
   const seen = new Set<string>();
   const seenOrder: string[] = [];
 
   function remember(id: string): boolean {
     if (seen.has(id)) return false;
+
     seen.add(id);
     seenOrder.push(id);
+
     while (seenOrder.length > KICK_SEEN_MAX) {
       const old = seenOrder.shift();
       if (old) seen.delete(old);
     }
+
     return true;
   }
 
   function deliver(message: UnifiedMessage): void {
     if (!message.id || !remember(message.id)) return;
-    /* Kick's history endpoint is only a race-closure source now. Rows that were
-     * already present when this overlay instance started establish the baseline
-     * but never enter the render/command pipeline. A message that arrives during
-     * bootstrap still survives because its provider timestamp is >= startedAt. */
-    if (!isMessageFromCurrentOverlaySession(message.timestamp, startedAt)) return;
+
+    /*
+     * History is only a startup race-closure source. Messages already
+     * present before this overlay instance started never enter the render
+     * or command pipeline.
+     */
+    if (
+      !isMessageFromCurrentOverlaySession(
+        message.timestamp,
+        startedAt,
+      )
+    ) {
+      return;
+    }
+
     opts.onMessage(message);
   }
 
   function deliverLive(message: UnifiedMessage): void {
-    if (bootstrappingHistory) pendingLive.push(message);
-    else deliver(message);
+    if (bootstrappingHistory) {
+      pendingLive.push(message);
+    } else {
+      deliver(message);
+    }
   }
 
-  function systemMessage(text: string, username: string, category: UnifiedMessage['category']) {
+  function systemMessage(
+    text: string,
+    username: string,
+    category: UnifiedMessage['category'],
+  ): void {
     opts.onMessage({
       platform: 'kick',
       id: `sys-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -246,165 +265,443 @@ export function createKickConnector(opts: KickConnectorOpts): Connector {
     });
   }
 
-  function clearReconnectTimer(): void {
-    if (reconnectTimer) clearTimeout(reconnectTimer);
-    reconnectTimer = null;
-  }
+  function handleRealtimeEvent(
+    event: string,
+    data: unknown,
+  ): void {
+    const raw = decodeKickPayload(data);
 
-  function scheduleReconnect(owner: Pusher): void {
-    if (stopped || pusher !== owner || reconnectTimer) return;
-    reconnectTimer = setTimeout(() => {
-      reconnectTimer = null;
-      if (stopped || pusher !== owner) return;
-      owner.connect();
-    }, KICK_RECONNECT_DELAY_MS);
-  }
-
-  async function start() {
-    if (stopped) return;
-    opts.onStatus('connecting');
-    const channel = await getKickChannel(opts.channel);
-    if (!channel) {
-      opts.onStatus('error', `Could not find Kick channel: "${opts.channel}"`);
-      return;
-    }
-    if (stopped) return;
-    opts.onChannelInfo?.(channel);
-
-    const activePusher = new Pusher('32cbd69e4b950bf97679', {
-      cluster: 'us2',
-      disableStats: true,
-      activityTimeout: 20_000,
-      pongTimeout: 8_000,
-    });
-    pusher = activePusher;
-
-    const chatroomName = `chatrooms.${channel.chatroom.id}.v2`;
-    const channelId = channel.id;
-
-    function bindChannel() {
-      if (stopped || pusher !== activePusher) return;
-      const chat = activePusher.subscribe(chatroomName);
-      chat.bind('App\\Events\\ChatMessageEvent', (data: any) => {
-        const raw = decodeKickPayload(data);
+    switch (event) {
+      case 'App\\Events\\ChatMessageEvent': {
         const message = buildKickMessage(raw);
-        if (raw.type === 'celebration' || raw.metadata?.celebration || raw.metadata?.reward) {
-          message.redeem = raw.metadata?.reward?.title ?? 'celebration';
+
+        if (
+          raw.type === 'celebration' ||
+          raw.metadata?.celebration ||
+          raw.metadata?.reward
+        ) {
+          message.redeem =
+            raw.metadata?.reward?.title ??
+            'celebration';
         }
+
         deliverLive(message);
-      });
-      chat.bind('App\\Events\\RewardRedeemedEvent', (data: any) => {
-        const d = decodeKickPayload(data);
+        return;
+      }
+
+      case 'App\\Events\\RewardRedeemedEvent':
+      case 'RewardRedeemedEvent': {
+        const d = raw;
+
         opts.onMessage({
           platform: 'kick',
-          id: `redeem-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-          senderId: d.user_id?.toString() ?? '',
-          username: d.username ?? 'Someone',
-          color: '', badges: [], emotes: [], timestamp: Date.now(), kind: 'chat',
-          text: d.user_input ? `${d.reward_title}: ${d.user_input}` : (d.reward_title ?? 'redeemed a reward'),
-          redeem: d.reward_title ?? 'reward',
+          id:
+            d?.id != null
+              ? String(d.id)
+              : `redeem-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          senderId:
+            d?.user_id?.toString() ??
+            d?.user?.id?.toString() ??
+            '',
+          username:
+            d?.username ??
+            d?.user?.username ??
+            'Someone',
+          color: '',
+          badges: [],
+          emotes: [],
+          timestamp: kickTimestamp(
+            d?.created_at ??
+            d?.timestamp,
+          ),
+          kind: 'chat',
+          text: d?.user_input
+            ? `${d?.reward_title ?? d?.reward?.title ?? 'Reward'}: ${d.user_input}`
+            : (
+                d?.reward_title ??
+                d?.reward?.title ??
+                'redeemed a reward'
+              ),
+          redeem:
+            d?.reward_title ??
+            d?.reward?.title ??
+            'reward',
         });
-      });
-      chat.bind('App\\Events\\MessageDeletedEvent', (data: any) => {
-        const d = decodeKickPayload(data);
-        const id = d.message?.id ?? d.message_id;
-        if (id) opts.onDelete({ id: String(id) });
-      });
-      chat.bind('App\\Events\\UserBannedEvent', (data: any) => {
-        const d = decodeKickPayload(data);
-        const senderId = d.user?.id?.toString();
-        const username = d.user?.username;
-        opts.onDelete({ ...(senderId ? { senderId } : {}), ...(username ? { username } : {}) });
-      });
-      chat.bind('App\\Events\\ChatroomClearEvent', () => opts.onDelete({}));
-      chat.bind('App\\Events\\PinnedMessageCreatedEvent', (data: any) => {
-        const d = decodeKickPayload(data);
-        if (d?.message) opts.onPin({ message: buildKickMessage(d.message), pinnedBy: d.pinnedBy?.username });
-      });
-      chat.bind('App\\Events\\PinnedMessageDeletedEvent', () => opts.onPin(null));
-      chat.bind('App\\Events\\SubscriptionEvent', (data: any) => {
-        const d = decodeKickPayload(data);
-        const months = Number(d.months ?? 0);
-        const username = d.username ?? d.user?.username ?? '';
-        systemMessage(`${username} subscribed!${months > 1 ? ` (${months} months)` : ''}`, username, 'subscription');
-      });
-      chat.bind('App\\Events\\GiftedSubscriptionsEvent', (data: any) => {
-        const d = decodeKickPayload(data);
-        const count = Array.isArray(d.gifted_usernames) ? d.gifted_usernames.length : Number(d.count ?? 1);
-        const username = d.gifter_username ?? d.gifter?.username ?? '';
-        systemMessage(`${username} gifted ${count} subscription${count === 1 ? '' : 's'}!`, username, 'gift');
-      });
-      chat.bind('App\\Events\\StreamHostEvent', (data: any) => {
-        const d = decodeKickPayload(data);
-        const username = d.host_username ?? d.host?.username ?? '';
-        systemMessage(`${username} is hosting with ${d.number_viewers ?? '?'} viewers!`, username, 'raid');
-      });
 
-      const kicksHandler = (data: any) => {
-        const d = decodeKickPayload(data);
-        const sender = d?.sender?.username ?? 'Someone';
-        const gift = d?.gift;
-        if (!gift) return;
-        systemMessage(`${sender} sent ${gift.name ?? 'a gift'} (${gift.amount ?? '?'} Kicks)`, sender, 'cheer');
-      };
-      activePusher.subscribe(`channel.${channelId}`).bind('KicksGifted', kicksHandler);
-      activePusher.subscribe(`channel_${channelId}`).bind('KicksGifted', kicksHandler);
-    }
-
-    bindChannel();
-
-    activePusher.connection.bind('connected', () => {
-      if (stopped || pusher !== activePusher) return;
-      clearReconnectTimer();
-      opts.onStatus('connected');
-      if (!activePusher.channel(chatroomName)) bindChannel();
-    });
-    activePusher.connection.bind('state_change', ({ current }: { current: string }) => {
-      if (current === 'disconnected') scheduleReconnect(activePusher);
-    });
-    watchdog = setInterval(() => {
-      if (stopped || pusher !== activePusher) return;
-      const state = activePusher.connection.state;
-      if (state === 'unavailable' || state === 'failed') {
-        activePusher.disconnect();
-        scheduleReconnect(activePusher);
+        return;
       }
-    }, 10_000);
 
-    historyAbort = new AbortController();
-    const historyTimeout = setTimeout(() => historyAbort?.abort(), KICK_HISTORY_TIMEOUT_MS);
+      case 'App\\Events\\MessageDeletedEvent': {
+        const d = raw;
+
+        const id =
+          d?.message?.id ??
+          d?.message_id ??
+          d?.id;
+
+        if (id) {
+          opts.onDelete({
+            id: String(id),
+          });
+        }
+
+        return;
+      }
+
+      case 'App\\Events\\UserBannedEvent': {
+        const d = raw;
+
+        const senderId =
+          d?.user?.id?.toString() ??
+          d?.user_id?.toString();
+
+        const username =
+          d?.user?.username ??
+          d?.username;
+
+        opts.onDelete({
+          ...(senderId
+            ? { senderId }
+            : {}),
+          ...(username
+            ? { username }
+            : {}),
+        });
+
+        return;
+      }
+
+      case 'App\\Events\\ChatroomClearEvent':
+        opts.onDelete({});
+        return;
+
+      case 'App\\Events\\PinnedMessageCreatedEvent': {
+        const d = raw;
+
+        if (d?.message) {
+          opts.onPin({
+            message:
+              buildKickMessage(
+                d.message,
+              ),
+            pinnedBy:
+              d?.pinnedBy?.username ??
+              d?.pinned_by?.username,
+          });
+        }
+
+        return;
+      }
+
+      case 'App\\Events\\PinnedMessageDeletedEvent':
+        opts.onPin(null);
+        return;
+
+      case 'App\\Events\\SubscriptionEvent': {
+        const d = raw;
+
+        const months =
+          Number(
+            d?.months ??
+            d?.duration ??
+            0,
+          );
+
+        const username =
+          d?.username ??
+          d?.user?.username ??
+          '';
+
+        systemMessage(
+          `${username} subscribed!${
+            months > 1
+              ? ` (${months} months)`
+              : ''
+          }`,
+          username,
+          'subscription',
+        );
+
+        return;
+      }
+
+      case 'App\\Events\\GiftedSubscriptionsEvent':
+      case 'GiftedSubscriptionsEvent': {
+        const d = raw;
+
+        const count =
+          Array.isArray(
+            d?.gifted_usernames,
+          )
+            ? d.gifted_usernames.length
+            : Array.isArray(d?.giftees)
+              ? d.giftees.length
+              : Number(
+                  d?.count ??
+                  1,
+                );
+
+        const username =
+          d?.gifter_username ??
+          d?.gifter?.username ??
+          '';
+
+        systemMessage(
+          `${username} gifted ${count} subscription${
+            count === 1 ? '' : 's'
+          }!`,
+          username,
+          'gift',
+        );
+
+        return;
+      }
+
+      case 'App\\Events\\StreamHostEvent': {
+        const d = raw;
+
+        const username =
+          d?.host_username ??
+          d?.host?.username ??
+          '';
+
+        systemMessage(
+          `${username} is hosting with ${
+            d?.number_viewers ??
+            d?.host?.viewers_count ??
+            '?'
+          } viewers!`,
+          username,
+          'raid',
+        );
+
+        return;
+      }
+
+      case 'KicksGifted':
+      case 'App\\Events\\KicksGifted': {
+        const d = raw;
+
+        const sender =
+          d?.sender?.username ??
+          d?.username ??
+          'Someone';
+
+        const gift = d?.gift;
+
+        if (!gift) return;
+
+        systemMessage(
+          `${sender} sent ${
+            gift.name ??
+            'a gift'
+          } (${
+            gift.amount ??
+            '?'
+          } Kicks)`,
+          sender,
+          'cheer',
+        );
+
+        return;
+      }
+    }
+  }
+
+  function connectRealtime(
+    channel: KickChannel,
+  ): void {
+    if (stopped) return;
+
+    const query =
+      new URLSearchParams({
+        channelId:
+          String(channel.id),
+        chatroomId:
+          String(
+            channel.chatroom.id,
+          ),
+      });
+
+    const active =
+      new EventSource(
+        `/api/kick/realtime?${query.toString()}`,
+      );
+
+    es = active;
+
+    active.onmessage = (messageEvent) => {
+      if (
+        stopped ||
+        es !== active
+      ) {
+        return;
+      }
+
+      let envelope: any;
+
+      try {
+        envelope =
+          JSON.parse(
+            messageEvent.data,
+          );
+      } catch {
+        return;
+      }
+
+      if (
+        envelope?.type === 'status'
+      ) {
+        opts.onStatus(
+          envelope.status,
+          envelope.detail,
+        );
+
+        return;
+      }
+
+      if (
+        envelope?.type !== 'event' ||
+        typeof envelope.event !==
+          'string'
+      ) {
+        return;
+      }
+
+      handleRealtimeEvent(
+        envelope.event,
+        envelope.data,
+      );
+    };
+
+    active.onerror = () => {
+      if (
+        stopped ||
+        es !== active
+      ) {
+        return;
+      }
+
+      /*
+       * Do not close/recreate EventSource here. Native EventSource retry
+       * preserves Last-Event-ID, allowing the server hub to replay only
+       * events missed during the transport gap.
+       */
+      opts.onStatus(
+        'connecting',
+        'Kick chat reconnecting',
+      );
+    };
+  }
+
+  async function bootstrapHistory(
+    channel: KickChannel,
+  ): Promise<void> {
+    historyAbort =
+      new AbortController();
+
+    const timeout =
+      setTimeout(
+        () =>
+          historyAbort?.abort(),
+        KICK_HISTORY_TIMEOUT_MS,
+      );
+
     try {
-      const history = await fetchKickHistory(channel, historyAbort.signal);
-      if (!stopped) history.forEach(deliver);
+      const history =
+        await fetchKickHistory(
+          channel,
+          historyAbort.signal,
+        );
+
+      if (!stopped) {
+        history.forEach(deliver);
+      }
     } catch {
-      // History is optional race closure; live Pusher traffic remains authoritative.
+      /*
+       * History is optional race closure. Live realtime traffic remains
+       * authoritative.
+       */
     } finally {
-      clearTimeout(historyTimeout);
+      clearTimeout(timeout);
+
       historyAbort = null;
       bootstrappingHistory = false;
-      if (!stopped) pendingLive.splice(0).forEach(deliver);
+
+      if (!stopped) {
+        pendingLive
+          .splice(0)
+          .forEach(deliver);
+      }
     }
+  }
+
+  async function start(): Promise<void> {
+    if (stopped) return;
+
+    opts.onStatus(
+      'connecting',
+    );
+
+    const channel =
+      await getKickChannel(
+        opts.channel,
+      );
+
+    if (!channel) {
+      opts.onStatus(
+        'error',
+        `Could not find Kick channel: "${opts.channel}"`,
+      );
+
+      return;
+    }
+
+    if (stopped) return;
+
+    opts.onChannelInfo?.(
+      channel,
+    );
+
+    connectRealtime(channel);
+
+    await bootstrapHistory(
+      channel,
+    );
   }
 
   return {
     start() {
-      if (stopped || starting || pusher) return;
+      if (
+        stopped ||
+        starting ||
+        es
+      ) {
+        return;
+      }
+
       starting = true;
-      void start().finally(() => {
-        starting = false;
-      });
+
+      void start().finally(
+        () => {
+          starting = false;
+        },
+      );
     },
+
     stop() {
       if (stopped) return;
+
       stopped = true;
+
       historyAbort?.abort();
       historyAbort = null;
-      if (watchdog) clearInterval(watchdog);
-      watchdog = null;
-      clearReconnectTimer();
-      const activePusher = pusher;
-      pusher = null;
-      activePusher?.disconnect();
+
+      const active = es;
+      es = null;
+
+      active?.close();
+
       pendingLive.length = 0;
     },
   };

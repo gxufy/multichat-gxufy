@@ -91,6 +91,8 @@ export type MessageStyleConfig = {
 export type MessageFilterConfig = {
   /** Comma- or space-separated extra bot names to hide. */
   botNames: string;
+  /** Comma- or space-separated built-in/extra bot names to permit. */
+  permittedBots?: string;
   /** Space-separated usernames to hide. */
   userBL: string;
   /** Space-separated text prefixes to hide. */
@@ -132,6 +134,13 @@ export function buildMessageFilter(
       .filter(Boolean)
       .map((b) => b.toLowerCase()),
   );
+  const permittedBots = new Set(
+    (cfg.permittedBots || '')
+      .split(',')
+      .flatMap((b) => b.trim().split(/\s+/))
+      .filter(Boolean)
+      .map((b) => b.toLowerCase()),
+  );
   /* Space-separated, matching the labels on both fields. */
   const userBlacklist = new Set(
     (cfg.userBL || '').split(/\s+/).filter(Boolean).map((u) => u.toLowerCase()),
@@ -139,8 +148,14 @@ export function buildMessageFilter(
   const prefixBlacklist = (cfg.prefixBL || '').split(/\s+/).filter(Boolean);
 
   return (um: UnifiedMessage): boolean => {
-    const name = um.username.toLowerCase();
-    if (KNOWN_BOTS.has(name) || extraBots.has(name) || userBlacklist.has(name)) return false;
+    const names = [...new Set([
+      um.senderUsername,
+      um.senderDisplayName,
+      um.username,
+    ].map((value) => value?.trim().toLowerCase()).filter((value): value is string => Boolean(value)))];
+    if (names.some((name) => userBlacklist.has(name))) return false;
+    const permitted = names.some((name) => permittedBots.has(name));
+    if (!permitted && names.some((name) => KNOWN_BOTS.has(name) || extraBots.has(name))) return false;
     /* Prefixes apply to chat only: an event card's text is composed by the
        connector, not typed by the chatter, so blacklisting "!" should not hide a
        subscription. */

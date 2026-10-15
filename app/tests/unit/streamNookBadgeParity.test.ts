@@ -57,7 +57,7 @@ describe('chat-client badge provider parity', () => {
       return jsonResponse({}, false);
     }));
 
-    const badges = await resolveTwitchCommunityBadges('123', 'TargetUser');
+    const badges = await resolveTwitchCommunityBadges({ userId: '123', login: 'targetuser', displayName: 'TargetUser' });
     const providers = new Set(
       badges
         .map((badge) => /^community:([^:]+):/.exec(badge.type)?.[1])
@@ -90,7 +90,7 @@ describe('chat-client badge provider parity', () => {
       return jsonResponse({}, false);
     }));
 
-    const badges = await resolveTwitchCommunityBadges('123', 'TargetUser');
+    const badges = await resolveTwitchCommunityBadges({ userId: '123', login: 'targetuser', displayName: 'TargetUser' });
     expect(badges).toContainEqual({
       type: 'community:ffz:7',
       url: 'https://cdn.example/ffz.png',

@@ -215,6 +215,7 @@ export function normalizeMultichatStyle(
     pinPlatforms: [],
     hideNames: keepBoolean(style.hideNames, d.hideNames),
     botNames: keepString(style.botNames, d.botNames),
+    permittedBots: keepString(style.permittedBots, d.permittedBots),
     userBL: keepString(style.userBL, d.userBL),
     prefixBL: keepString(style.prefixBL, d.prefixBL),
   };

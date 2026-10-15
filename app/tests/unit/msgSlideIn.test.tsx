@@ -1,6 +1,6 @@
 import { cleanup, render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import ChatOverlay from '@/components/overlay/ChatOverlay';
+import ChatOverlay, { CHAT_OVERLAY_FADE_GROUP_CSS } from '@/components/overlay/ChatOverlay';
 import { normalizeMultichatStyle } from '@/features/multichat/config';
 import { SAMPLE_COSMETICS, SAMPLE_MESSAGES } from '@/features/multichat/samples';
 import {
@@ -41,7 +41,7 @@ function makeMessage(config: ReturnType<typeof MultichatQuerySchema.parse>, id =
 }
 
 function renderMessage(query: Record<string, string>, messageOverride?: { suppressEntryAnimation?: boolean }) {
-  const config = MultichatQuerySchema.parse({ twitch: 'somebody', animation: 'none', ...query });
+  const config = MultichatQuerySchema.parse({ twitch: 'somebody', animation: 'slide', ...query });
   const message = { ...makeMessage(config), ...messageOverride };
   const view = render(
     <ChatOverlay config={config} messages={[message]} fadingIds={new Set()}
@@ -151,15 +151,25 @@ describe('directional entrance rendering', () => {
     expect(entry?.style.opacity).toBe('0');
   });
 
-  it('leaves opacity to the main Fade animation when Fade is selected', () => {
+  it('lets Fade remain opacity-only even when a directional entry is configured', () => {
     const { container } = renderMessage({ animation: 'fade', entryAnimation: 'slideRight' });
 
     expect(container.querySelector('.gx-fade-group')).not.toBeNull();
-    const entry = container.querySelector<HTMLElement>('[data-entry-animation="slideRight"]');
-    expect(entry).not.toBeNull();
+    expect(container.querySelector('[data-entry-animation]')).toBeNull();
+    expect(container.querySelector('[data-entry-motion-x]')).toBeNull();
     expect(messageEntryInitialState('slideRight', false)).toEqual({ x: '100%' });
     expect(messageEntryTargetState(false)).toEqual({ x: 0 });
-    expect(entry?.style.opacity).toBe('');
+    expect(CHAT_OVERLAY_FADE_GROUP_CSS).toContain('@keyframes gxFadeGroupIn');
+    expect(CHAT_OVERLAY_FADE_GROUP_CSS).toContain('from { opacity: 0; }');
+    expect(CHAT_OVERLAY_FADE_GROUP_CSS).not.toContain('transform');
+  });
+
+  it('lets None ignore a configured directional entry and render directly', () => {
+    const { container } = renderMessage({ animation: 'none', entryAnimation: 'slideLeft' });
+    expect(container.querySelector('.gx-slide-group')).toBeNull();
+    expect(container.querySelector('.gx-fade-group')).toBeNull();
+    expect(container.querySelector('[data-entry-animation]')).toBeNull();
+    expect(container.querySelector('[data-entry-motion-x]')).toBeNull();
   });
 
   it('clips full-width travel without expanding the overlay canvas', () => {
@@ -185,7 +195,7 @@ describe('directional entrance rendering', () => {
   it('animates a 3-row AUTO batch and bypasses a 4-row AUTO batch', () => {
     const config = MultichatQuerySchema.parse({
       twitch: 'somebody',
-      animation: 'none',
+      animation: 'slide',
       entryAnimation: 'slideRight',
     });
     const renderBatch = (count: number) => render(
@@ -208,7 +218,7 @@ describe('directional entrance rendering', () => {
   it('keeps the same DOM row on repaint and animates only a genuinely new ID', () => {
     const config = MultichatQuerySchema.parse({
       twitch: 'somebody',
-      animation: 'none',
+      animation: 'slide',
       entryAnimation: 'slideRight',
     });
     const first = makeMessage(config);

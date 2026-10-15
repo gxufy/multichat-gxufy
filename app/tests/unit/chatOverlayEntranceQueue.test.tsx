@@ -449,6 +449,35 @@ describe('measured Slide batch entrance', () => {
     expect(container.querySelectorAll('.ck-body')).toHaveLength(2);
     expect(container.querySelectorAll('[data-slide-ghost]')).toHaveLength(0);
     expect(container.querySelectorAll('.gx-fade-group')).toHaveLength(animation === 'fade' ? 1 : 0);
+    expect(container.querySelector('[data-entry-animation]')).toBeNull();
+    expect(container.querySelector('[data-entry-motion-x]')).toBeNull();
+  });
+
+  it('makes None use the same static branch as an animate=false Slide batch', () => {
+    const message = parsed('twitch', 'static');
+    setRuntimeAnimationMode('off');
+    recordRuntimeAnimationBatch(1, 1_000);
+    const disabled = render(<ChatOverlay {...props('slide')} messages={[message]} />);
+    const disabledMarkup = disabled.container.querySelector('#chat_container')?.innerHTML;
+    disabled.unmount();
+
+    resetRuntimeAnimationState();
+    const none = render(<ChatOverlay {...props('none')} messages={[message]} />);
+    expect(none.container.querySelector('#chat_container')?.innerHTML).toBe(disabledMarkup);
+    expect(none.container.querySelector('.gx-slide-group')).toBeNull();
+    expect(none.container.querySelector('.gx-fade-group')).toBeNull();
+  });
+
+  it('keeps Fade opacity-only and suppresses configured directional motion', () => {
+    const config = MultichatQuerySchema.parse({
+      twitch: 'channel', animation: 'fade', entryAnimation: 'slideRight',
+    });
+    const { container } = render(
+      <ChatOverlay {...props('fade')} config={config} messages={[parsed('twitch', 'fade-only')]} />,
+    );
+    expect(container.querySelector('.gx-fade-group')).not.toBeNull();
+    expect(container.querySelector('.gx-slide-group')).toBeNull();
+    expect(container.querySelector('[data-entry-motion-x]')).toBeNull();
   });
 
   it('never horizontally translates actual message rows', () => {

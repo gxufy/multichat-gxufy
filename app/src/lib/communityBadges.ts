@@ -439,7 +439,9 @@ async function loadFolhinha(): Promise<Assignment[]> {
     return asString(raw['4']) || asString(raw['3']) || asString(raw['2']) || asString(raw['1']);
   };
   const definitions = [
-    { list: body.devs, role: 'dev', imageRole: 'dev', title: 'Folhinha Developer' },
+    /* The current API uses `dev`; retain `devs` as a compatibility fallback for
+       older cached/provider payloads. */
+    { list: body.dev ?? body.devs, role: 'dev', imageRole: 'dev', title: 'Folhinha Developer' },
     { list: body.admins, role: 'admin', imageRole: 'admin', title: 'Folhinha Admin' },
     { list: body.plus, role: 'founder', imageRole: 'founder', title: 'Folhinha Founder' },
     { list: body.supporters, role: 'supporter', imageRole: 'sub', title: 'Folhinha Supporter' },
@@ -765,12 +767,22 @@ function applyProviderMultiplicity(assignments: Assignment[]): Assignment[] {
   return out;
 }
 
+export type TwitchCommunityBadgeIdentity = {
+  userId: string;
+  login?: string;
+  displayName?: string;
+};
+
 export async function resolveTwitchCommunityBadges(
-  userId: string,
-  username: string,
+  identity: TwitchCommunityBadgeIdentity,
   limerinoOptions?: Partial<LimerinoBadgeRenderOptions>,
 ): Promise<UnifiedBadge[]> {
-  if (!userId && !username) return [];
+  const userId = identity.userId.trim();
+  const aliases = [...new Set([
+    identity.login?.trim().toLowerCase(),
+    identity.displayName?.trim().toLowerCase(),
+  ].filter((value): value is string => Boolean(value)))];
+  if (!userId && !aliases.length) return [];
   const [limerinoResult, registryResult, jilChatResult] = await Promise.allSettled([
     userId ? limerinoRegistry() : Promise.resolve([]),
     registry(),
@@ -784,8 +796,8 @@ export async function resolveTwitchCommunityBadges(
     ...(registryResult.status === 'fulfilled' && userId
       ? registryResult.value.byUserId.get(userId) ?? []
       : []),
-    ...(registryResult.status === 'fulfilled' && username
-      ? registryResult.value.byUsername.get(username.toLowerCase()) ?? []
+    ...(registryResult.status === 'fulfilled'
+      ? aliases.flatMap((alias) => registryResult.value.byUsername.get(alias) ?? [])
       : []),
     ...(jilChatResult.status === 'fulfilled' ? jilChatResult.value : []),
   ];

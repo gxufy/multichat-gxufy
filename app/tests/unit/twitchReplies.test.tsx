@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ChatOverlay from '@/components/overlay/ChatOverlay';
-import { createTwitchConnector } from '@/lib/connectors/twitch';
+import { createTwitchConnector, formatTwitchVisibleUsername } from '@/lib/connectors/twitch';
 import { MultichatQuerySchema } from '@/lib/multichatConfig';
 import { buildParsedMessage, type MessageCosmetics } from '@/lib/multichatMessageModel';
 import type { UnifiedMessage } from '@/lib/types';
@@ -52,6 +52,19 @@ function receive(line: string): UnifiedMessage {
   return messages[0];
 }
 
+describe('Twitch visible username formatting', () => {
+  it.each([
+    ['someuser', 'SomeUser', 'SomeUser'],
+    ['ordinary', 'ordinary', 'ordinary'],
+    ['ascii_login', '表示名', 'ascii_login (表示名)'],
+    ['login', '', 'login (Unknown)'],
+    ['', 'Display', 'Unknown (Display)'],
+    ['', '', 'Unknown'],
+  ])('formats login %j and display name %j as %j', (login, displayName, expected) => {
+    expect(formatTwitchVisibleUsername(login, displayName)).toBe(expected);
+  });
+});
+
 describe('Twitch native replies', () => {
   it('normalizes Twitch reply-parent tags into the same reply model Kick renders', () => {
     const message = receive(
@@ -65,7 +78,8 @@ describe('Twitch native replies', () => {
     });
     expect(message.senderId).toBe('9');
     expect(message.senderUsername).toBe('reply');
-    expect(message.username).toBe('ReplyGuy');
+    expect(message.senderDisplayName).toBe('ReplyGuy');
+    expect(message.username).toBe('reply (ReplyGuy)');
   });
 
   it('leaves ordinary Twitch chat without a reply preview', () => {

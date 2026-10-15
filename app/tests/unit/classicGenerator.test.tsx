@@ -433,6 +433,20 @@ describe('authoritative generated URLs', () => {
     expect(counterUrl()).toBe(counterBefore);
   });
 
+  it('exposes permitted bots while retaining legacy botNames only in URL state', () => {
+    mount();
+    typeChannel('kick', 'somechannel');
+
+    const permitted = screen.getByLabelText('Permitted bots (comma-separated)') as HTMLInputElement;
+    expect(permitted.id).toBe('mc-permittedBots');
+    expect(screen.queryByLabelText('Extra bots to hide (legacy)')).toBeNull();
+    expect(new URL(chatUrl()).searchParams.has('permittedBots')).toBe(false);
+
+    fireEvent.change(permitted, { target: { value: 'Nightbot, Moobot' } });
+    expect(new URL(chatUrl()).searchParams.get('permittedBots')).toBe('Nightbot, Moobot');
+    expect(new URL(chatUrl()).searchParams.has('botNames')).toBe(false);
+  });
+
   it('controls main animation and the separate Off, Right, and Left entrance', () => {
     mount();
     typeChannel('kick', 'somechannel');

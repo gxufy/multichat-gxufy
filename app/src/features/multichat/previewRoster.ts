@@ -1,8 +1,6 @@
 import type { PreviewIdentityTemplate } from '@/components/classic/useChatPreviewSimulator';
-import {
-  mergePreviewIdentityBadgeMaps,
-  type PreviewIdentityResponse,
-} from '@/features/multichat/previewIdentity';
+import type { PreviewIdentityResponse } from '@/features/multichat/previewIdentity';
+import { formatTwitchVisibleUsername } from '@/lib/connectors/twitch';
 import type { Platform, UnifiedBadge } from '@/lib/types';
 
 export type PreviewRosterEntry = {
@@ -42,6 +40,7 @@ export const PREVIEW_ROSTER = [
   { login: 'said', displayName: 'Said', fallbackText: PREVIEW_MESSAGES[5] },
   { login: 'slaiqe', displayName: 'slaiqe', fallbackText: PREVIEW_MESSAGES[6] },
   { login: 'wtwfrxsty', displayName: 'wtwfrxsty', fallbackText: PREVIEW_MESSAGES[7], emoteCount: 1 },
+  { login: 'tuk7', displayName: 'tuk7', fallbackText: PREVIEW_MESSAGES[8], emoteCount: 2 },
   { login: 'giovahni', displayName: 'giovahni', fallbackText: PREVIEW_MESSAGES[9], emoteCount: 1 },
   { login: 'hvdras', displayName: 'hvdras', fallbackText: PREVIEW_MESSAGES[10], emoteCount: 1 },
   { login: 'feelssunnyman', displayName: 'feelssunnyman', fallbackText: PREVIEW_MESSAGES[11], emoteCount: 1 },
@@ -82,15 +81,6 @@ function visualPlatform(index: number, page: number): Platform {
   return PREVIEW_PLATFORM_SEQUENCE[(page * PREVIEW_ROSTER.length + index) % PREVIEW_PLATFORM_SEQUENCE.length]!;
 }
 
-function badgeFromDescriptor(descriptor: string, image: string): UnifiedBadge {
-  const separator = descriptor.indexOf('/');
-  return {
-    type: descriptor.slice(0, separator),
-    version: descriptor.slice(separator + 1),
-    url: image,
-  };
-}
-
 export function curatedBadges(
   _entry: PreviewRosterEntry,
   response: PreviewIdentityResponse | undefined,
@@ -98,34 +88,25 @@ export function curatedBadges(
 ): UnifiedBadge[] {
   if (!response) return [];
 
-  const artwork = mergePreviewIdentityBadgeMaps(response.providers);
-  const seenUrl = new Set<string>();
+  const seen = new Set<string>();
   const badges: UnifiedBadge[] = [];
 
-  for (const [descriptor, image] of Object.entries(artwork)) {
-    if (!descriptor.startsWith('community:') || seenUrl.has(image)) continue;
-    seenUrl.add(image);
-    badges.push(badgeFromDescriptor(descriptor, image));
-  }
+  for (const badge of response.communityBadges ?? []) {
+    const key = [
+      badge.type,
+      badge.version ?? '',
+      badge.url ?? '',
+      badge.fallbackUrl ?? '',
+      badge.title ?? '',
+    ].join('|');
 
-  const owned = [
-    ...(response.providers.BTTV?.resources.ownedBadges ?? []),
-    ...(response.providers.FFZ?.resources.ownedBadges ?? []),
-  ];
-  for (const badge of owned) {
-    if (seenUrl.has(badge.image)) continue;
-    seenUrl.add(badge.image);
-    const provider = response.providers.BTTV?.resources.ownedBadges?.some(
-      (candidate) => candidate.id === badge.id && candidate.image === badge.image,
-    )
-      ? 'bttv'
-      : 'ffz';
-    badges.push({ type: `community:${provider}:${badge.id}`, url: badge.image });
+    if (seen.has(key)) continue;
+    seen.add(key);
+    badges.push({ ...badge });
   }
 
   return badges;
 }
-
 function sevenTVPool(response: PreviewIdentityResponse | undefined) {
   const resources = response?.providers['7TV']?.resources;
   if (!resources) return [];
@@ -159,27 +140,14 @@ function usableSevenTVResponse(
 }
 
 /**
- * Prefer a popular resolved 7TV emote from the row owner. If that user does not
- * have one, borrow another already-loaded preview identity that does. Only then
- * fall back to any usable resolved 7TV set. This keeps the showcase focused on
- * recognizable emotes without ever inserting an unresolved emote word.
+ * Use only 7TV resources resolved for this Twitch identity.
+ * Preview users never borrow another user's emotes or cosmetics.
  */
 export function resolvedSevenTVResponse(
   preferred: PreviewIdentityResponse | undefined,
-  responses: ReadonlyMap<string, PreviewIdentityResponse>,
+  _responses: ReadonlyMap<string, PreviewIdentityResponse>,
 ): PreviewIdentityResponse | undefined {
-  if (popularSevenTVPool(preferred).length) return preferred;
-  for (const response of responses.values()) {
-    if (popularSevenTVPool(response).length) return response;
-  }
-
-  const direct = usableSevenTVResponse(preferred);
-  if (direct) return direct;
-  for (const response of responses.values()) {
-    const usable = usableSevenTVResponse(response);
-    if (usable) return usable;
-  }
-  return undefined;
+  return usableSevenTVResponse(preferred);
 }
 
 /**
@@ -225,7 +193,11 @@ function template(
     platform: 'twitch',
     displayPlatform: visualPlatform(index, page),
     senderId: response?.identity.userId ?? `preview-roster-${entry.login}`,
-    username: entry.displayName,
+    senderUsername: response?.identity.login ?? entry.login,
+    username: formatTwitchVisibleUsername(
+      response?.identity.login ?? entry.login,
+      response?.identity.displayName ?? entry.displayName,
+    ),
     color: '#a970ff',
     badges: curatedBadges(entry, response, page),
     text: withResolvedSevenTVEmotes(text, emoteResponse, index, page, entry.emoteCount ?? 0),

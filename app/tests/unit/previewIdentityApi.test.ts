@@ -128,7 +128,13 @@ describe('Twitch Preview Identity API', () => {
     });
     expect(
       parsed.providers.Twitch?.resources.globalBadges['community:chatterino:preview-owner/1'],
-    ).toBe('https://cdn.example/community-preview-owner.png');
+    ).toBeUndefined();
+    expect(parsed.communityBadges).toBeUndefined();
+    expect(
+      fetchMock.mock.calls.some(
+        ([input]) => String(input) === 'https://api.chatterino.com/badges',
+      ),
+    ).toBe(false);
     expect(parsed.providers.FFZ?.resources.badgeOverrides['moderator/1']).toContain('/room-badge/mod/id/42/');
     expect(parsed.providers.BTTV?.resources.sharedEmotes[0].scope).toBe('shared');
     expect(parsed.providers.BTTV?.resources.ownedBadges?.[0]?.image).toContain('cdn.betterttv.net');

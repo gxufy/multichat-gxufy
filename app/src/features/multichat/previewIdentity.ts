@@ -75,6 +75,11 @@ export type PreviewIdentityResponse = {
   readonly identity: TwitchPreviewIdentity;
   /** Retry responses intentionally contain only the requested provider slices. */
   readonly providers: Partial<PreviewIdentityProviderMap>;
+  /**
+   * Real community/vanity badges owned by this Twitch identity.
+   * These stay separate from Twitch's native badge-art catalog.
+   */
+  readonly communityBadges?: readonly UnifiedBadge[];
 };
 
 export const EMPTY_TWITCH_IDENTITY_RESOURCES: TwitchIdentityResources = {
@@ -171,6 +176,55 @@ function parseOwnedBadges(value: unknown, provider: CosmeticAssetProvider): Seve
   return badges;
 }
 
+function parseCommunityBadges(value: unknown): UnifiedBadge[] | null | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value)) return null;
+
+  const badges: UnifiedBadge[] = [];
+
+  for (const entry of value) {
+    if (!isPlainObject(entry) || !nonEmptyString(entry.type)) return null;
+
+    const badge: UnifiedBadge = {
+      type: entry.type,
+    };
+
+    if (entry.title !== undefined) {
+      if (!nonEmptyString(entry.title)) return null;
+      badge.title = entry.title;
+    }
+
+    if (entry.version !== undefined) {
+      if (!nonEmptyString(entry.version)) return null;
+      badge.version = entry.version;
+    }
+
+    if (entry.url !== undefined) {
+      if (!httpsUrl(entry.url)) return null;
+      badge.url = entry.url;
+    }
+
+    if (entry.fallbackUrl !== undefined) {
+      if (!httpsUrl(entry.fallbackUrl)) return null;
+      badge.fallbackUrl = entry.fallbackUrl;
+    }
+
+    if (entry.backgroundColor !== undefined) {
+      if (
+        typeof entry.backgroundColor !== 'string'
+        || !/^#[0-9a-f]{6}$/i.test(entry.backgroundColor)
+      ) {
+        return null;
+      }
+      badge.backgroundColor = entry.backgroundColor;
+    }
+
+    badges.push(badge);
+  }
+
+  return badges;
+}
+
 function parseStatus(value: unknown): PreviewIdentityProviderStatus | null {
   return value === 'loaded' || value === 'unavailable' || value === 'failed' ? value : null;
 }
@@ -258,6 +312,9 @@ export function parsePreviewIdentityResponse(value: unknown): PreviewIdentityRes
     if (!parsed) return null;
     parsedProviders['7TV'] = parsed;
   }
+  const communityBadges = parseCommunityBadges(value.communityBadges);
+  if (communityBadges === null) return null;
+
   return {
     identity: {
       userId: identity.userId,
@@ -265,6 +322,7 @@ export function parsePreviewIdentityResponse(value: unknown): PreviewIdentityRes
       displayName: identity.displayName,
     },
     providers: parsedProviders,
+    ...(communityBadges !== undefined ? { communityBadges } : {}),
   };
 }
 
@@ -304,7 +362,11 @@ export function failedPreviewIdentityProviders(response: PreviewIdentityResponse
 
 export function mergePreviewIdentityRetry(current: PreviewIdentityResponse, retry: PreviewIdentityResponse): PreviewIdentityResponse | null {
   if (current.identity.userId !== retry.identity.userId || current.identity.login !== retry.identity.login) return null;
-  return { identity: retry.identity, providers: { ...current.providers, ...retry.providers } };
+  return {
+    identity: retry.identity,
+    providers: { ...current.providers, ...retry.providers },
+    communityBadges: retry.communityBadges ?? current.communityBadges,
+  };
 }
 
 export function buildPreviewIdentityCosmetics(

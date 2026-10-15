@@ -278,6 +278,7 @@ const MultichatQuerySchemaBase = z.object({
   pinPlatforms: z.string().optional().transform(() => [] as string[]),
   hideNames: z.string().optional().transform(v => v === 'true'),
   botNames: z.string().optional().transform(v => v ?? ''),
+  permittedBots: z.string().optional().transform(v => v ?? ''),
   /* compatibility-only: parsed, read by no runtime code */
   ttsEnabled: z.string().optional().transform(v => v !== 'false'),
 });
@@ -445,6 +446,7 @@ export type MultichatGeneratorStyle = {
   pinPlatforms: readonly string[];
   hideNames: boolean;
   botNames: string;
+  permittedBots: string;
   userBL: string;
   prefixBL: string;
 };
@@ -496,6 +498,7 @@ export const MULTICHAT_GENERATOR_DEFAULTS: MultichatGeneratorStyle = {
   pinPlatforms: [],
   hideNames: false,
   botNames: '',
+  permittedBots: '',
   userBL: '',
   prefixBL: '',
 };
@@ -577,7 +580,7 @@ export function buildMultichatQuery(
     fade, fadeEnabled: fadeBool,
     mentionColor, bgColor, emoteScale, gifSize, msgBold, msgCaps, smoothScroll, sharedChatEnabled, replyStyle, restoreOnReload, maxMessageLines, maxMessageAge, showSystemMsgs, showFirstMessages, showRedeems, modAction,
     paintShadows, fontColor, hideNames,
-    botNames, userBL, prefixBL,
+    botNames, permittedBots, userBL, prefixBL,
   } = style;
   /* Both shapes collapse to one tag. 'icon' omits the parameter, which is what
      the legacy platformIcons=true branch did, so legacy output is unchanged. */
@@ -651,6 +654,7 @@ export function buildMultichatQuery(
     ...(fontColor ? { fontColor: fontColor.replace('#', '') } : {}),
     hideNames:   String(hideNames),
     ...(botNames.trim() ? { botNames: botNames.trim() } : {}),
+    ...(permittedBots.trim() ? { permittedBots: permittedBots.trim() } : {}),
     ...(userBL.trim() ? { userBL: userBL.trim() } : {}),
     ...(prefixBL.trim() ? { prefixBL: prefixBL.trim() } : {}),
   });

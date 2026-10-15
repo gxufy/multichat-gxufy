@@ -84,6 +84,7 @@ describe('overlay parse defaults', () => {
       pinPlatforms: [],
       hideNames: false,
       botNames: '',
+      permittedBots: '',
       ttsEnabled: true,
     });
   });
@@ -149,6 +150,7 @@ describe('generator defaults', () => {
       pinPlatforms: [],
       hideNames: false,
       botNames: '',
+      permittedBots: '',
       userBL: '',
       prefixBL: '',
     });
@@ -579,9 +581,9 @@ describe('buildMultichatQuery matches the current generator byte-for-byte', () =
       'kick=a&sevenTVEmotesEnabled=true&sevenTVCosmeticsEnabled=true&textSize=medium&font=opensans&textShadow=large&stroke=none&animation=slide&fade=30&hideNames=false'],
     ['retired showPinEnabled is ignored', { showPinEnabled: true }, { kick: 'a' },
       'kick=a&sevenTVEmotesEnabled=true&sevenTVCosmeticsEnabled=true&textSize=medium&font=opensans&textShadow=large&stroke=none&animation=slide&fade=30&hideNames=false'],
-    ['filters are trimmed and percent-encoded', { botNames: ' bot1,bot2 ', userBL: ' x,y ', prefixBL: ' !,? ' }, { kick: 'a' },
-      'kick=a&sevenTVEmotesEnabled=true&sevenTVCosmeticsEnabled=true&textSize=medium&font=opensans&textShadow=large&stroke=none&animation=slide&fade=30&hideNames=false&botNames=bot1%2Cbot2&userBL=x%2Cy&prefixBL=%21%2C%3F'],
-    ['whitespace-only filters are omitted', { botNames: '  ', userBL: '  ' }, { kick: 'a' },
+    ['filters are trimmed and percent-encoded', { botNames: ' bot1,bot2 ', permittedBots: ' Nightbot,Moobot ', userBL: ' x,y ', prefixBL: ' !,? ' }, { kick: 'a' },
+      'kick=a&sevenTVEmotesEnabled=true&sevenTVCosmeticsEnabled=true&textSize=medium&font=opensans&textShadow=large&stroke=none&animation=slide&fade=30&hideNames=false&botNames=bot1%2Cbot2&permittedBots=Nightbot%2CMoobot&userBL=x%2Cy&prefixBL=%21%2C%3F'],
+    ['whitespace-only filters are omitted', { botNames: '  ', permittedBots: '  ', userBL: '  ' }, { kick: 'a' },
       'kick=a&sevenTVEmotesEnabled=true&sevenTVCosmeticsEnabled=true&textSize=medium&font=opensans&textShadow=large&stroke=none&animation=slide&fade=30&hideNames=false'],
     ['encoding-sensitive values', { botNames: 'a b,c+d', userBL: 'ü/é', prefixBL: '#,%' }, { kick: 'a b&c' },
       'kick=a+b%26c&sevenTVEmotesEnabled=true&sevenTVCosmeticsEnabled=true&textSize=medium&font=opensans&textShadow=large&stroke=none&animation=slide&fade=30&hideNames=false&botNames=a+b%2Cc%2Bd&userBL=%C3%BC%2F%C3%A9&prefixBL=%23%2C%25'],
@@ -604,11 +606,11 @@ describe('buildMultichatQuery matches the current generator byte-for-byte', () =
         bgColor: '#0a0a0a', emoteScale: '2', msgBold: false, msgCaps: true,
         modAction: false, paintShadows: false, fontColor: '#ffffff',
         hideNames: true, pinPlatforms: ['twitch', 'tiktok'],
-        botNames: 'nightbot', userBL: 'troll', prefixBL: '!',
+        botNames: 'nightbot', permittedBots: 'moobot', userBL: 'troll', prefixBL: '!',
       },
       { kick: 'kickguy', twitch: '@twitchguy', youtube: '@ytguy', tiktok: '@ttguy' },
     )).toBe(
-      'kick=kickguy&twitch=twitchguy&youtube=ytguy&tiktok=ttguy&sevenTVEmotesEnabled=false&sevenTVCosmeticsEnabled=false&showCommunityBadges=false&textSize=small&font=alsina&textShadow=none&stroke=thicker&animation=none&fade=7&sourceTag=none&mentionColor=false&bgColor=0a0a0a&emoteScale=2&msgBold=false&msgCaps=true&modAction=false&paintShadows=false&fontColor=ffffff&hideNames=true&botNames=nightbot&userBL=troll&prefixBL=%21',
+      'kick=kickguy&twitch=twitchguy&youtube=ytguy&tiktok=ttguy&sevenTVEmotesEnabled=false&sevenTVCosmeticsEnabled=false&showCommunityBadges=false&textSize=small&font=alsina&textShadow=none&stroke=thicker&animation=none&fade=7&sourceTag=none&mentionColor=false&bgColor=0a0a0a&emoteScale=2&msgBold=false&msgCaps=true&modAction=false&paintShadows=false&fontColor=ffffff&hideNames=true&botNames=nightbot&permittedBots=moobot&userBL=troll&prefixBL=%21',
     );
   });
 
@@ -637,7 +639,7 @@ describe('parse(build(state)) round-trips', () => {
       bgColor: '#191919', emoteScale: '1.5', msgBold: false, msgCaps: true,
       modAction: false, paintShadows: false, fontColor: '#ffaa00',
       hideNames: true, pinPlatforms: ['kick', 'twitch'],
-      botNames: 'nightbot', userBL: 'troll', prefixBL: '!',
+      botNames: 'nightbot', permittedBots: 'moobot', userBL: 'troll', prefixBL: '!',
     };
     const query = buildMultichatQuery({ kick: 'a', twitch: 'b', youtube: '', tiktok: '' }, style);
     const cfg = parse(Object.fromEntries(new URLSearchParams(query)));
@@ -662,6 +664,7 @@ describe('parse(build(state)) round-trips', () => {
     expect(cfg.hideNames).toBe(true);
     expect(cfg.pinPlatforms).toEqual([]);
     expect(cfg.botNames).toBe('nightbot');
+    expect(cfg.permittedBots).toBe('moobot');
     expect(cfg.userBL).toBe('troll');
     expect(cfg.prefixBL).toBe('!');
     expect(cfg.kick).toBe('a');
