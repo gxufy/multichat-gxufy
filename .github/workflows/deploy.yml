@@ -1,0 +1,121 @@
+name: Deploy to VPS
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+
+permissions: {}
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        env:
+          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha }}
+          GXUFY_OVERLAY_USAGE_DISCORD_WEBHOOK_URL: ${{ secrets.GXUFY_OVERLAY_USAGE_DISCORD_WEBHOOK_URL }}
+          GXUFY_ABUSE_DISCORD_WEBHOOK_URL: ${{ secrets.GXUFY_ABUSE_DISCORD_WEBHOOK_URL }}
+          KICK_TYPESENSE_SEARCH_KEY: ${{ secrets.KICK_TYPESENSE_SEARCH_KEY }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 15m
+          envs: DEPLOY_SHA,GXUFY_OVERLAY_USAGE_DISCORD_WEBHOOK_URL,GXUFY_ABUSE_DISCORD_WEBHOOK_URL,KICK_TYPESENSE_SEARCH_KEY
+          script: |
+            set -euo pipefail
+            if [ -z "${GXUFY_OVERLAY_USAGE_DISCORD_WEBHOOK_URL:-}" ]; then
+              echo "Missing Discord overlay-usage webhook configuration."
+              exit 1
+            fi
+            if [ -z "${GXUFY_ABUSE_DISCORD_WEBHOOK_URL:-}" ]; then
+              echo "Missing Discord abuse webhook configuration."
+              exit 1
+            fi
+            if [ -z "${KICK_TYPESENSE_SEARCH_KEY:-}" ]; then
+              echo "Missing Kick Typesense search configuration."
+              exit 1
+            fi
+            case "${DEPLOY_SHA:-}" in
+              ''|*[!0-9a-fA-F]*)
+                echo "Invalid deployment SHA."
+                exit 1
+                ;;
+            esac
+            if [ "${#DEPLOY_SHA}" -ne 40 ]; then
+              echo "Invalid deployment SHA."
+              exit 1
+            fi
+
+            cd ~/multichat-gxufy
+            PREVIOUS_DEPLOYED_SHA="$(git rev-parse --verify 'HEAD^{commit}')"
+            echo "VPS_DEPLOYED_SHA=$PREVIOUS_DEPLOYED_SHA"
+            pm2 jlist 2>/dev/null | node -e '
+              let input = "";
+              process.stdin.setEncoding("utf8");
+              process.stdin.on("data", (chunk) => { input += chunk; });
+              process.stdin.on("end", () => {
+                const app = JSON.parse(input).find((entry) => entry.name === "multichat");
+                const value = app?.pm2_env?.GXUFY_OVERLAY_USAGE_DISCORD_WEBHOOK_URL;
+                console.log(`VPS_WEBHOOK_ENV=${typeof value === "string" && value.length > 0 ? "SET" : "MISSING"}`);
+              });
+            '
+            PM2_TELEMETRY_LOGS="$(pm2 logs multichat --nostream --lines 500 2>&1 || true)"
+            if printf '%s' "$PM2_TELEMETRY_LOGS" | grep -Fq 'Discord overlay-usage delivery is not configured.'; then
+              echo 'VPS_TELEMETRY_STATE=unconfigured'
+            fi
+            if printf '%s' "$PM2_TELEMETRY_LOGS" | grep -Fq 'Discord overlay-usage delivery failed.'; then
+              echo 'VPS_TELEMETRY_STATE=failed'
+            fi
+            unset PM2_TELEMETRY_LOGS
+            git fetch --no-tags origin '+refs/heads/main:refs/remotes/origin/main'
+            ORIGIN_MAIN_SHA="$(git rev-parse --verify 'refs/remotes/origin/main^{commit}')"
+            if [ "$ORIGIN_MAIN_SHA" != "$DEPLOY_SHA" ]; then
+              echo "Skipping stale deployment: CI-tested commit is no longer origin/main."
+              exit 0
+            fi
+
+            git reset --hard "$DEPLOY_SHA"
+            CURRENT_SHA="$(git rev-parse --verify 'HEAD^{commit}')"
+            if [ "$CURRENT_SHA" != "$DEPLOY_SHA" ]; then
+              echo "Deployment source verification failed."
+              exit 1
+            fi
+
+            npm ci
+            npm run build
+            pm2 startOrRestart .github/infra/ecosystem.config.js --update-env
+            pm2 jlist 2>/dev/null | node -e '
+              let input = "";
+              process.stdin.setEncoding("utf8");
+              process.stdin.on("data", (chunk) => { input += chunk; });
+              process.stdin.on("end", () => {
+                const app = JSON.parse(input).find((entry) => entry.name === "multichat");
+                for (const [label, key] of [
+                  ["VPS_WEBHOOK_ENV", "GXUFY_OVERLAY_USAGE_DISCORD_WEBHOOK_URL"],
+                  ["VPS_ABUSE_WEBHOOK_ENV", "GXUFY_ABUSE_DISCORD_WEBHOOK_URL"],
+                  ["VPS_KICK_ENV", "KICK_TYPESENSE_SEARCH_KEY"],
+                ]) {
+                  const value = app?.pm2_env?.[key];
+                  const present = typeof value === "string" && value.length > 0;
+                  console.log(`${label}=${present ? "SET" : "MISSING"}`);
+                  if (!present) process.exitCode = 1;
+                }
+              });
+            '
+            pm2 save
