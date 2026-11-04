@@ -1,0 +1,2585 @@
+{
+    "blu01_":  {
+                   "identity":  {
+                                    "userId":  "204497246",
+                                    "login":  "blu01_",
+                                    "displayName":  "blu01_",
+                                    "chatColor":  "#0000FF"
+                                },
+                   "providers":  {
+                                     "Twitch":  {
+                                                    "status":  "loaded",
+                                                    "resources":  {
+                                                                      "globalBadges":  {
+
+                                                                                       },
+                                                                      "channelBadges":  {
+
+                                                                                        },
+                                                                      "ownedBadges":  [
+
+                                                                                      ]
+                                                                  }
+                                                },
+                                     "FFZ":  {
+                                                 "status":  "failed",
+                                                 "resources":  {
+                                                                   "globalEmotes":  [
+
+                                                                                    ],
+                                                                   "roomEmotes":  [
+
+                                                                                  ],
+                                                                   "badgeOverrides":  {
+
+                                                                                      },
+                                                                   "ownedBadges":  [
+
+                                                                                   ]
+                                                               }
+                                             },
+                                     "BTTV":  {
+                                                  "status":  "loaded",
+                                                  "resources":  {
+                                                                    "globalEmotes":  [
+
+                                                                                     ],
+                                                                    "channelEmotes":  [
+
+                                                                                      ],
+                                                                    "sharedEmotes":  [
+
+                                                                                     ],
+                                                                    "ownedBadges":  [
+
+                                                                                    ]
+                                                                }
+                                              },
+                                     "7TV":  {
+                                                 "status":  "loaded",
+                                                 "resources":  {
+                                                                   "globalEmotes":  [
+
+                                                                                    ],
+                                                                   "channelEmotes":  [
+
+                                                                                     ],
+                                                                   "personalEmotes":  [
+
+                                                                                      ],
+                                                                   "paint":  {
+                                                                                 "id":  "01KW7H0JWNJB13QMYWX7388149",
+                                                                                 "func":  "RADIAL_GRADIENT",
+                                                                                 "repeat":  true,
+                                                                                 "shadows":  [
+                                                                                                 {
+                                                                                                     "color":  6488063,
+                                                                                                     "x_offset":  0,
+                                                                                                     "y_offset":  0,
+                                                                                                     "radius":  4
+                                                                                                 }
+                                                                                             ],
+                                                                                 "stops":  [
+                                                                                               {
+                                                                                                   "color":  525983999,
+                                                                                                   "at":  0
+                                                                                               },
+                                                                                               {
+                                                                                                   "color":  16515071,
+                                                                                                   "at":  0.21
+                                                                                               },
+                                                                                               {
+                                                                                                   "color":  6262783,
+                                                                                                   "at":  0.35
+                                                                                               }
+                                                                                           ],
+                                                                                 "shape":  "ellipse"
+                                                                             },
+                                                                   "badge":  {
+                                                                                 "id":  "01KV57JNXGT1R7N6FJAZWKHVG5",
+                                                                                 "image":  "https://cdn.7tv.app/badge/01KV57JNXGT1R7N6FJAZWKHVG5/3x.webp"
+                                                                             }
+                                                               }
+                                             }
+                                 },
+                   "communityBadges":  [
+                                           {
+                                               "type":  "community:limerino:founder",
+                                               "title":  "Limerino Founder",
+                                               "url":  "https://api.limerino.com/v1/badges/art/founder/4/1x.webp",
+                                               "fallbackUrl":  "https://api.limerino.com/v1/badges/art/founder/4/1x.png"
+                                           },
+                                           {
+                                               "type":  "community:custom-homies:6abeda09411918ca999d64eb",
+                                               "title":  "blu01_ Badge",
+                                               "url":  "https://cdn.chatterinohomies.com/badges/329dfec3-7342-4001-8fea-c8327424aacf/72.webp"
+                                           },
+                                           {
+                                               "type":  "community:moltorino:supporter",
+                                               "url":  "https://api.moltorino.com/badges/assets/supporter/3x.webp?v=580"
+                                           },
+                                           {
+                                               "type":  "community:bluzyrino:tier1",
+                                               "url":  "https://bluzyrino-badge-registry.blu901-55.workers.dev/badges/tier1-72.gif?v=special-webp-v1"
+                                           },
+                                           {
+                                               "type":  "community:bchat:supporters",
+                                               "url":  "https://itsbr0dyy.dev/badges/supporter-4x.avif"
+                                           }
+                                       ]
+               },
+    "br_winters":  {
+                       "identity":  {
+                                        "userId":  "249031143",
+                                        "login":  "br_winters",
+                                        "displayName":  "br_winters",
+                                        "chatColor":  "#1E90FF"
+                                    },
+                       "providers":  {
+                                         "Twitch":  {
+                                                        "status":  "loaded",
+                                                        "resources":  {
+                                                                          "globalBadges":  {
+
+                                                                                           },
+                                                                          "channelBadges":  {
+
+                                                                                            },
+                                                                          "ownedBadges":  [
+                                                                                              {
+                                                                                                  "type":  "d20",
+                                                                                                  "title":  "d20",
+                                                                                                  "version":  "1"
+                                                                                              }
+                                                                                          ]
+                                                                      }
+                                                    },
+                                         "FFZ":  {
+                                                     "status":  "loaded",
+                                                     "resources":  {
+                                                                       "globalEmotes":  [
+
+                                                                                        ],
+                                                                       "roomEmotes":  [
+
+                                                                                      ],
+                                                                       "badgeOverrides":  {
+
+                                                                                          },
+                                                                       "ownedBadges":  [
+
+                                                                                       ]
+                                                                   }
+                                                 },
+                                         "BTTV":  {
+                                                      "status":  "loaded",
+                                                      "resources":  {
+                                                                        "globalEmotes":  [
+
+                                                                                         ],
+                                                                        "channelEmotes":  [
+
+                                                                                          ],
+                                                                        "sharedEmotes":  [
+
+                                                                                         ],
+                                                                        "ownedBadges":  [
+
+                                                                                        ]
+                                                                    }
+                                                  },
+                                         "7TV":  {
+                                                     "status":  "loaded",
+                                                     "resources":  {
+                                                                       "globalEmotes":  [
+
+                                                                                        ],
+                                                                       "channelEmotes":  [
+
+                                                                                         ],
+                                                                       "personalEmotes":  [
+
+                                                                                          ],
+                                                                       "paint":  {
+                                                                                     "id":  "01M57S0EVCG5GMMQ35C1N0GT0A",
+                                                                                     "func":  "URL",
+                                                                                     "repeat":  false,
+                                                                                     "shadows":  [
+                                                                                                     {
+                                                                                                         "color":  3475647231,
+                                                                                                         "x_offset":  1,
+                                                                                                         "y_offset":  1,
+                                                                                                         "radius":  0
+                                                                                                     }
+                                                                                                 ],
+                                                                                     "stops":  [
+
+                                                                                               ],
+                                                                                     "image_url":  "https://cdn.7tv.app/paint/01M57S0EVCG5GMMQ35C1N0GT0A/layer/01M57S4DFQ8YNZYSYK07WN4KT2/1x.webp"
+                                                                                 },
+                                                                       "badge":  {
+                                                                                     "id":  "01KYQHQ7FVRR3X4S0F2KG74207",
+                                                                                     "image":  "https://cdn.7tv.app/badge/01KYQHQ7FVRR3X4S0F2KG74207/3x.webp"
+                                                                                 }
+                                                                   }
+                                                 }
+                                     },
+                       "communityBadges":  [
+                                               {
+                                                   "type":  "community:chatterino:chatterino-supporter",
+                                                   "url":  "https://fourtf.com/chatterino/badges/supporter3x.png"
+                                               },
+                                               {
+                                                   "type":  "community:homies:3",
+                                                   "url":  "https://itzalex.github.io/badgesusers/supporter2/badge3x.png"
+                                               },
+                                               {
+                                                   "type":  "community:streamnook:streamnook-penrose",
+                                                   "title":  "Penrose",
+                                                   "url":  "https://cdn.streamnook.app/badges/streamnook-penrose.webp?v=2"
+                                               },
+                                               {
+                                                   "type":  "community:bttv:bttv-pro",
+                                                   "title":  "BetterTTV Pro",
+                                                   "url":  "https://cdn.betterttv.net/badges/pro/97c7dfb8-d2a5-4ab0-9e42-e9e14630da5b.webp"
+                                               }
+                                           ]
+                   },
+    "dansalvato":  {
+                       "identity":  {
+                                        "userId":  "47852576",
+                                        "login":  "dansalvato",
+                                        "displayName":  "dansalvato",
+                                        "chatColor":  "#1E90FF"
+                                    },
+                       "providers":  {
+                                         "Twitch":  {
+                                                        "status":  "loaded",
+                                                        "resources":  {
+                                                                          "globalBadges":  {
+
+                                                                                           },
+                                                                          "channelBadges":  {
+
+                                                                                            },
+                                                                          "ownedBadges":  [
+                                                                                              {
+                                                                                                  "type":  "partner",
+                                                                                                  "title":  "Verified",
+                                                                                                  "version":  "1"
+                                                                                              }
+                                                                                          ]
+                                                                      }
+                                                    },
+                                         "FFZ":  {
+                                                     "status":  "loaded",
+                                                     "resources":  {
+                                                                       "globalEmotes":  [
+
+                                                                                        ],
+                                                                       "roomEmotes":  [
+
+                                                                                      ],
+                                                                       "badgeOverrides":  {
+
+                                                                                          },
+                                                                       "ownedBadges":  [
+
+                                                                                       ]
+                                                                   }
+                                                 },
+                                         "BTTV":  {
+                                                      "status":  "loaded",
+                                                      "resources":  {
+                                                                        "globalEmotes":  [
+
+                                                                                         ],
+                                                                        "channelEmotes":  [
+
+                                                                                          ],
+                                                                        "sharedEmotes":  [
+
+                                                                                         ],
+                                                                        "ownedBadges":  [
+
+                                                                                        ]
+                                                                    }
+                                                  },
+                                         "7TV":  {
+                                                     "status":  "unavailable",
+                                                     "resources":  {
+                                                                       "globalEmotes":  [
+
+                                                                                        ],
+                                                                       "channelEmotes":  [
+
+                                                                                         ],
+                                                                       "personalEmotes":  [
+
+                                                                                          ],
+                                                                       "paint":  null,
+                                                                       "badge":  null
+                                                                   }
+                                                 }
+                                     },
+                       "communityBadges":  [
+                                               {
+                                                   "type":  "community:ffz:1",
+                                                   "url":  "https://cdn.frankerfacez.com/badge/1/4",
+                                                   "backgroundColor":  "#FAAF19"
+                                               }
+                                           ]
+                   },
+    "djrr13":  {
+                   "identity":  {
+                                    "userId":  "227313621",
+                                    "login":  "djrr13",
+                                    "displayName":  "Djrr13",
+                                    "chatColor":  "#00FF7F"
+                                },
+                   "providers":  {
+                                     "Twitch":  {
+                                                    "status":  "loaded",
+                                                    "resources":  {
+                                                                      "globalBadges":  {
+
+                                                                                       },
+                                                                      "channelBadges":  {
+
+                                                                                        },
+                                                                      "ownedBadges":  [
+                                                                                          {
+                                                                                              "type":  "bits-charity",
+                                                                                              "title":  "Direct Relief - Charity 2018",
+                                                                                              "version":  "1"
+                                                                                          }
+                                                                                      ]
+                                                                  }
+                                                },
+                                     "FFZ":  {
+                                                 "status":  "failed",
+                                                 "resources":  {
+                                                                   "globalEmotes":  [
+
+                                                                                    ],
+                                                                   "roomEmotes":  [
+
+                                                                                  ],
+                                                                   "badgeOverrides":  {
+
+                                                                                      },
+                                                                   "ownedBadges":  [
+
+                                                                                   ]
+                                                               }
+                                             },
+                                     "BTTV":  {
+                                                  "status":  "loaded",
+                                                  "resources":  {
+                                                                    "globalEmotes":  [
+
+                                                                                     ],
+                                                                    "channelEmotes":  [
+
+                                                                                      ],
+                                                                    "sharedEmotes":  [
+
+                                                                                     ],
+                                                                    "ownedBadges":  [
+
+                                                                                    ]
+                                                                }
+                                              },
+                                     "7TV":  {
+                                                 "status":  "failed",
+                                                 "resources":  {
+                                                                   "globalEmotes":  [
+
+                                                                                    ],
+                                                                   "channelEmotes":  [
+
+                                                                                     ],
+                                                                   "personalEmotes":  [
+
+                                                                                      ],
+                                                                   "paint":  {
+                                                                                 "id":  "01M3QBESQ89Z6DDENSWNYJDB1D",
+                                                                                 "func":  "LINEAR_GRADIENT",
+                                                                                 "repeat":  false,
+                                                                                 "shadows":  [
+                                                                                                 {
+                                                                                                     "color":  1140916223,
+                                                                                                     "x_offset":  0,
+                                                                                                     "y_offset":  0,
+                                                                                                     "radius":  0.1
+                                                                                                 }
+                                                                                             ],
+                                                                                 "stops":  [
+                                                                                               {
+                                                                                                   "color":  2302723327,
+                                                                                                   "at":  0.15
+                                                                                               },
+                                                                                               {
+                                                                                                   "color":  1495449599,
+                                                                                                   "at":  0.45
+                                                                                               },
+                                                                                               {
+                                                                                                   "color":  16712959,
+                                                                                                   "at":  0.65
+                                                                                               }
+                                                                                           ],
+                                                                                 "angle":  90
+                                                                             },
+                                                                   "badge":  {
+                                                                                 "id":  "01KVAAZDKB0ME583PYG0GVGC42",
+                                                                                 "image":  "https://cdn.7tv.app/badge/01KVAAZDKB0ME583PYG0GVGC42/3x.webp"
+                                                                             }
+                                                               }
+                                             }
+                                 },
+                   "communityBadges":  [
+                                           {
+                                               "type":  "community:chatterino:chatterino-supporter",
+                                               "url":  "https://fourtf.com/chatterino/badges/supporter3x.png"
+                                           },
+                                           {
+                                               "type":  "community:homies:3",
+                                               "url":  "https://itzalex.github.io/badgesusers/supporter2/badge3x.png"
+                                           },
+                                           {
+                                               "type":  "community:custom-homies:6ab94cb2411918ca9998ff60",
+                                               "title":  "Djrr13 Badge",
+                                               "url":  "https://cdn.chatterinohomies.com/badges/38ea65f7-dff5-4186-ba9c-cf798b46c5b8/72.webp"
+                                           },
+                                           {
+                                               "type":  "community:moltorino:supporter",
+                                               "url":  "https://api.moltorino.com/badges/assets/supporter/3x.webp?v=580"
+                                           },
+                                           {
+                                               "type":  "community:bluzyrino:tier1",
+                                               "url":  "https://bluzyrino-badge-registry.blu901-55.workers.dev/badges/tier1-72.gif?v=special-webp-v1"
+                                           },
+                                           {
+                                               "type":  "community:chatty:ffz-subwoofer",
+                                               "url":  "https://cdn.frankerfacez.com/badge/4/4",
+                                               "backgroundColor":  "#3D64B6"
+                                           },
+                                           {
+                                               "type":  "community:previews:subscriber-1",
+                                               "title":  "Previews Subscriber  1mo",
+                                               "url":  "/badges/previews/badge_m1.webp"
+                                           }
+                                       ]
+               },
+    "feelssunnyman":  {
+                          "identity":  {
+                                           "userId":  "134522528",
+                                           "login":  "feelssunnyman",
+                                           "displayName":  "FeelsSunnyMan",
+                                           "chatColor":  "#FFED94"
+                                       },
+                          "providers":  {
+                                            "Twitch":  {
+                                                           "status":  "loaded",
+                                                           "resources":  {
+                                                                             "globalBadges":  {
+
+                                                                                              },
+                                                                             "channelBadges":  {
+
+                                                                                               },
+                                                                             "ownedBadges":  [
+                                                                                                 {
+                                                                                                     "type":  "partner",
+                                                                                                     "title":  "Verified",
+                                                                                                     "version":  "1"
+                                                                                                 }
+                                                                                             ]
+                                                                         }
+                                                       },
+                                            "FFZ":  {
+                                                        "status":  "failed",
+                                                        "resources":  {
+                                                                          "globalEmotes":  [
+
+                                                                                           ],
+                                                                          "roomEmotes":  [
+
+                                                                                         ],
+                                                                          "badgeOverrides":  {
+
+                                                                                             },
+                                                                          "ownedBadges":  [
+
+                                                                                          ]
+                                                                      }
+                                                    },
+                                            "BTTV":  {
+                                                         "status":  "loaded",
+                                                         "resources":  {
+                                                                           "globalEmotes":  [
+
+                                                                                            ],
+                                                                           "channelEmotes":  [
+
+                                                                                             ],
+                                                                           "sharedEmotes":  [
+
+                                                                                            ],
+                                                                           "ownedBadges":  [
+
+                                                                                           ]
+                                                                       }
+                                                     },
+                                            "7TV":  {
+                                                        "status":  "loaded",
+                                                        "resources":  {
+                                                                          "globalEmotes":  [
+
+                                                                                           ],
+                                                                          "channelEmotes":  [
+
+                                                                                            ],
+                                                                          "personalEmotes":  [
+
+                                                                                             ],
+                                                                          "paint":  {
+                                                                                        "id":  "01HVJ2RVP800010B69FDA36C2V",
+                                                                                        "func":  "URL",
+                                                                                        "repeat":  false,
+                                                                                        "shadows":  [
+                                                                                                        {
+                                                                                                            "color":  4261085439,
+                                                                                                            "x_offset":  0,
+                                                                                                            "y_offset":  0,
+                                                                                                            "radius":  1
+                                                                                                        },
+                                                                                                        {
+                                                                                                            "color":  255,
+                                                                                                            "x_offset":  0.5,
+                                                                                                            "y_offset":  0.5,
+                                                                                                            "radius":  0.5
+                                                                                                        },
+                                                                                                        {
+                                                                                                            "color":  255,
+                                                                                                            "x_offset":  -0.5,
+                                                                                                            "y_offset":  -0.5,
+                                                                                                            "radius":  0.5
+                                                                                                        },
+                                                                                                        {
+                                                                                                            "color":  255,
+                                                                                                            "x_offset":  -0.5,
+                                                                                                            "y_offset":  1,
+                                                                                                            "radius":  0.5
+                                                                                                        },
+                                                                                                        {
+                                                                                                            "color":  255,
+                                                                                                            "x_offset":  1,
+                                                                                                            "y_offset":  -0.5,
+                                                                                                            "radius":  0.5
+                                                                                                        }
+                                                                                                    ],
+                                                                                        "stops":  [
+
+                                                                                                  ],
+                                                                                        "image_url":  "https://cdn.7tv.app/paint/01HVJ2RVP800010B69FDA36C2V/layer/01JAMR2G5GHMWP9XAZDKF1RABH/1x.webp"
+                                                                                    },
+                                                                          "badge":  {
+                                                                                        "id":  "01GAFARYP0000E8VNG1S1RMTBJ",
+                                                                                        "image":  "https://cdn.7tv.app/badge/01GAFARYP0000E8VNG1S1RMTBJ/3x.webp"
+                                                                                    }
+                                                                      }
+                                                    }
+                                        },
+                          "communityBadges":  [
+
+                                              ]
+                      },
+    "giovahni":  {
+                     "identity":  {
+                                      "userId":  "237802078",
+                                      "login":  "giovahni",
+                                      "displayName":  "Giovahni",
+                                      "chatColor":  "#12FF0A"
+                                  },
+                     "providers":  {
+                                       "Twitch":  {
+                                                      "status":  "loaded",
+                                                      "resources":  {
+                                                                        "globalBadges":  {
+
+                                                                                         },
+                                                                        "channelBadges":  {
+
+                                                                                          },
+                                                                        "ownedBadges":  [
+                                                                                            {
+                                                                                                "type":  "mod-founder",
+                                                                                                "title":  "Mod Founder",
+                                                                                                "version":  "1"
+                                                                                            }
+                                                                                        ]
+                                                                    }
+                                                  },
+                                       "FFZ":  {
+                                                   "status":  "loaded",
+                                                   "resources":  {
+                                                                     "globalEmotes":  [
+
+                                                                                      ],
+                                                                     "roomEmotes":  [
+
+                                                                                    ],
+                                                                     "badgeOverrides":  {
+
+                                                                                        },
+                                                                     "ownedBadges":  [
+
+                                                                                     ]
+                                                                 }
+                                               },
+                                       "BTTV":  {
+                                                    "status":  "loaded",
+                                                    "resources":  {
+                                                                      "globalEmotes":  [
+
+                                                                                       ],
+                                                                      "channelEmotes":  [
+
+                                                                                        ],
+                                                                      "sharedEmotes":  [
+
+                                                                                       ],
+                                                                      "ownedBadges":  [
+
+                                                                                      ]
+                                                                  }
+                                                },
+                                       "7TV":  {
+                                                   "status":  "loaded",
+                                                   "resources":  {
+                                                                     "globalEmotes":  [
+
+                                                                                      ],
+                                                                     "channelEmotes":  [
+
+                                                                                       ],
+                                                                     "personalEmotes":  [
+
+                                                                                        ],
+                                                                     "paint":  {
+                                                                                   "id":  "01KH9GC158GSBAHYSQF2SQM8HT",
+                                                                                   "func":  "URL",
+                                                                                   "repeat":  false,
+                                                                                   "shadows":  [
+                                                                                                   {
+                                                                                                       "color":  3925901823,
+                                                                                                       "x_offset":  1,
+                                                                                                       "y_offset":  1,
+                                                                                                       "radius":  0.1
+                                                                                                   },
+                                                                                                   {
+                                                                                                       "color":  1895841535,
+                                                                                                       "x_offset":  0,
+                                                                                                       "y_offset":  0,
+                                                                                                       "radius":  4
+                                                                                                   }
+                                                                                               ],
+                                                                                   "stops":  [
+
+                                                                                             ],
+                                                                                   "image_url":  "https://cdn.7tv.app/paint/01KH9GC158GSBAHYSQF2SQM8HT/layer/01KH9GC158QVGT1EXZYM8YEG7M/1x.webp"
+                                                                               },
+                                                                     "badge":  {
+                                                                                   "id":  "01KB4X7XGZWPSJBP7FTFSRGZ90",
+                                                                                   "image":  "https://cdn.7tv.app/badge/01KB4X7XGZWPSJBP7FTFSRGZ90/3x.webp"
+                                                                               }
+                                                                 }
+                                               }
+                                   },
+                     "communityBadges":  [
+                                             {
+                                                 "type":  "community:homies:3",
+                                                 "url":  "https://itzalex.github.io/badgesusers/supporter2/badge3x.png"
+                                             },
+                                             {
+                                                 "type":  "community:custom-homies:6a8bf25c2125cbfce994aa97",
+                                                 "title":  "GIOVAHNI Badge",
+                                                 "url":  "https://cdn.chatterinohomies.com/badges/c546f60c-592d-42b2-86d5-91c80ca924a2/72.webp"
+                                             },
+                                             {
+                                                 "type":  "community:moltorino:supporter",
+                                                 "url":  "https://api.moltorino.com/badges/assets/supporter/3x.webp?v=580"
+                                             },
+                                             {
+                                                 "type":  "community:bluzyrino:early-supporter",
+                                                 "url":  "https://bluzyrino-badge-registry.blu901-55.workers.dev/badges/early-supporter-72.gif?v=special-webp-v1"
+                                             },
+                                             {
+                                                 "type":  "community:ffz:4",
+                                                 "url":  "https://cdn.frankerfacez.com/badge/4/4",
+                                                 "backgroundColor":  "#3D64B6"
+                                             }
+                                         ]
+                 },
+    "gxufy":  {
+                  "identity":  {
+                                   "userId":  "204219574",
+                                   "login":  "gxufy",
+                                   "displayName":  "Gxufy",
+                                   "chatColor":  "#04FFEB"
+                               },
+                  "providers":  {
+                                    "Twitch":  {
+                                                   "status":  "loaded",
+                                                   "resources":  {
+                                                                     "globalBadges":  {
+
+                                                                                      },
+                                                                     "channelBadges":  {
+
+                                                                                       },
+                                                                     "ownedBadges":  [
+                                                                                         {
+                                                                                             "type":  "seeks-eye",
+                                                                                             "title":  "Seek\u0027s Eye",
+                                                                                             "version":  "1"
+                                                                                         }
+                                                                                     ]
+                                                                 }
+                                               },
+                                    "FFZ":  {
+                                                "status":  "loaded",
+                                                "resources":  {
+                                                                  "globalEmotes":  [
+
+                                                                                   ],
+                                                                  "roomEmotes":  [
+
+                                                                                 ],
+                                                                  "badgeOverrides":  {
+
+                                                                                     },
+                                                                  "ownedBadges":  [
+
+                                                                                  ]
+                                                              }
+                                            },
+                                    "BTTV":  {
+                                                 "status":  "loaded",
+                                                 "resources":  {
+                                                                   "globalEmotes":  [
+
+                                                                                    ],
+                                                                   "channelEmotes":  [
+
+                                                                                     ],
+                                                                   "sharedEmotes":  [
+
+                                                                                    ],
+                                                                   "ownedBadges":  [
+
+                                                                                   ]
+                                                               }
+                                             },
+                                    "7TV":  {
+                                                "status":  "loaded",
+                                                "resources":  {
+                                                                  "globalEmotes":  [
+
+                                                                                   ],
+                                                                  "channelEmotes":  [
+
+                                                                                    ],
+                                                                  "personalEmotes":  [
+
+                                                                                     ],
+                                                                  "paint":  {
+                                                                                "id":  "01K19W45ZA3XFW7YP83BVQRBYR",
+                                                                                "func":  "RADIAL_GRADIENT",
+                                                                                "repeat":  true,
+                                                                                "shadows":  [
+                                                                                                {
+                                                                                                    "color":  3154051327,
+                                                                                                    "x_offset":  0,
+                                                                                                    "y_offset":  0,
+                                                                                                    "radius":  4
+                                                                                                }
+                                                                                            ],
+                                                                                "stops":  [
+                                                                                              {
+                                                                                                  "color":  4294967295,
+                                                                                                  "at":  0
+                                                                                              },
+                                                                                              {
+                                                                                                  "color":  4294967295,
+                                                                                                  "at":  0.15
+                                                                                              },
+                                                                                              {
+                                                                                                  "color":  3154051327,
+                                                                                                  "at":  0.35
+                                                                                              },
+                                                                                              {
+                                                                                                  "color":  2583625983,
+                                                                                                  "at":  0.5
+                                                                                              }
+                                                                                          ],
+                                                                                "shape":  "circle"
+                                                                            },
+                                                                  "badge":  {
+                                                                                "id":  "01KB4X7XGZWPSJBP7FTFSRGZ90",
+                                                                                "image":  "https://cdn.7tv.app/badge/01KB4X7XGZWPSJBP7FTFSRGZ90/3x.webp"
+                                                                            }
+                                                              }
+                                            }
+                                },
+                  "communityBadges":  [
+                                          {
+                                              "type":  "community:limerino:founder",
+                                              "title":  "Limerino Founder",
+                                              "url":  "https://api.limerino.com/v1/badges/art/founder/4/1x.webp",
+                                              "fallbackUrl":  "https://api.limerino.com/v1/badges/art/founder/4/1x.png"
+                                          },
+                                          {
+                                              "type":  "community:chatterino:chatterino-supporter",
+                                              "url":  "https://fourtf.com/chatterino/badges/supporter3x.png"
+                                          },
+                                          {
+                                              "type":  "community:homies:3",
+                                              "url":  "https://itzalex.github.io/badgesusers/supporter2/badge3x.png"
+                                          },
+                                          {
+                                              "type":  "community:custom-homies:6abfce5a411918ca999e2ff7",
+                                              "title":  "Gxufy Badge",
+                                              "url":  "https://cdn.chatterinohomies.com/badges/ac4b13c6-5b30-4f1e-85e6-09a2b1f7c560/72.webp"
+                                          },
+                                          {
+                                              "type":  "community:moltorino:supporter",
+                                              "url":  "https://api.moltorino.com/badges/assets/supporter/3x.webp?v=580"
+                                          },
+                                          {
+                                              "type":  "community:bluzyrino:early-supporter",
+                                              "url":  "https://bluzyrino-badge-registry.blu901-55.workers.dev/badges/early-supporter-72.gif?v=special-webp-v1"
+                                          },
+                                          {
+                                              "type":  "community:ffz:3",
+                                              "url":  "https://cdn.frankerfacez.com/badge/3/4",
+                                              "backgroundColor":  "#755000"
+                                          },
+                                          {
+                                              "type":  "community:bchat:supporters",
+                                              "url":  "https://itsbr0dyy.dev/badges/supporter-4x.avif"
+                                          },
+                                          {
+                                              "type":  "community:badgehq:supporter",
+                                              "title":  "BadgeHQ Supporter",
+                                              "url":  "https://badgehq.jessekettle.xyz/badges/v1/supporter-3x.png?v=3"
+                                          },
+                                          {
+                                              "type":  "community:ffzap:supporter",
+                                              "title":  "FFZ:AP Supporter",
+                                              "url":  "https://api.ffzap.com/v1/user/badge/204219574/3"
+                                          },
+                                          {
+                                              "type":  "community:streamnook:streamnook-mobius",
+                                              "title":  "MÃ¶bius",
+                                              "url":  "https://cdn.streamnook.app/badges/streamnook-mobius.webp?v=2"
+                                          },
+                                          {
+                                              "type":  "community:gxufy:supporter",
+                                              "title":  "Gxufy Supporter",
+                                              "url":  "/badges/gxufy/supporter.webp"
+                                          }
+                                      ]
+              },
+    "igorovh":  {
+                    "identity":  {
+                                     "userId":  "87037696",
+                                     "login":  "igorovh",
+                                     "displayName":  "igorovh",
+                                     "chatColor":  "#FBCFD8"
+                                 },
+                    "providers":  {
+                                      "Twitch":  {
+                                                     "status":  "loaded",
+                                                     "resources":  {
+                                                                       "globalBadges":  {
+
+                                                                                        },
+                                                                       "channelBadges":  {
+
+                                                                                         },
+                                                                       "ownedBadges":  [
+                                                                                           {
+                                                                                               "type":  "ditto",
+                                                                                               "title":  "Ditto",
+                                                                                               "version":  "1"
+                                                                                           }
+                                                                                       ]
+                                                                   }
+                                                 },
+                                      "FFZ":  {
+                                                  "status":  "loaded",
+                                                  "resources":  {
+                                                                    "globalEmotes":  [
+
+                                                                                     ],
+                                                                    "roomEmotes":  [
+
+                                                                                   ],
+                                                                    "badgeOverrides":  {
+
+                                                                                       },
+                                                                    "ownedBadges":  [
+
+                                                                                    ]
+                                                                }
+                                              },
+                                      "BTTV":  {
+                                                   "status":  "loaded",
+                                                   "resources":  {
+                                                                     "globalEmotes":  [
+
+                                                                                      ],
+                                                                     "channelEmotes":  [
+
+                                                                                       ],
+                                                                     "sharedEmotes":  [
+
+                                                                                      ],
+                                                                     "ownedBadges":  [
+
+                                                                                     ]
+                                                                 }
+                                               },
+                                      "7TV":  {
+                                                  "status":  "failed",
+                                                  "resources":  {
+                                                                    "globalEmotes":  [
+
+                                                                                     ],
+                                                                    "channelEmotes":  [
+
+                                                                                      ],
+                                                                    "personalEmotes":  [
+
+                                                                                       ],
+                                                                    "paint":  null,
+                                                                    "badge":  null
+                                                                }
+                                              }
+                                  },
+                    "communityBadges":  [
+                                            {
+                                                "type":  "community:enhancer:bb90ca1c-52ed-4fc4-a9ab-4274c8b9c394",
+                                                "title":  "Enhancer Developer",
+                                                "url":  "https://cdn.enhancer.at/badge/a041897e28bf998530b7c6d7b04b27b62fbf28ca4089c56b983619252d71286f/72.webp"
+                                            }
+                                        ]
+                },
+    "itzalexpl":  {
+                      "identity":  {
+                                       "userId":  "59842770",
+                                       "login":  "itzalexpl",
+                                       "displayName":  "itzAlexPL",
+                                       "chatColor":  "#00FFFF"
+                                   },
+                      "providers":  {
+                                        "Twitch":  {
+                                                       "status":  "loaded",
+                                                       "resources":  {
+                                                                         "globalBadges":  {
+
+                                                                                          },
+                                                                         "channelBadges":  {
+
+                                                                                           },
+                                                                         "ownedBadges":  [
+                                                                                             {
+                                                                                                 "type":  "twitchconeu2022",
+                                                                                                 "title":  "TwitchCon 2022 - Amsterdam",
+                                                                                                 "version":  "1"
+                                                                                             }
+                                                                                         ]
+                                                                     }
+                                                   },
+                                        "FFZ":  {
+                                                    "status":  "loaded",
+                                                    "resources":  {
+                                                                      "globalEmotes":  [
+
+                                                                                       ],
+                                                                      "roomEmotes":  [
+
+                                                                                     ],
+                                                                      "badgeOverrides":  {
+
+                                                                                         },
+                                                                      "ownedBadges":  [
+
+                                                                                      ]
+                                                                  }
+                                                },
+                                        "BTTV":  {
+                                                     "status":  "loaded",
+                                                     "resources":  {
+                                                                       "globalEmotes":  [
+
+                                                                                        ],
+                                                                       "channelEmotes":  [
+
+                                                                                         ],
+                                                                       "sharedEmotes":  [
+
+                                                                                        ],
+                                                                       "ownedBadges":  [
+
+                                                                                       ]
+                                                                   }
+                                                 },
+                                        "7TV":  {
+                                                    "status":  "loaded",
+                                                    "resources":  {
+                                                                      "globalEmotes":  [
+
+                                                                                       ],
+                                                                      "channelEmotes":  [
+
+                                                                                        ],
+                                                                      "personalEmotes":  [
+
+                                                                                         ],
+                                                                      "paint":  null,
+                                                                      "badge":  null
+                                                                  }
+                                                }
+                                    },
+                      "communityBadges":  [
+                                              {
+                                                  "type":  "community:homies:1",
+                                                  "url":  "https://itzalex.github.io/badgesusers/dev/badge3x.png"
+                                              },
+                                              {
+                                                  "type":  "community:custom-homies:68d9988d3d60203ffbfe5d32",
+                                                  "title":  "itzAlexPL Badge",
+                                                  "url":  "https://cdn.chatterinohomies.com/badges/b03d19ff-0287-4384-b55f-8b0269c244de/72.webp"
+                                              },
+                                              {
+                                                  "type":  "community:ffz:3",
+                                                  "url":  "https://cdn.frankerfacez.com/badge/3/4",
+                                                  "backgroundColor":  "#755000"
+                                              }
+                                          ]
+                  },
+    "jilence":  {
+                    "identity":  {
+                                     "userId":  "438697907",
+                                     "login":  "jilence",
+                                     "displayName":  "Jilence",
+                                     "chatColor":  "#BF6BF0"
+                                 },
+                    "providers":  {
+                                      "Twitch":  {
+                                                     "status":  "loaded",
+                                                     "resources":  {
+                                                                       "globalBadges":  {
+
+                                                                                        },
+                                                                       "channelBadges":  {
+
+                                                                                         },
+                                                                       "ownedBadges":  [
+                                                                                           {
+                                                                                               "type":  "gold-pixel-heart---together-for-good-24",
+                                                                                               "title":  "Gold Pixel Heart - Together For Good \u002724",
+                                                                                               "version":  "1"
+                                                                                           }
+                                                                                       ]
+                                                                   }
+                                                 },
+                                      "FFZ":  {
+                                                  "status":  "loaded",
+                                                  "resources":  {
+                                                                    "globalEmotes":  [
+
+                                                                                     ],
+                                                                    "roomEmotes":  [
+
+                                                                                   ],
+                                                                    "badgeOverrides":  {
+
+                                                                                       },
+                                                                    "ownedBadges":  [
+
+                                                                                    ]
+                                                                }
+                                              },
+                                      "BTTV":  {
+                                                   "status":  "loaded",
+                                                   "resources":  {
+                                                                     "globalEmotes":  [
+
+                                                                                      ],
+                                                                     "channelEmotes":  [
+
+                                                                                       ],
+                                                                     "sharedEmotes":  [
+
+                                                                                      ],
+                                                                     "ownedBadges":  [
+
+                                                                                     ]
+                                                                 }
+                                               },
+                                      "7TV":  {
+                                                  "status":  "loaded",
+                                                  "resources":  {
+                                                                    "globalEmotes":  [
+
+                                                                                     ],
+                                                                    "channelEmotes":  [
+
+                                                                                      ],
+                                                                    "personalEmotes":  [
+
+                                                                                       ],
+                                                                    "paint":  null,
+                                                                    "badge":  null
+                                                                }
+                                              }
+                                  },
+                    "communityBadges":  [
+                                            {
+                                                "type":  "community:chatterino:chatterino-supporter",
+                                                "url":  "https://fourtf.com/chatterino/badges/supporter3x.png"
+                                            },
+                                            {
+                                                "type":  "community:homies:3",
+                                                "url":  "https://itzalex.github.io/badgesusers/supporter2/badge3x.png"
+                                            },
+                                            {
+                                                "type":  "community:custom-homies:68d991503d60203ffbfe0100",
+                                                "title":  "Jilence Badge",
+                                                "url":  "https://cdn.chatterinohomies.com/badges/806afb86-1ced-4279-a688-28e52c488ac5/72.webp"
+                                            },
+                                            {
+                                                "type":  "community:moltorino:supporter",
+                                                "url":  "https://api.moltorino.com/badges/assets/supporter/3x.webp?v=580"
+                                            },
+                                            {
+                                                "type":  "community:ffz:3",
+                                                "url":  "https://cdn.frankerfacez.com/badge/3/4",
+                                                "backgroundColor":  "#755000"
+                                            },
+                                            {
+                                                "type":  "community:jilchat:founder-beta",
+                                                "title":  "JilChat Founder",
+                                                "url":  "https://api.jil.chat/uploads/badges/662a747a-a3ea-4503-bd3f-27d29d9a4d58.png"
+                                            }
+                                        ]
+                },
+    "marc":  {
+                 "identity":  {
+                                  "userId":  "44710465",
+                                  "login":  "marc",
+                                  "displayName":  "Marc",
+                                  "chatColor":  "#00B9FF"
+                              },
+                 "providers":  {
+                                   "Twitch":  {
+                                                  "status":  "loaded",
+                                                  "resources":  {
+                                                                    "globalBadges":  {
+
+                                                                                     },
+                                                                    "channelBadges":  {
+
+                                                                                      },
+                                                                    "ownedBadges":  [
+                                                                                        {
+                                                                                            "type":  "turbo",
+                                                                                            "title":  "Turbo",
+                                                                                            "version":  "1"
+                                                                                        }
+                                                                                    ]
+                                                                }
+                                              },
+                                   "FFZ":  {
+                                               "status":  "loaded",
+                                               "resources":  {
+                                                                 "globalEmotes":  [
+
+                                                                                  ],
+                                                                 "roomEmotes":  [
+
+                                                                                ],
+                                                                 "badgeOverrides":  {
+
+                                                                                    },
+                                                                 "ownedBadges":  [
+
+                                                                                 ]
+                                                             }
+                                           },
+                                   "BTTV":  {
+                                                "status":  "loaded",
+                                                "resources":  {
+                                                                  "globalEmotes":  [
+
+                                                                                   ],
+                                                                  "channelEmotes":  [
+
+                                                                                    ],
+                                                                  "sharedEmotes":  [
+
+                                                                                   ],
+                                                                  "ownedBadges":  [
+                                                                                      {
+                                                                                          "id":  "bttv-3",
+                                                                                          "image":  "https://cdn.betterttv.net/badges/emote_approver.svg"
+                                                                                      }
+                                                                                  ]
+                                                              }
+                                            },
+                                   "7TV":  {
+                                               "status":  "loaded",
+                                               "resources":  {
+                                                                 "globalEmotes":  [
+
+                                                                                  ],
+                                                                 "channelEmotes":  [
+
+                                                                                   ],
+                                                                 "personalEmotes":  [
+
+                                                                                    ],
+                                                                 "paint":  {
+                                                                               "id":  "01GEB9RZNG0006MCY6R6BPTMGH",
+                                                                               "func":  "URL",
+                                                                               "repeat":  false,
+                                                                               "shadows":  [
+                                                                                               {
+                                                                                                   "color":  218959359,
+                                                                                                   "x_offset":  0.5,
+                                                                                                   "y_offset":  0.5,
+                                                                                                   "radius":  0.5
+                                                                                               },
+                                                                                               {
+                                                                                                   "color":  218959359,
+                                                                                                   "x_offset":  -0.5,
+                                                                                                   "y_offset":  -0.5,
+                                                                                                   "radius":  0.5
+                                                                                               },
+                                                                                               {
+                                                                                                   "color":  218959359,
+                                                                                                   "x_offset":  -0.5,
+                                                                                                   "y_offset":  1,
+                                                                                                   "radius":  0.5
+                                                                                               },
+                                                                                               {
+                                                                                                   "color":  218959359,
+                                                                                                   "x_offset":  1,
+                                                                                                   "y_offset":  -0.5,
+                                                                                                   "radius":  0.5
+                                                                                               },
+                                                                                               {
+                                                                                                   "color":  1110966527,
+                                                                                                   "x_offset":  0,
+                                                                                                   "y_offset":  0,
+                                                                                                   "radius":  1
+                                                                                               }
+                                                                                           ],
+                                                                               "stops":  [
+
+                                                                                         ],
+                                                                               "image_url":  "https://cdn.7tv.app/paint/01GEB9RZNG0006MCY6R6BPTMGH/layer/01JAMR1TE5VR77TME3YQDFNAVR/1x.webp"
+                                                                           },
+                                                                 "badge":  {
+                                                                               "id":  "01GAFGTXQ0000E8VNG1S1RMTC4",
+                                                                               "image":  "https://cdn.7tv.app/badge/01GAFGTXQ0000E8VNG1S1RMTC4/3x.webp"
+                                                                           }
+                                                             }
+                                           }
+                               },
+                 "communityBadges":  [
+                                         {
+                                             "type":  "community:limerino:founder",
+                                             "title":  "Limerino Founder",
+                                             "url":  "https://api.limerino.com/v1/badges/art/founder/4/1x.webp",
+                                             "fallbackUrl":  "https://api.limerino.com/v1/badges/art/founder/4/1x.png"
+                                         },
+                                         {
+                                             "type":  "community:chatterino:chatterino-supporter",
+                                             "url":  "https://fourtf.com/chatterino/badges/supporter3x.png"
+                                         },
+                                         {
+                                             "type":  "community:custom-homies:68d98dec3d60203ffbfdcfe0",
+                                             "title":  "MarcFryd Badge",
+                                             "url":  "https://cdn.chatterinohomies.com/badges/9af6107f-db12-49fa-bcfa-830b101f2359/72.webp"
+                                         },
+                                         {
+                                             "type":  "community:bttv:55714c22c7a34e186b3221e6",
+                                             "url":  "https://cdn.betterttv.net/badges/emote_approver.svg"
+                                         },
+                                         {
+                                             "type":  "community:chatsen:chatsen-ba0ee6c93838feda513230066533e1de",
+                                             "title":  "Chatsen Early Bird",
+                                             "url":  "https://raw.githubusercontent.com/chatsen/resources/master/assets/old_advice.png"
+                                         }
+                                     ]
+             },
+    "moltobenne_":  {
+                        "identity":  {
+                                         "userId":  "506954718",
+                                         "login":  "moltobenne_",
+                                         "displayName":  "MoltoBenne_",
+                                         "chatColor":  "#FFA500"
+                                     },
+                        "providers":  {
+                                          "Twitch":  {
+                                                         "status":  "loaded",
+                                                         "resources":  {
+                                                                           "globalBadges":  {
+
+                                                                                            },
+                                                                           "channelBadges":  {
+
+                                                                                             },
+                                                                           "ownedBadges":  [
+                                                                                               {
+                                                                                                   "type":  "la-velada-iv",
+                                                                                                   "title":  "La Velada del AÃ±o IV",
+                                                                                                   "version":  "1"
+                                                                                               }
+                                                                                           ]
+                                                                       }
+                                                     },
+                                          "FFZ":  {
+                                                      "status":  "loaded",
+                                                      "resources":  {
+                                                                        "globalEmotes":  [
+
+                                                                                         ],
+                                                                        "roomEmotes":  [
+
+                                                                                       ],
+                                                                        "badgeOverrides":  {
+
+                                                                                           },
+                                                                        "ownedBadges":  [
+
+                                                                                        ]
+                                                                    }
+                                                  },
+                                          "BTTV":  {
+                                                       "status":  "loaded",
+                                                       "resources":  {
+                                                                         "globalEmotes":  [
+
+                                                                                          ],
+                                                                         "channelEmotes":  [
+
+                                                                                           ],
+                                                                         "sharedEmotes":  [
+
+                                                                                          ],
+                                                                         "ownedBadges":  [
+
+                                                                                         ]
+                                                                     }
+                                                   },
+                                          "7TV":  {
+                                                      "status":  "loaded",
+                                                      "resources":  {
+                                                                        "globalEmotes":  [
+
+                                                                                         ],
+                                                                        "channelEmotes":  [
+
+                                                                                          ],
+                                                                        "personalEmotes":  [
+
+                                                                                           ],
+                                                                        "paint":  {
+                                                                                      "id":  "01HBG2PV98000D2TB3512PRQ5E",
+                                                                                      "func":  "LINEAR_GRADIENT",
+                                                                                      "repeat":  false,
+                                                                                      "shadows":  [
+                                                                                                      {
+                                                                                                          "color":  2920222719,
+                                                                                                          "x_offset":  0,
+                                                                                                          "y_offset":  0,
+                                                                                                          "radius":  0.1
+                                                                                                      },
+                                                                                                      {
+                                                                                                          "color":  2920222719,
+                                                                                                          "x_offset":  0,
+                                                                                                          "y_offset":  0,
+                                                                                                          "radius":  4
+                                                                                                      }
+                                                                                                  ],
+                                                                                      "stops":  [
+                                                                                                    {
+                                                                                                        "color":  4291947775,
+                                                                                                        "at":  0.2
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "color":  3831389951,
+                                                                                                        "at":  0.54
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "color":  3556912383,
+                                                                                                        "at":  0.76
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "color":  2315270143,
+                                                                                                        "at":  1
+                                                                                                    }
+                                                                                                ],
+                                                                                      "angle":  180
+                                                                                  },
+                                                                        "badge":  {
+                                                                                      "id":  "01KB4X7XGZWPSJBP7FTFSRGZ90",
+                                                                                      "image":  "https://cdn.7tv.app/badge/01KB4X7XGZWPSJBP7FTFSRGZ90/3x.webp"
+                                                                                  }
+                                                                    }
+                                                  }
+                                      },
+                        "communityBadges":  [
+                                                {
+                                                    "type":  "community:custom-homies:6ac9e2b5411918ca99a724c0",
+                                                    "title":  "MoltoBenne_ Badge",
+                                                    "url":  "https://cdn.chatterinohomies.com/badges/7d3c0f19-f237-4644-aa4b-29a293ffce99/72.webp"
+                                                },
+                                                {
+                                                    "type":  "community:moltorino:top-donor-alt",
+                                                    "url":  "https://api.moltorino.com/badges/assets/top_donor_alt/3x.webp?v=580"
+                                                }
+                                            ]
+                    },
+    "night":  {
+                  "identity":  {
+                                   "userId":  "11785491",
+                                   "login":  "night",
+                                   "displayName":  "Night",
+                                   "chatColor":  "#B22222"
+                               },
+                  "providers":  {
+                                    "Twitch":  {
+                                                   "status":  "loaded",
+                                                   "resources":  {
+                                                                     "globalBadges":  {
+
+                                                                                      },
+                                                                     "channelBadges":  {
+
+                                                                                       },
+                                                                     "ownedBadges":  [
+                                                                                         {
+                                                                                             "type":  "premium",
+                                                                                             "title":  "Prime Gaming",
+                                                                                             "version":  "1"
+                                                                                         }
+                                                                                     ]
+                                                                 }
+                                               },
+                                    "FFZ":  {
+                                                "status":  "loaded",
+                                                "resources":  {
+                                                                  "globalEmotes":  [
+
+                                                                                   ],
+                                                                  "roomEmotes":  [
+
+                                                                                 ],
+                                                                  "badgeOverrides":  {
+
+                                                                                     },
+                                                                  "ownedBadges":  [
+
+                                                                                  ]
+                                                              }
+                                            },
+                                    "BTTV":  {
+                                                 "status":  "loaded",
+                                                 "resources":  {
+                                                                   "globalEmotes":  [
+
+                                                                                    ],
+                                                                   "channelEmotes":  [
+
+                                                                                     ],
+                                                                   "sharedEmotes":  [
+
+                                                                                    ],
+                                                                   "ownedBadges":  [
+                                                                                       {
+                                                                                           "id":  "bttv-1",
+                                                                                           "image":  "https://cdn.betterttv.net/badges/developer.svg"
+                                                                                       }
+                                                                                   ]
+                                                               }
+                                             },
+                                    "7TV":  {
+                                                "status":  "unavailable",
+                                                "resources":  {
+                                                                  "globalEmotes":  [
+
+                                                                                   ],
+                                                                  "channelEmotes":  [
+
+                                                                                    ],
+                                                                  "personalEmotes":  [
+
+                                                                                     ],
+                                                                  "paint":  null,
+                                                                  "badge":  null
+                                                              }
+                                            }
+                                },
+                  "communityBadges":  [
+                                          {
+                                              "type":  "community:bttv:54ee2465b822020506c52a52",
+                                              "url":  "https://cdn.betterttv.net/badges/developer.svg"
+                                          }
+                                      ]
+              },
+    "said":  {
+                 "identity":  {
+                                  "userId":  "52142519",
+                                  "login":  "said",
+                                  "displayName":  "Said",
+                                  "chatColor":  "#1E90FF"
+                              },
+                 "providers":  {
+                                   "Twitch":  {
+                                                  "status":  "loaded",
+                                                  "resources":  {
+                                                                    "globalBadges":  {
+
+                                                                                     },
+                                                                    "channelBadges":  {
+
+                                                                                      },
+                                                                    "ownedBadges":  [
+                                                                                        {
+                                                                                            "type":  "partner",
+                                                                                            "title":  "Verified",
+                                                                                            "version":  "1"
+                                                                                        }
+                                                                                    ]
+                                                                }
+                                              },
+                                   "FFZ":  {
+                                               "status":  "loaded",
+                                               "resources":  {
+                                                                 "globalEmotes":  [
+
+                                                                                  ],
+                                                                 "roomEmotes":  [
+
+                                                                                ],
+                                                                 "badgeOverrides":  {
+
+                                                                                    },
+                                                                 "ownedBadges":  [
+
+                                                                                 ]
+                                                             }
+                                           },
+                                   "BTTV":  {
+                                                "status":  "loaded",
+                                                "resources":  {
+                                                                  "globalEmotes":  [
+
+                                                                                   ],
+                                                                  "channelEmotes":  [
+
+                                                                                    ],
+                                                                  "sharedEmotes":  [
+
+                                                                                   ],
+                                                                  "ownedBadges":  [
+
+                                                                                  ]
+                                                              }
+                                            },
+                                   "7TV":  {
+                                               "status":  "loaded",
+                                               "resources":  {
+                                                                 "globalEmotes":  [
+
+                                                                                  ],
+                                                                 "channelEmotes":  [
+
+                                                                                   ],
+                                                                 "personalEmotes":  [
+
+                                                                                    ],
+                                                                 "paint":  {
+                                                                               "id":  "01J5RNC5N80001EVC269JT9JJG",
+                                                                               "func":  "URL",
+                                                                               "repeat":  false,
+                                                                               "shadows":  [
+                                                                                               {
+                                                                                                   "color":  3629471231,
+                                                                                                   "x_offset":  1,
+                                                                                                   "y_offset":  1,
+                                                                                                   "radius":  4
+                                                                                               },
+                                                                                               {
+                                                                                                   "color":  3871128831,
+                                                                                                   "x_offset":  0,
+                                                                                                   "y_offset":  0,
+                                                                                                   "radius":  2
+                                                                                               }
+                                                                                           ],
+                                                                               "stops":  [
+
+                                                                                         ],
+                                                                               "image_url":  "https://cdn.7tv.app/paint/01J5RNC5N80001EVC269JT9JJG/layer/01JAMR3AY2E5PC81XDZ0DN720K/1x.webp"
+                                                                           },
+                                                                 "badge":  {
+                                                                               "id":  "01GAF9GYD8000E8VNG1S1RMTBF",
+                                                                               "image":  "https://cdn.7tv.app/badge/01GAF9GYD8000E8VNG1S1RMTBF/3x.webp"
+                                                                           }
+                                                             }
+                                           }
+                               },
+                 "communityBadges":  [
+
+                                     ]
+             },
+    "sirstendec":  {
+                       "identity":  {
+                                        "userId":  "49399878",
+                                        "login":  "sirstendec",
+                                        "displayName":  "SirStendec",
+                                        "chatColor":  "#FF526F"
+                                    },
+                       "providers":  {
+                                         "Twitch":  {
+                                                        "status":  "loaded",
+                                                        "resources":  {
+                                                                          "globalBadges":  {
+
+                                                                                           },
+                                                                          "channelBadges":  {
+
+                                                                                            },
+                                                                          "ownedBadges":  [
+                                                                                              {
+                                                                                                  "type":  "no_audio",
+                                                                                                  "title":  "Watching without audio",
+                                                                                                  "version":  "1"
+                                                                                              }
+                                                                                          ]
+                                                                      }
+                                                    },
+                                         "FFZ":  {
+                                                     "status":  "loaded",
+                                                     "resources":  {
+                                                                       "globalEmotes":  [
+
+                                                                                        ],
+                                                                       "roomEmotes":  [
+
+                                                                                      ],
+                                                                       "badgeOverrides":  {
+
+                                                                                          },
+                                                                       "ownedBadges":  [
+
+                                                                                       ]
+                                                                   }
+                                                 },
+                                         "BTTV":  {
+                                                      "status":  "unavailable",
+                                                      "resources":  {
+                                                                        "globalEmotes":  [
+
+                                                                                         ],
+                                                                        "channelEmotes":  [
+
+                                                                                          ],
+                                                                        "sharedEmotes":  [
+
+                                                                                         ],
+                                                                        "ownedBadges":  [
+
+                                                                                        ]
+                                                                    }
+                                                  },
+                                         "7TV":  {
+                                                     "status":  "unavailable",
+                                                     "resources":  {
+                                                                       "globalEmotes":  [
+
+                                                                                        ],
+                                                                       "channelEmotes":  [
+
+                                                                                         ],
+                                                                       "personalEmotes":  [
+
+                                                                                          ],
+                                                                       "paint":  null,
+                                                                       "badge":  null
+                                                                   }
+                                                 }
+                                     },
+                       "communityBadges":  [
+                                               {
+                                                   "type":  "community:ffz:4",
+                                                   "url":  "https://cdn.frankerfacez.com/badge/4/4",
+                                                   "backgroundColor":  "#3D64B6"
+                                               }
+                                           ]
+                   },
+    "slaiqe":  {
+                   "identity":  {
+                                    "userId":  "853292686",
+                                    "login":  "slaiqe",
+                                    "displayName":  "Slaiqe",
+                                    "chatColor":  "#FF6311"
+                                },
+                   "providers":  {
+                                     "Twitch":  {
+                                                    "status":  "loaded",
+                                                    "resources":  {
+                                                                      "globalBadges":  {
+
+                                                                                       },
+                                                                      "channelBadges":  {
+
+                                                                                        },
+                                                                      "ownedBadges":  [
+                                                                                          {
+                                                                                              "type":  "the-onryos-mask",
+                                                                                              "title":  "The OnryÅ\u0027s Mask",
+                                                                                              "version":  "1"
+                                                                                          }
+                                                                                      ]
+                                                                  }
+                                                },
+                                     "FFZ":  {
+                                                 "status":  "loaded",
+                                                 "resources":  {
+                                                                   "globalEmotes":  [
+
+                                                                                    ],
+                                                                   "roomEmotes":  [
+
+                                                                                  ],
+                                                                   "badgeOverrides":  {
+
+                                                                                      },
+                                                                   "ownedBadges":  [
+
+                                                                                   ]
+                                                               }
+                                             },
+                                     "BTTV":  {
+                                                  "status":  "loaded",
+                                                  "resources":  {
+                                                                    "globalEmotes":  [
+
+                                                                                     ],
+                                                                    "channelEmotes":  [
+
+                                                                                      ],
+                                                                    "sharedEmotes":  [
+
+                                                                                     ],
+                                                                    "ownedBadges":  [
+
+                                                                                    ]
+                                                                }
+                                              },
+                                     "7TV":  {
+                                                 "status":  "loaded",
+                                                 "resources":  {
+                                                                   "globalEmotes":  [
+
+                                                                                    ],
+                                                                   "channelEmotes":  [
+
+                                                                                     ],
+                                                                   "personalEmotes":  [
+
+                                                                                      ],
+                                                                   "paint":  {
+                                                                                 "id":  "01J5K5Y85000026B027ATG06TR",
+                                                                                 "func":  "URL",
+                                                                                 "repeat":  false,
+                                                                                 "shadows":  [
+                                                                                                 {
+                                                                                                     "color":  4292526847,
+                                                                                                     "x_offset":  0,
+                                                                                                     "y_offset":  0,
+                                                                                                     "radius":  0.1
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  2823553279,
+                                                                                                     "x_offset":  1,
+                                                                                                     "y_offset":  1,
+                                                                                                     "radius":  0.1
+                                                                                                 }
+                                                                                             ],
+                                                                                 "stops":  [
+
+                                                                                           ],
+                                                                                 "image_url":  "https://cdn.7tv.app/paint/01J5K5Y85000026B027ATG06TR/layer/01JAMR3873HAYY01X3QEPFMVVS/1x.webp"
+                                                                             },
+                                                                   "badge":  {
+                                                                                 "id":  "01KV1CC9N5R1RG1TGHK0T42WZN",
+                                                                                 "image":  "https://cdn.7tv.app/badge/01KV1CC9N5R1RG1TGHK0T42WZN/3x.webp"
+                                                                             }
+                                                               }
+                                             }
+                                 },
+                   "communityBadges":  [
+
+                                       ]
+               },
+    "tduva":  {
+                  "identity":  {
+                                   "userId":  "36194025",
+                                   "login":  "tduva",
+                                   "displayName":  "tduva",
+                                   "chatColor":  "#0000FF"
+                               },
+                  "providers":  {
+                                    "Twitch":  {
+                                                   "status":  "loaded",
+                                                   "resources":  {
+                                                                     "globalBadges":  {
+
+                                                                                      },
+                                                                     "channelBadges":  {
+
+                                                                                       },
+                                                                     "ownedBadges":  [
+
+                                                                                     ]
+                                                                 }
+                                               },
+                                    "FFZ":  {
+                                                "status":  "loaded",
+                                                "resources":  {
+                                                                  "globalEmotes":  [
+
+                                                                                   ],
+                                                                  "roomEmotes":  [
+
+                                                                                 ],
+                                                                  "badgeOverrides":  {
+
+                                                                                     },
+                                                                  "ownedBadges":  [
+
+                                                                                  ]
+                                                              }
+                                            },
+                                    "BTTV":  {
+                                                 "status":  "loaded",
+                                                 "resources":  {
+                                                                   "globalEmotes":  [
+
+                                                                                    ],
+                                                                   "channelEmotes":  [
+
+                                                                                     ],
+                                                                   "sharedEmotes":  [
+
+                                                                                    ],
+                                                                   "ownedBadges":  [
+
+                                                                                   ]
+                                                               }
+                                             },
+                                    "7TV":  {
+                                                "status":  "loaded",
+                                                "resources":  {
+                                                                  "globalEmotes":  [
+
+                                                                                   ],
+                                                                  "channelEmotes":  [
+
+                                                                                    ],
+                                                                  "personalEmotes":  [
+
+                                                                                     ],
+                                                                  "paint":  null,
+                                                                  "badge":  null
+                                                              }
+                                            }
+                                },
+                  "communityBadges":  [
+
+                                      ]
+              },
+    "themizeguy":  {
+                       "identity":  {
+                                        "userId":  "54698159",
+                                        "login":  "themizeguy",
+                                        "displayName":  "TheMizeGuy",
+                                        "chatColor":  "#00CC2C"
+                                    },
+                       "providers":  {
+                                         "Twitch":  {
+                                                        "status":  "loaded",
+                                                        "resources":  {
+                                                                          "globalBadges":  {
+
+                                                                                           },
+                                                                          "channelBadges":  {
+
+                                                                                            },
+                                                                          "ownedBadges":  [
+                                                                                              {
+                                                                                                  "type":  "bits-charity",
+                                                                                                  "title":  "Direct Relief - Charity 2018",
+                                                                                                  "version":  "1"
+                                                                                              }
+                                                                                          ]
+                                                                      }
+                                                    },
+                                         "FFZ":  {
+                                                     "status":  "loaded",
+                                                     "resources":  {
+                                                                       "globalEmotes":  [
+
+                                                                                        ],
+                                                                       "roomEmotes":  [
+
+                                                                                      ],
+                                                                       "badgeOverrides":  {
+
+                                                                                          },
+                                                                       "ownedBadges":  [
+
+                                                                                       ]
+                                                                   }
+                                                 },
+                                         "BTTV":  {
+                                                      "status":  "loaded",
+                                                      "resources":  {
+                                                                        "globalEmotes":  [
+
+                                                                                         ],
+                                                                        "channelEmotes":  [
+
+                                                                                          ],
+                                                                        "sharedEmotes":  [
+
+                                                                                         ],
+                                                                        "ownedBadges":  [
+
+                                                                                        ]
+                                                                    }
+                                                  },
+                                         "7TV":  {
+                                                     "status":  "loaded",
+                                                     "resources":  {
+                                                                       "globalEmotes":  [
+
+                                                                                        ],
+                                                                       "channelEmotes":  [
+
+                                                                                         ],
+                                                                       "personalEmotes":  [
+
+                                                                                          ],
+                                                                       "paint":  {
+                                                                                     "id":  "01G9DJJ40G00044BJY7M3198HC",
+                                                                                     "func":  "RADIAL_GRADIENT",
+                                                                                     "repeat":  false,
+                                                                                     "shadows":  [
+                                                                                                     {
+                                                                                                         "color":  624034303,
+                                                                                                         "x_offset":  0,
+                                                                                                         "y_offset":  0,
+                                                                                                         "radius":  0.5
+                                                                                                     },
+                                                                                                     {
+                                                                                                         "color":  3185641983,
+                                                                                                         "x_offset":  0,
+                                                                                                         "y_offset":  0,
+                                                                                                         "radius":  4
+                                                                                                     }
+                                                                                                 ],
+                                                                                     "stops":  [
+                                                                                                   {
+                                                                                                       "color":  4009689343,
+                                                                                                       "at":  0
+                                                                                                   },
+                                                                                                   {
+                                                                                                       "color":  2801729791,
+                                                                                                       "at":  0.5
+                                                                                                   },
+                                                                                                   {
+                                                                                                       "color":  1573063167,
+                                                                                                       "at":  1
+                                                                                                   }
+                                                                                               ],
+                                                                                     "shape":  "circle"
+                                                                                 },
+                                                                       "badge":  {
+                                                                                     "id":  "01H85EC5SG00020G66EN3RFP9F",
+                                                                                     "image":  "https://cdn.7tv.app/badge/01H85EC5SG00020G66EN3RFP9F/3x.webp"
+                                                                                 }
+                                                                   }
+                                                 }
+                                     },
+                       "communityBadges":  [
+                                               {
+                                                   "type":  "community:limerino:founder",
+                                                   "title":  "Limerino Founder",
+                                                   "url":  "https://api.limerino.com/v1/badges/art/founder/4/1x.webp",
+                                                   "fallbackUrl":  "https://api.limerino.com/v1/badges/art/founder/4/1x.png"
+                                               },
+                                               {
+                                                   "type":  "community:bchat:admins",
+                                                   "url":  "https://itsbr0dyy.dev/badges/4x.avif"
+                                               }
+                                           ]
+                   },
+    "tuk7":  {
+                 "identity":  {
+                                  "userId":  "740648504",
+                                  "login":  "tuk7",
+                                  "displayName":  "TUK7",
+                                  "chatColor":  "#FFFFFF"
+                              },
+                 "providers":  {
+                                   "Twitch":  {
+                                                  "status":  "loaded",
+                                                  "resources":  {
+                                                                    "globalBadges":  {
+
+                                                                                     },
+                                                                    "channelBadges":  {
+
+                                                                                      },
+                                                                    "ownedBadges":  [
+                                                                                        {
+                                                                                            "type":  "ayane",
+                                                                                            "title":  "Ayane",
+                                                                                            "version":  "1"
+                                                                                        }
+                                                                                    ]
+                                                                }
+                                              },
+                                   "FFZ":  {
+                                               "status":  "failed",
+                                               "resources":  {
+                                                                 "globalEmotes":  [
+
+                                                                                  ],
+                                                                 "roomEmotes":  [
+
+                                                                                ],
+                                                                 "badgeOverrides":  {
+
+                                                                                    },
+                                                                 "ownedBadges":  [
+
+                                                                                 ]
+                                                             }
+                                           },
+                                   "BTTV":  {
+                                                "status":  "loaded",
+                                                "resources":  {
+                                                                  "globalEmotes":  [
+
+                                                                                   ],
+                                                                  "channelEmotes":  [
+
+                                                                                    ],
+                                                                  "sharedEmotes":  [
+
+                                                                                   ],
+                                                                  "ownedBadges":  [
+
+                                                                                  ]
+                                                              }
+                                            },
+                                   "7TV":  {
+                                               "status":  "loaded",
+                                               "resources":  {
+                                                                 "globalEmotes":  [
+
+                                                                                  ],
+                                                                 "channelEmotes":  [
+
+                                                                                   ],
+                                                                 "personalEmotes":  [
+
+                                                                                    ],
+                                                                 "paint":  {
+                                                                               "id":  "01JFQV4G27ND0S36CW9GKQ1B61",
+                                                                               "func":  "URL",
+                                                                               "repeat":  false,
+                                                                               "shadows":  [
+
+                                                                                           ],
+                                                                               "stops":  [
+
+                                                                                         ],
+                                                                               "image_url":  "https://cdn.7tv.app/paint/01JFQV4G27ND0S36CW9GKQ1B61/layer/01JFT792WRS0SAC9K5WNH2XC04/1x.webp"
+                                                                           },
+                                                                 "badge":  {
+                                                                               "id":  "01K7C9D55TY03E1SV9W4YF3VX1",
+                                                                               "image":  "https://cdn.7tv.app/badge/01K7C9D55TY03E1SV9W4YF3VX1/3x.webp"
+                                                                           }
+                                                             }
+                                           }
+                               },
+                 "communityBadges":  [
+                                         {
+                                             "type":  "community:limerino:founder",
+                                             "title":  "Limerino Founder",
+                                             "url":  "https://api.limerino.com/v1/badges/art/founder/4/1x.webp",
+                                             "fallbackUrl":  "https://api.limerino.com/v1/badges/art/founder/4/1x.png"
+                                         },
+                                         {
+                                             "type":  "community:chatterino:chatterino-supporter",
+                                             "url":  "https://fourtf.com/chatterino/badges/supporter3x.png"
+                                         },
+                                         {
+                                             "type":  "community:homies:3",
+                                             "url":  "https://itzalex.github.io/badgesusers/supporter2/badge3x.png"
+                                         },
+                                         {
+                                             "type":  "community:custom-homies:6ad82f1465fc89a1728747da",
+                                             "title":  "TUK7 Badge",
+                                             "url":  "https://cdn.chatterinohomies.com/badges/3a2347de-aa45-4c12-9da6-a95ed6fac45a/72.webp"
+                                         },
+                                         {
+                                             "type":  "community:moltorino:supporter",
+                                             "url":  "https://api.moltorino.com/badges/assets/supporter/3x.webp?v=580"
+                                         },
+                                         {
+                                             "type":  "community:bluzyrino:tier1",
+                                             "url":  "https://bluzyrino-badge-registry.blu901-55.workers.dev/badges/tier1-72.gif?v=special-webp-v1"
+                                         },
+                                         {
+                                             "type":  "community:ffz:3",
+                                             "url":  "https://cdn.frankerfacez.com/badge/3/4",
+                                             "backgroundColor":  "#755000"
+                                         },
+                                         {
+                                             "type":  "community:bchat:supporters",
+                                             "url":  "https://itsbr0dyy.dev/badges/supporter-4x.avif"
+                                         },
+                                         {
+                                             "type":  "community:streamnook:streamnook-default",
+                                             "title":  "StreamNook Member",
+                                             "url":  "https://streamnook.app/cosmetics/streamnook-logo.png"
+                                         },
+                                         {
+                                             "type":  "community:jilchat:founder-beta",
+                                             "title":  "JilChat Founder",
+                                             "url":  "https://api.jil.chat/uploads/badges/662a747a-a3ea-4503-bd3f-27d29d9a4d58.png"
+                                         }
+                                     ]
+             },
+    "uniidev":  {
+                    "identity":  {
+                                     "userId":  "528761326",
+                                     "login":  "uniidev",
+                                     "displayName":  "uniiDev",
+                                     "chatColor":  "#FEB3FF"
+                                 },
+                    "providers":  {
+                                      "Twitch":  {
+                                                     "status":  "loaded",
+                                                     "resources":  {
+                                                                       "globalBadges":  {
+
+                                                                                        },
+                                                                       "channelBadges":  {
+
+                                                                                         },
+                                                                       "ownedBadges":  [
+                                                                                           {
+                                                                                               "type":  "final-fantasy-xiv-fan-festival-2026-na---fat-cat",
+                                                                                               "title":  "Final Fantasy XIV Fan Festival 2026 NA - Fat Cat",
+                                                                                               "version":  "1"
+                                                                                           }
+                                                                                       ]
+                                                                   }
+                                                 },
+                                      "FFZ":  {
+                                                  "status":  "loaded",
+                                                  "resources":  {
+                                                                    "globalEmotes":  [
+
+                                                                                     ],
+                                                                    "roomEmotes":  [
+
+                                                                                   ],
+                                                                    "badgeOverrides":  {
+
+                                                                                       },
+                                                                    "ownedBadges":  [
+
+                                                                                    ]
+                                                                }
+                                              },
+                                      "BTTV":  {
+                                                   "status":  "loaded",
+                                                   "resources":  {
+                                                                     "globalEmotes":  [
+
+                                                                                      ],
+                                                                     "channelEmotes":  [
+
+                                                                                       ],
+                                                                     "sharedEmotes":  [
+
+                                                                                      ],
+                                                                     "ownedBadges":  [
+
+                                                                                     ]
+                                                                 }
+                                               },
+                                      "7TV":  {
+                                                  "status":  "loaded",
+                                                  "resources":  {
+                                                                    "globalEmotes":  [
+
+                                                                                     ],
+                                                                    "channelEmotes":  [
+
+                                                                                      ],
+                                                                    "personalEmotes":  [
+
+                                                                                       ],
+                                                                    "paint":  {
+                                                                                  "id":  "01JFQV4W300XYMWDJW7E1TVY34",
+                                                                                  "func":  "URL",
+                                                                                  "repeat":  false,
+                                                                                  "shadows":  [
+                                                                                                  {
+                                                                                                      "color":  3632127,
+                                                                                                      "x_offset":  1,
+                                                                                                      "y_offset":  1,
+                                                                                                      "radius":  0.1
+                                                                                                  },
+                                                                                                  {
+                                                                                                      "color":  10603007,
+                                                                                                      "x_offset":  0,
+                                                                                                      "y_offset":  0,
+                                                                                                      "radius":  4
+                                                                                                  }
+                                                                                              ],
+                                                                                  "stops":  [
+
+                                                                                            ],
+                                                                                  "image_url":  "https://cdn.7tv.app/paint/01JFQV4W300XYMWDJW7E1TVY34/layer/01JX6ANAHY9JZXQTV4JGBPRYT9/1x.webp"
+                                                                              },
+                                                                    "badge":  {
+                                                                                  "id":  "01GAFGGTF8000E8VNG1S1RMTC1",
+                                                                                  "image":  "https://cdn.7tv.app/badge/01GAFGGTF8000E8VNG1S1RMTC1/3x.webp"
+                                                                              }
+                                                                }
+                                              }
+                                  },
+                    "communityBadges":  [
+                                            {
+                                                "type":  "community:custom-homies:6a5651e22125cbfce96d6692",
+                                                "title":  "uniiDev Badge",
+                                                "url":  "https://cdn.chatterinohomies.com/badges/4a6117f2-df7e-45b6-89b2-922b70caf4ed/72.webp"
+                                            },
+                                            {
+                                                "type":  "community:turteg:badge-contributor",
+                                                "url":  "https://i.xslash.ovh/turtegbot/badges/contributor/4x.webp"
+                                            },
+                                            {
+                                                "type":  "community:polandbot:contributor",
+                                                "url":  "https://devpoland.xyz/badges/contributor.avif"
+                                            }
+                                        ]
+                },
+    "xslash58":  {
+                     "identity":  {
+                                      "userId":  "198740595",
+                                      "login":  "xslash58",
+                                      "displayName":  "Xslash58",
+                                      "chatColor":  "#28A656"
+                                  },
+                     "providers":  {
+                                       "Twitch":  {
+                                                      "status":  "loaded",
+                                                      "resources":  {
+                                                                        "globalBadges":  {
+
+                                                                                         },
+                                                                        "channelBadges":  {
+
+                                                                                          },
+                                                                        "ownedBadges":  [
+                                                                                            {
+                                                                                                "type":  "mod-founder",
+                                                                                                "title":  "Mod Founder",
+                                                                                                "version":  "1"
+                                                                                            }
+                                                                                        ]
+                                                                    }
+                                                  },
+                                       "FFZ":  {
+                                                   "status":  "loaded",
+                                                   "resources":  {
+                                                                     "globalEmotes":  [
+
+                                                                                      ],
+                                                                     "roomEmotes":  [
+
+                                                                                    ],
+                                                                     "badgeOverrides":  {
+
+                                                                                        },
+                                                                     "ownedBadges":  [
+
+                                                                                     ]
+                                                                 }
+                                               },
+                                       "BTTV":  {
+                                                    "status":  "loaded",
+                                                    "resources":  {
+                                                                      "globalEmotes":  [
+
+                                                                                       ],
+                                                                      "channelEmotes":  [
+
+                                                                                        ],
+                                                                      "sharedEmotes":  [
+
+                                                                                       ],
+                                                                      "ownedBadges":  [
+
+                                                                                      ]
+                                                                  }
+                                                },
+                                       "7TV":  {
+                                                   "status":  "loaded",
+                                                   "resources":  {
+                                                                     "globalEmotes":  [
+
+                                                                                      ],
+                                                                     "channelEmotes":  [
+
+                                                                                       ],
+                                                                     "personalEmotes":  [
+
+                                                                                        ],
+                                                                     "paint":  {
+                                                                                   "id":  "01KYQHQZDSYDY8D8Z0Y10W3F0Y",
+                                                                                   "func":  "LINEAR_GRADIENT",
+                                                                                   "repeat":  true,
+                                                                                   "shadows":  [
+                                                                                                   {
+                                                                                                       "color":  1278803967,
+                                                                                                       "x_offset":  0,
+                                                                                                       "y_offset":  0,
+                                                                                                       "radius":  3
+                                                                                                   }
+                                                                                               ],
+                                                                                   "stops":  [
+                                                                                                 {
+                                                                                                     "color":  2474704895,
+                                                                                                     "at":  0
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  2474704895,
+                                                                                                     "at":  0.1
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  4285571327,
+                                                                                                     "at":  0.1
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  4285571327,
+                                                                                                     "at":  0.2
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  12582911,
+                                                                                                     "at":  0.2
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  12582911,
+                                                                                                     "at":  0.3
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  1140751359,
+                                                                                                     "at":  0.3
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  1140751359,
+                                                                                                     "at":  0.4
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  4276106495,
+                                                                                                     "at":  0.4
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  4276106495,
+                                                                                                     "at":  0.5
+                                                                                                 }
+                                                                                             ],
+                                                                                   "angle":  135
+                                                                               },
+                                                                     "badge":  {
+                                                                                   "id":  "01M32DMVBEA9GK53DSQ4HS16R5",
+                                                                                   "image":  "https://cdn.7tv.app/badge/01M32DMVBEA9GK53DSQ4HS16R5/3x.webp"
+                                                                               }
+                                                                 }
+                                               }
+                                   },
+                     "communityBadges":  [
+                                             {
+                                                 "type":  "community:turteg:badge-topgifter26",
+                                                 "url":  "https://i.xslash.ovh/turtegbot/badges/xmasgifter2026/4x.webp"
+                                             }
+                                         ]
+                 },
+    "zo0x_":  {
+                  "identity":  {
+                                   "userId":  "209953493",
+                                   "login":  "zo0x_",
+                                   "displayName":  "Zo0x_",
+                                   "chatColor":  "#D6FAF9"
+                               },
+                  "providers":  {
+                                    "Twitch":  {
+                                                   "status":  "loaded",
+                                                   "resources":  {
+                                                                     "globalBadges":  {
+
+                                                                                      },
+                                                                     "channelBadges":  {
+
+                                                                                       },
+                                                                     "ownedBadges":  [
+                                                                                         {
+                                                                                             "type":  "2026-bafta-games-awards",
+                                                                                             "title":  "2026 BAFTA Games Awards",
+                                                                                             "version":  "1"
+                                                                                         }
+                                                                                     ]
+                                                                 }
+                                               },
+                                    "FFZ":  {
+                                                "status":  "loaded",
+                                                "resources":  {
+                                                                  "globalEmotes":  [
+
+                                                                                   ],
+                                                                  "roomEmotes":  [
+
+                                                                                 ],
+                                                                  "badgeOverrides":  {
+
+                                                                                     },
+                                                                  "ownedBadges":  [
+
+                                                                                  ]
+                                                              }
+                                            },
+                                    "BTTV":  {
+                                                 "status":  "loaded",
+                                                 "resources":  {
+                                                                   "globalEmotes":  [
+
+                                                                                    ],
+                                                                   "channelEmotes":  [
+
+                                                                                     ],
+                                                                   "sharedEmotes":  [
+
+                                                                                    ],
+                                                                   "ownedBadges":  [
+
+                                                                                   ]
+                                                               }
+                                             },
+                                    "7TV":  {
+                                                "status":  "loaded",
+                                                "resources":  {
+                                                                  "globalEmotes":  [
+
+                                                                                   ],
+                                                                  "channelEmotes":  [
+
+                                                                                    ],
+                                                                  "personalEmotes":  [
+
+                                                                                     ],
+                                                                  "paint":  {
+                                                                                "id":  "01JFQV4W300XYMWDJW7E1TVY34",
+                                                                                "func":  "URL",
+                                                                                "repeat":  false,
+                                                                                "shadows":  [
+                                                                                                {
+                                                                                                    "color":  3632127,
+                                                                                                    "x_offset":  1,
+                                                                                                    "y_offset":  1,
+                                                                                                    "radius":  0.1
+                                                                                                },
+                                                                                                {
+                                                                                                    "color":  10603007,
+                                                                                                    "x_offset":  0,
+                                                                                                    "y_offset":  0,
+                                                                                                    "radius":  4
+                                                                                                }
+                                                                                            ],
+                                                                                "stops":  [
+
+                                                                                          ],
+                                                                                "image_url":  "https://cdn.7tv.app/paint/01JFQV4W300XYMWDJW7E1TVY34/layer/01JX6ANAHY9JZXQTV4JGBPRYT9/1x.webp"
+                                                                            },
+                                                                  "badge":  {
+                                                                                "id":  "01GAFARYP0000E8VNG1S1RMTBJ",
+                                                                                "image":  "https://cdn.7tv.app/badge/01GAFARYP0000E8VNG1S1RMTBJ/3x.webp"
+                                                                            }
+                                                              }
+                                            }
+                                },
+                  "communityBadges":  [
+                                          {
+                                              "type":  "community:limerino:founder",
+                                              "title":  "Limerino Founder",
+                                              "url":  "https://api.limerino.com/v1/badges/art/founder/4/1x.webp",
+                                              "fallbackUrl":  "https://api.limerino.com/v1/badges/art/founder/4/1x.png"
+                                          },
+                                          {
+                                              "type":  "community:chatterino:chatterino-supporter",
+                                              "url":  "https://fourtf.com/chatterino/badges/supporter3x.png"
+                                          },
+                                          {
+                                              "type":  "community:homies:3",
+                                              "url":  "https://itzalex.github.io/badgesusers/supporter2/badge3x.png"
+                                          },
+                                          {
+                                              "type":  "community:custom-homies:6aa93db02125cbfce9aa7764",
+                                              "title":  "Zo0x_ Badge",
+                                              "url":  "https://cdn.chatterinohomies.com/badges/77c02db7-6ffd-4585-82fa-e1db2a6ba354/72.webp"
+                                          },
+                                          {
+                                              "type":  "community:moltorino:supporter",
+                                              "url":  "https://api.moltorino.com/badges/assets/supporter/3x.webp?v=580"
+                                          },
+                                          {
+                                              "type":  "community:ffz:3",
+                                              "url":  "https://cdn.frankerfacez.com/badge/3/4",
+                                              "backgroundColor":  "#755000"
+                                          },
+                                          {
+                                              "type":  "community:streamnook:hexbrew",
+                                              "title":  "Hexbrew",
+                                              "url":  "https://cdn.streamnook.app/badges/d381580a59602065bdf6.webp"
+                                          }
+                                      ]
+              }
+}

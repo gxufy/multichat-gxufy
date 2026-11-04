@@ -1,0 +1,123 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, render } from '@testing-library/react';
+import ChatOverlay from '@/components/overlay/ChatOverlay';
+import { MultichatQuerySchema } from '@/lib/multichatConfig';
+import type { ParsedMessage } from '@/lib/kick';
+
+vi.mock('next/head', () => ({
+  default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+afterEach(cleanup);
+
+function mount(query: Record<string, string>) {
+  const config = MultichatQuerySchema.parse({ kick: 'someone', ...query });
+  const result = render(
+    <ChatOverlay
+      config={config}
+      messages={[]}
+      fadingIds={new Set()}
+      showLoader={false}
+    />,
+  );
+  return result.container.querySelector('#chat_container') as HTMLElement;
+}
+
+function renderedCss(chat: HTMLElement): string {
+  return Array.from(chat.parentElement?.querySelectorAll('style') ?? [])
+    .map((style) => style.textContent ?? '')
+    .join('\n');
+}
+
+function mountedLineHeight(textSize: 'small' | 'medium' | 'large'): string {
+  const message: ParsedMessage = {
+    id: `size-${textSize}`,
+    platform: 'twitch',
+    kind: 'chat',
+    identity: { username: 'size', color: '#fff', background: '', filter: '', badges: [] },
+    message: ['hello'],
+  };
+  const config = MultichatQuerySchema.parse({ kick: 'someone', animation: 'none', textSize });
+  const result = render(
+    <ChatOverlay config={config} messages={[message]} fadingIds={new Set()}
+ showLoader={false} />,
+  );
+  return (result.container.querySelector('.ck-body')?.parentElement as HTMLElement).style.lineHeight;
+}
+
+describe('MultiChat Typography rendering', () => {
+  it('keeps every text-size preset at its approved pixel geometry', () => {
+    expect(mount({ textSize: 'small' }).style.fontSize).toBe('20px');
+    expect(mount({ textSize: 'medium' }).style.fontSize).toBe('34px');
+    expect(mount({ textSize: 'large' }).style.fontSize).toBe('48px');
+    expect(mountedLineHeight('small')).toBe('32px');
+    expect(mountedLineHeight('medium')).toBe('58px');
+    expect(mountedLineHeight('large')).toBe('79px');
+  });
+
+  it('applies an exact custom pixel size without changing the legacy fallback', () => {
+    const chat = mount({ textSize: 'medium', textSizePx: '41' });
+    expect(chat.style.fontSize).toBe('41px');
+  });
+
+  it('applies weight, lowercase, italic, and the existing text colour', () => {
+    const chat = mount({
+      fontWeight: '600',
+      textTransform: 'lowercase',
+      fontItalic: 'true',
+      fontColor: 'abcdef',
+    });
+    expect(chat.style.fontWeight).toBe('600');
+    expect(chat.style.textTransform).toBe('lowercase');
+    expect(chat.style.fontStyle).toBe('italic');
+    expect(chat.style.color).toBe('rgb(171, 205, 239)');
+  });
+
+  it('renders every genuine Open Sans Style weight without the legacy Bold override masking it', () => {
+    for (const fontWeight of [
+      '100', '200', '300', '400', '500', '600', '700', '800',
+    ]) {
+      const chat = mount({ fontWeight });
+      const css = renderedCss(chat);
+      expect(chat.style.fontWeight).toBe(fontWeight);
+      expect(css).toMatch(new RegExp(`\\.ck-body \\{[\\s\\S]*font-weight: ${fontWeight} !important`));
+      expect(css).toMatch(new RegExp(`\\.ck-name \\{[\\s\\S]*font-weight: ${fontWeight} !important`));
+    }
+  });
+
+  it('uses genuine 800/800 Open Sans faces and disables synthetic weight', () => {
+    const chat = mount({});
+    const css = renderedCss(chat);
+
+    expect(chat.style.fontFamily).toContain('Open Sans');
+    expect(chat.style.fontWeight).toBe('800');
+    expect(css).toMatch(/#chat_container\s*\{[^}]*font-synthesis:\s*none/);
+    expect(css).toMatch(/\.ck-body\s*\{[^}]*font-weight:\s*800 !important/);
+    expect(css).toMatch(/\.ck-name\s*\{[^}]*font-weight:\s*800 !important/);
+  });
+
+  it('caps an unavailable Open Sans 900 request without changing other font families', () => {
+    const openSans = mount({ font: 'opensans', fontWeight: '900' });
+    const openSansCss = renderedCss(openSans);
+    expect(openSans.style.fontWeight).toBe('800');
+    expect(openSansCss).toMatch(/\.ck-body\s*\{[^}]*font-weight:\s*800 !important/);
+    expect(openSansCss).toMatch(/\.ck-name\s*\{[^}]*font-weight:\s*800 !important/);
+    expect(openSansCss).toMatch(/font-synthesis:\s*none/);
+    cleanup();
+
+    const roboto = mount({ font: 'roboto', fontWeight: '900' });
+    const robotoCss = renderedCss(roboto);
+    expect(roboto.style.fontWeight).toBe('900');
+    expect(robotoCss).toMatch(/\.ck-body\s*\{[^}]*font-weight:\s*900 !important/);
+    expect(robotoCss).toMatch(/\.ck-name\s*\{[^}]*font-weight:\s*900 !important/);
+    expect(robotoCss).not.toMatch(/font-synthesis:\s*none/);
+  });
+
+  it('keeps legacy no-weight URLs and msgCaps visually compatible', () => {
+    const legacyCaps = mount({ msgCaps: 'true' });
+    expect(legacyCaps.style.textTransform).toBe('uppercase');
+
+    expect(mount({}).style.fontWeight).toBe('800');
+    expect(mount({ msgBold: 'false' }).style.fontWeight).toBe('400');
+  });
+});
