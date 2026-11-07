@@ -148,6 +148,7 @@ afterEach(() => {
   resetRuntimeAnimationState();
   vi.useRealTimers();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe('restoreOnReload config', () => {
@@ -509,6 +510,12 @@ describe('overlay reload restoration', () => {
   });
 
   it('rebuilds restored Twitch rows when room emotes arrive late without duplicates or identity changes', async function () {
+    vi.stubGlobal('EventSource', class {
+      onerror: ((event: Event) => void) | null = null;
+      addEventListener(_type: string, _listener: EventListener): void {}
+      close(): void {}
+    });
+
     const saved = parsedMessage('late-emote', 123_456);
     saved.raw = { ...(saved.raw as UnifiedMessage), text: 'LateEmote ffzSpin' };
     saved.message = ['LateEmote ffzSpin'];
@@ -748,5 +755,117 @@ describe('runtime pause and resume presentation', () => {
     expect(screen.queryByText('User not-persisted')).toBeNull();
     act(() => twitchCallbacks[0]!.onMessage(rawMessage('after-reload')));
     expect(await screen.findByText('User after-reload')).toBeTruthy();
+  });
+});
+
+
+describe('7TV active-set lifecycle in emote-only Twitch mode', () => {
+  it('emote-only Twitch sessions subscribe to 7TV events and resync a changed active set', async () => {
+    type EventHandler = (event: MessageEvent) => void;
+
+    const sources: FakeSevenTVEventSource[] = [];
+
+    class FakeSevenTVEventSource {
+      readonly url: string;
+      readonly close = vi.fn();
+      onerror: ((event: Event) => void) | null = null;
+      private handlers = new Map<string, EventHandler[]>();
+
+      constructor(url: string) {
+        this.url = url;
+        sources.push(this);
+      }
+
+      addEventListener(type: string, handler: EventHandler): void {
+        this.handlers.set(
+          type,
+          [...(this.handlers.get(type) ?? []), handler],
+        );
+      }
+
+      emit(type: string, payload: unknown): void {
+        const event = { data: JSON.stringify(payload) } as MessageEvent;
+        for (const handler of this.handlers.get(type) ?? []) {
+          handler(event);
+        }
+      }
+    }
+
+    let activeSetId = 'set-initial';
+    vi.stubGlobal('EventSource', FakeSevenTVEventSource);
+
+    try {
+      const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(
+        async (input) => {
+          const url = String(input);
+          if (url === 'https://7tv.io/v3/users/twitch/641972806') {
+            return new Response(JSON.stringify({
+              user: { id: 'stv-user-id' },
+              emote_set_id: activeSetId,
+              emote_set: {
+                id: activeSetId,
+                emotes: [{
+                  id: 'test-active-emote',
+                  name: 'ActiveCode',
+                  flags: 0,
+                  data: {
+                    flags: 0,
+                    host: {
+                      files: [{ width: 28, height: 28 }],
+                    },
+                  },
+                }],
+              },
+            }), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            });
+          }
+          return new Response('{}', { status: 404 });
+        },
+      );
+
+      query = {
+        twitch: 'somechannel',
+        sevenTVEmotesEnabled: 'true',
+        sevenTVCosmeticsEnabled: 'false',
+      };
+
+      render(<MultichatPage />);
+
+      await act(async () => {
+        await (twitchCallbacks[0] as any).onRoomId('641972806');
+      });
+
+      expect(sources).toHaveLength(1);
+      expect(sources[0]!.url).toContain('emote_set.*<object_id=set-initial>');
+      expect(sources[0]!.url).toContain('user.update<object_id=stv-user-id>');
+
+      activeSetId = 'set-replacement';
+
+      await act(async () => {
+        sources[0]!.emit('dispatch', {
+          type: 'user.update',
+          body: { id: 'stv-user-id', updated: [] },
+        });
+        await Promise.resolve();
+      });
+
+      await waitFor(() => {
+        expect(sources).toHaveLength(2);
+      });
+
+      expect(sources[0]!.close).toHaveBeenCalled();
+      expect(sources[1]!.url).toContain('emote_set.*<object_id=set-replacement>');
+      expect(sources[1]!.url).not.toContain('emote_set.*<object_id=set-initial>');
+      expect(loadTwitchEmotesMock).toHaveBeenCalledTimes(2);
+      expect(
+        fetchMock.mock.calls.filter(
+          ([url]) => String(url) === 'https://7tv.io/v3/users/twitch/641972806',
+        ).length,
+      ).toBeGreaterThanOrEqual(2);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

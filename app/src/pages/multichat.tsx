@@ -24,7 +24,6 @@ import {
   type SevenTVPaint,
   type Entitlements,
   type ParsedMessage,
-  applySevenTVEmoteSetUpdate,
 } from '../lib/kick';
 import type { Connector, Platform, UnifiedMessage } from '../lib/types';
 import { createKickConnector } from '../lib/connectors/kick';
@@ -37,6 +36,7 @@ import { createTikTokConnector } from '../lib/connectors/tiktok';
 import { buildMessageFilter, buildParsedMessage } from '../lib/multichatMessageModel';
 import { subscribeRuntimeEventVisibility } from '../lib/multichatEventRuntime';
 import { loadTwitchEmotes } from '../lib/twitchEmotes';
+import { buildSevenTVEventUrl } from '../lib/sevenTVEventUrl';
 import { clearSevenTVEmoteSetCache } from '../lib/sevenTVEmoteSetCache';
 import { createCosmeticsFetcher } from '../lib/cosmetics';
 import { createSevenTVBadgeFromEvent, parseSevenTVPaint } from '../lib/cosmeticMetadata';
@@ -301,6 +301,24 @@ function MultichatOverlay() {
        they are live, so a paint arriving later applies on the next rebuild. */
     const buildParsed = (um: UnifiedMessage): ParsedMessage =>
       buildParsedMessage(um, cfg, s, mentionCtx, Date.now());
+
+    function replacePlatformEmotes(
+      platform: 'kick' | 'twitch',
+      emotes: SevenTVEmote[],
+    ) {
+      if (!cfg.sevenTVEmotesEnabled) return;
+
+      s.emotes[platform] = emotes;
+
+      let touched = false;
+      s.messages = s.messages.map((message) => {
+        if (message.platform !== platform || message.raw == null) return message;
+        touched = true;
+        return rebuildParsed(message);
+      });
+
+      if (touched) markDirty();
+    }
 
     const rebuildParsed = (
       previous: ParsedMessage,
@@ -887,15 +905,43 @@ function MultichatOverlay() {
           } = await getSevenTVChannelEmotes(channel.user_id.toString());
 
           if (cfg.sevenTVEmotesEnabled) {
-            const globalEmotes = await getSevenTVGlobalEmotes();
-            const kickEmotes = new Map(globalEmotes.map((emote) => [emote.name, emote]));
-            for (const emote of channelEmotes) kickEmotes.set(emote.name, emote);
-            s.emotes.kick = [...kickEmotes.values()];
+            const global = await getSevenTVGlobalEmotes();
+            const combined = new Map(global.map((emote) => [emote.name, emote]));
+            for (const emote of channelEmotes) combined.set(emote.name, emote);
+            s.emotes.kick = [...combined.values()];
           }
 
-          if (cfg.sevenTVCosmeticsEnabled) {
-            const sseUrl = `https://events.7tv.io/v3@entitlement.*<ctx=channel;platform=KICK;id=${channel.user.id}>,cosmetic.*<ctx=channel;platform=KICK;id=${channel.user.id}>${setId ? `,emote_set.*<object_id=${setId}>` : ''}`;
-            open7TVEvents(sseUrl, 'kick', stvUserId, channel.user.id.toString());
+          if (cfg.sevenTVCosmeticsEnabled || cfg.sevenTVEmotesEnabled) {
+            const eventChannelId = channel.user.id.toString();
+            const connectionId = channel.user_id.toString();
+            const sseUrl = buildSevenTVEventUrl('kick', eventChannelId, stvUserId, setId);
+
+            open7TVEvents(
+              sseUrl,
+              'kick',
+              stvUserId,
+              eventChannelId,
+              async () => {
+                clearSevenTVEmoteSetCache();
+                const latest = await getSevenTVChannelEmotes(connectionId, 'kick', true);
+                if (cfg.sevenTVEmotesEnabled) {
+                  const global = await getSevenTVGlobalEmotes(true);
+                  const combined = new Map(global.map((emote) => [emote.name, emote]));
+                  for (const emote of latest.emotes) combined.set(emote.name, emote);
+                  replacePlatformEmotes('kick', [...combined.values()]);
+                }
+
+                return {
+                  sseUrl: buildSevenTVEventUrl(
+                    'kick',
+                    eventChannelId,
+                    latest.stvUserId,
+                    latest.setId,
+                  ),
+                  stvUserId: latest.stvUserId,
+                };
+              },
+            );
           }
         },
       });
@@ -968,22 +1014,43 @@ function MultichatOverlay() {
             if (touched) markDirty();
           }
 
-          // Cosmetics are independent from the emote toggle.
-          if (cfg.sevenTVCosmeticsEnabled) {
-            let setId: string | null = null;
-            let stvUserId: string | null = null;
-            try {
-              const r = await fetch(`https://7tv.io/v3/users/twitch/${roomId}`);
-              if (r.ok) {
-                const j = await r.json();
-                // The event service remains v3; this profile lookup only gives
-                // the presence user id and optional emote-set subscription id.
-                setId = j?.emote_set_id ?? j?.emote_set?.id ?? null;
-                stvUserId = j?.user?.id ?? null;
-              }
-            } catch { /* no 7tv profile */ }
-            const sseUrl = `https://events.7tv.io/v3@entitlement.*<ctx=channel;platform=TWITCH;id=${roomId}>,cosmetic.*<ctx=channel;platform=TWITCH;id=${roomId}>${setId ? `,emote_set.*<object_id=${setId}>` : ''}`;
-            open7TVEvents(sseUrl, 'twitch', stvUserId, roomId);
+          // The 7TV event connection maintains live emote sets and cosmetics independently.
+          if (cfg.sevenTVCosmeticsEnabled || cfg.sevenTVEmotesEnabled) {
+            const initial = await getSevenTVChannelEmotes(roomId, 'twitch');
+            const sseUrl = buildSevenTVEventUrl(
+              'twitch',
+              roomId,
+              initial.stvUserId,
+              initial.setId,
+            );
+
+            open7TVEvents(
+              sseUrl,
+              'twitch',
+              initial.stvUserId,
+              roomId,
+              async () => {
+                clearSevenTVEmoteSetCache();
+                const latest = await getSevenTVChannelEmotes(roomId, 'twitch', true);
+
+                if (cfg.sevenTVEmotesEnabled) {
+                  replacePlatformEmotes(
+                    'twitch',
+                    await loadTwitchEmotes(roomId, undefined, true),
+                  );
+                }
+
+                return {
+                  sseUrl: buildSevenTVEventUrl(
+                    'twitch',
+                    roomId,
+                    latest.stvUserId,
+                    latest.setId,
+                  ),
+                  stvUserId: latest.stvUserId,
+                };
+              },
+            );
           }
         },
       }));
@@ -999,11 +1066,11 @@ function MultichatOverlay() {
           youtubeChannelId = channelId;
           usageReporter.resolved('youtube', cfg.youtube);
           if (!cfg.sevenTVEmotesEnabled) return;
-          const global = await getSevenTVGlobalEmotes();
           const { emotes: channelEmotes } = await getSevenTVChannelEmotes(channelId, 'youtube');
-          const merged = new Map(global.map((emote) => [emote.name, emote]));
-          for (const emote of channelEmotes) merged.set(emote.name, emote);
-          s.emotes.youtube = [...merged.values()];
+          const global = await getSevenTVGlobalEmotes();
+          const combined = new Map(global.map((emote) => [emote.name, emote]));
+          for (const emote of channelEmotes) combined.set(emote.name, emote);
+          s.emotes.youtube = [...combined.values()];
           let touched = false;
           s.messages = s.messages.map((message) => {
             if (message.platform !== 'youtube' || !message.raw) return message;
@@ -1147,20 +1214,22 @@ function MultichatOverlay() {
         // by-id cache first — otherwise a set fetched under the TTL would be
         // served from memory and the command would be a silent no-op.
         clearSevenTVEmoteSetCache();
-        const global = await getSevenTVGlobalEmotes();
-        const kick = new Map(global.map((emote) => [emote.name, emote]));
+        const global = await getSevenTVGlobalEmotes(true);
         const ch = s.channel;
+        const kick = new Map(global.map((emote) => [emote.name, emote]));
         if (ch) {
-          const { emotes: channelEmotes } = await getSevenTVChannelEmotes(ch.user_id.toString());
-          for (const emote of channelEmotes) kick.set(emote.name, emote);
+          const latest = await getSevenTVChannelEmotes(ch.user_id.toString(), 'kick', true);
+          for (const emote of latest.emotes) kick.set(emote.name, emote);
         }
-        const twitch = twitchRoomId ? await loadTwitchEmotes(twitchRoomId) : [];
+        const twitch = twitchRoomId
+          ? await loadTwitchEmotes(twitchRoomId, undefined, true)
+          : [];
         const youtube = new Map(global.map((emote) => [emote.name, emote]));
         if (youtubeChannelId) {
-          const { emotes: channelEmotes } = await getSevenTVChannelEmotes(youtubeChannelId, 'youtube');
-          for (const emote of channelEmotes) youtube.set(emote.name, emote);
+          const latest = await getSevenTVChannelEmotes(youtubeChannelId, 'youtube', true);
+          for (const emote of latest.emotes) youtube.set(emote.name, emote);
         }
-        // Replace complete provider catalogs atomically after every source settles.
+        // Commit a complete refresh only after all required fetches succeed.
         s.emotes = { kick: [...kick.values()], twitch, youtube: [...youtube.values()] };
         s.messages = s.messages.map((message) => rebuildParsed(message));
         markDirty();
@@ -1270,22 +1339,78 @@ function MultichatOverlay() {
         if (obj?.kind === 'PAINT') s.paints = s.paints.filter(p => p.id !== obj.id);
       }
 
-      if (data.type === 'emote_set.update') {
-        s.emotes[platform] = applySevenTVEmoteSetUpdate(
-          s.emotes[platform],
-          data.body,
-        );
-      }
+
     }
 
     
-    function open7TVEvents(sseUrl: string, platform: 'kick' | 'twitch', stvUserId: string | null, channelId: string) {
+    function open7TVEvents(
+      initialUrl: string,
+      platform: 'kick' | 'twitch',
+      initialStvUserId: string | null,
+      channelId: string,
+      refreshState: () => Promise<{ sseUrl: string; stvUserId: string | null }>,
+    ) {
+      let sseUrl = initialUrl;
+      let stvUserId = initialStvUserId;
       let sse = new EventSource(sseUrl);
       let closed = false;
-      const onDispatch = (e: MessageEvent) => {
-        try { handle7TVDispatch(JSON.parse(e.data), platform); }
-        catch { /* malformed provider events are ignored locally */ }
+      let reconnecting = false;
+
+      const reconnectWithAuthoritativeState = async () => {
+        if (closed || reconnecting) return;
+        reconnecting = true;
+
+        try {
+          const next = await refreshState();
+          if (next?.sseUrl) sseUrl = next.sseUrl;
+          stvUserId = next?.stvUserId ?? null;
+        } catch {
+          // Keep the last known subscription URL when the provider is transiently unavailable.
+        }
+
+        if (!closed) {
+          sse.close();
+          sse = new EventSource(sseUrl);
+          attach();
+        }
+
+        reconnecting = false;
       };
+
+      let catalogRefreshRunning = false;
+      let catalogRefreshNeeded = false;
+      const refreshCatalogFromActiveSet = async () => {
+        catalogRefreshNeeded = true;
+        if (catalogRefreshRunning) return;
+        catalogRefreshRunning = true;
+        try {
+          while (!closed && catalogRefreshNeeded) {
+            catalogRefreshNeeded = false;
+            try { await refreshState(); } catch { /* Retain the last complete catalog. */ }
+          }
+        } finally {
+          catalogRefreshRunning = false;
+        }
+      };
+
+      const onDispatch = (e: MessageEvent) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data?.type === 'emote_set.update') {
+            void refreshCatalogFromActiveSet();
+            return;
+          }
+          handle7TVDispatch(data, platform);
+
+          // A user update can switch the broadcaster's active emote set.
+          // Re-resolve the connection and rebuild the subscription so the old
+          // set cannot remain active in this overlay session.
+          if (data?.type === 'user.update') {
+            void reconnectWithAuthoritativeState();
+          }
+        } catch { /* malformed provider events are ignored locally */ }
+      };
+
       const onHello = (e: MessageEvent) => {
         if (!stvUserId) return;
         try {
@@ -1303,19 +1428,21 @@ function MultichatOverlay() {
           }).catch(() => { /* cosmetics degrade to delta-only */ });
         } catch { /* malformed hello */ }
       };
+
       const attach = () => {
         sse.addEventListener('dispatch', onDispatch);
         sse.addEventListener('hello', onHello);
         sse.onerror = () => {
           sse.close();
           if (closed) return;
+
           setTimeout(() => {
             if (closed) return;
-            sse = new EventSource(sseUrl);
-            attach();
+            void reconnectWithAuthoritativeState();
           }, 3000);
         };
       };
+
       attach();
       cleanups.push(() => { closed = true; sse.close(); });
     }

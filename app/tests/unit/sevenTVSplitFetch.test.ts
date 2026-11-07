@@ -96,7 +96,7 @@ describe('the inline fast path', () => {
       [KICK_USER_URL]: { json: userWithInlineSet('set-inline', 'kekw') },
     });
     await getSevenTVChannelEmotes('12345');
-    expect(fetchMock).toHaveBeenCalledWith(KICK_USER_URL);
+    expect(fetchMock).toHaveBeenCalledWith(KICK_USER_URL, { cache: 'no-store' });
   });
 });
 
@@ -111,8 +111,8 @@ describe('the v3 follow-up path', () => {
     expect(result.setId).toBe('set-remote');
     /* Two requests: the lookup, then the by-id set. */
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(fetchMock).toHaveBeenCalledWith(USER_URL);
-    expect(fetchMock).toHaveBeenCalledWith(setUrl('set-remote'), undefined);
+    expect(fetchMock).toHaveBeenCalledWith(USER_URL, { cache: 'no-store' });
+    expect(fetchMock).toHaveBeenCalledWith(setUrl('set-remote'), { cache: 'no-store' });
   });
 
   it('prefers emote_set_id over an inline set object id', async () => {
@@ -134,7 +134,7 @@ describe('the v3 follow-up path', () => {
     const result = await getSevenTVChannelEmotes('12345', 'twitch');
     expect(result.setId).toBe('authoritative-id');
     expect(result.emotes.map((e) => e.name)).toEqual(['right']);
-    expect(fetchMock).toHaveBeenCalledWith(setUrl('authoritative-id'), undefined);
+    expect(fetchMock).toHaveBeenCalledWith(setUrl('authoritative-id'), { cache: 'no-store' });
   });
 
   it('dedupes the follow-up: two channels sharing a set fetch it once', async () => {

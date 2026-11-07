@@ -398,6 +398,41 @@ describe(
       },
     );
 
+    it('loads 7TV globals but prefers an active channel emote with the same name', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse({
+        ffzGlobal: [], ffzChannel: [], bttvGlobal: [], bttvChannel: {}, ffzRoom: null,
+      }));
+
+      const base = {
+        width: 32, height: 32, zeroWidth: false, upscale: false,
+      };
+      sevenTVMocks.global.mockResolvedValueOnce([
+        { ...base, name: 'GlobalOnly', image: 'https://cdn.example/global.webp' },
+        { ...base, name: 'COLLIDE', image: 'https://cdn.example/global-collision.webp' },
+      ]);
+      sevenTVMocks.channel.mockResolvedValueOnce({
+        emotes: [{ ...base, name: 'COLLIDE', image: 'https://cdn.example/channel.webp' }],
+        setId: 'active-channel',
+        stvUserId: 'stv-user',
+      });
+
+      const emotes = await loadTwitchEmotes('42');
+      expect(sevenTVMocks.global).toHaveBeenCalledTimes(1);
+      expect(emotes.find((emote) => emote.name === 'GlobalOnly')?.image)
+        .toBe('https://cdn.example/global.webp');
+      expect(emotes.find((emote) => emote.name === 'COLLIDE')?.image)
+        .toBe('https://cdn.example/channel.webp');
+    });
+
+    it('rejects a partial catalog during a strict 7TV refresh', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse({
+        ffzGlobal: [], ffzChannel: [], bttvGlobal: [], bttvChannel: {}, ffzRoom: null,
+      }));
+      sevenTVMocks.channel.mockRejectedValueOnce(new Error('7TV channel unavailable'));
+      await expect(loadTwitchEmotes('42', undefined, true))
+        .rejects.toThrow('7TV channel unavailable');
+    });
+
     it(
       'keeps the existing later-provider collision precedence',
       async () => {
@@ -443,28 +478,36 @@ describe(
         );
 
         sevenTVMocks
-          .global
-          .mockResolvedValueOnce([
-            {
-              name:
-                'COLLIDE',
+          .channel
+          .mockResolvedValueOnce({
+            emotes: [
+              {
+                name:
+                  'COLLIDE',
 
-              image:
-                'https://cdn.example/7tv.webp',
+                image:
+                  'https://cdn.example/7tv.webp',
 
-              width:
-                32,
+                width:
+                  32,
 
-              height:
-                32,
+                height:
+                  32,
 
-              zeroWidth:
-                false,
+                zeroWidth:
+                  false,
 
-              upscale:
-                false,
-            },
-          ]);
+                upscale:
+                  false,
+              },
+            ],
+
+            setId:
+              'channel-set',
+
+            stvUserId:
+              'stv-user',
+          });
 
         const emotes =
           await loadTwitchEmotes(
@@ -565,28 +608,36 @@ describe(
         );
 
         sevenTVMocks
-          .global
-          .mockResolvedValueOnce([
-            {
-              name:
-                'SevenOnly',
+          .channel
+          .mockResolvedValueOnce({
+            emotes: [
+              {
+                name:
+                  'SevenOnly',
 
-              image:
-                'https://cdn.example/seven.webp',
+                image:
+                  'https://cdn.example/seven.webp',
 
-              width:
-                32,
+                width:
+                  32,
 
-              height:
-                32,
+                height:
+                  32,
 
-              zeroWidth:
-                false,
+                zeroWidth:
+                  false,
 
-              upscale:
-                false,
-            },
-          ]);
+                upscale:
+                  false,
+              },
+            ],
+
+            setId:
+              'channel-set',
+
+            stvUserId:
+              'stv-user',
+          });
 
         const emotes =
           await loadTwitchEmotes(

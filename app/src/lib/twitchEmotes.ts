@@ -106,12 +106,13 @@ async function loadTwitchEmoteResources(
 }
 
 /**
+ * Later providers override earlier providers by exact emote name.
  * FFZ global/channel -> BTTV global/channel -> 7TV global/channel.
- * Later providers retain the existing exact-name precedence.
  */
 export async function loadTwitchEmotes(
   channelId: string,
   signal?: AbortSignal,
+  strictSevenTV = false,
 ): Promise<SevenTVEmote[]> {
   if (
     !/^\d+$/.test(
@@ -132,12 +133,11 @@ export async function loadTwitchEmotes(
         signal,
       ),
 
-      getSevenTVGlobalEmotes(),
+      strictSevenTV ? getSevenTVGlobalEmotes(true) : getSevenTVGlobalEmotes(),
 
-      getSevenTVChannelEmotes(
-        channelId,
-        'twitch',
-      ),
+      strictSevenTV
+        ? getSevenTVChannelEmotes(channelId, 'twitch', true)
+        : getSevenTVChannelEmotes(channelId, 'twitch'),
     ]);
 
   const ffzGlobal =
@@ -230,14 +230,8 @@ export async function loadTwitchEmotes(
     addBTTV,
   );
 
-  for (
-    const emote
-    of stvGlobal
-  ) {
-    map.set(
-      emote.name,
-      emote,
-    );
+  for (const emote of stvGlobal) {
+    map.set(emote.name, emote);
   }
 
   for (

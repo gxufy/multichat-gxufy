@@ -58,6 +58,11 @@ export const JILCHAT_CLIENT_CACHE_TTL_MS = 15 * 60_000;
 export const JILCHAT_CLIENT_FAILURE_TTL_MS = 5 * 60_000;
 export const JILCHAT_CLIENT_CACHE_MAX_KEYS = 500;
 export const JILCHAT_CLIENT_MAX_CONCURRENT = 6;
+export const JILCHAT_CLIENT_BURST = 16;
+export const JILCHAT_CLIENT_MAX_QUEUE = 12;
+export const JILCHAT_CLIENT_REFILL_MS = 1_000;
+const JILCHAT_CLIENT_LIVE_WAIT_MS = 250;
+const JILCHAT_CLIENT_THROTTLED_TTL_MS = 10_000;
 
 const STREAMNOOK_CLIENT_CACHE_TTL_MS = 60_000;
 const STREAMNOOK_CLIENT_FAILURE_TTL_MS = 10_000;
@@ -127,6 +132,11 @@ type JilChatQueueEntry = {
 
 const jilChatQueue: JilChatQueueEntry[] = [];
 let jilChatActiveRequests = 0;
+let jilChatGeneration = 0;
+let jilChatBudgetTokens = JILCHAT_CLIENT_BURST;
+let jilChatBudgetUpdatedAt = Date.now();
+let jilChatCooldownUntil = 0;
+let jilChatDrainTimer: ReturnType<typeof setTimeout> | null = null;
 
 type StreamNookQueueEntry = {
   userId: string;
@@ -468,7 +478,10 @@ async function boundedJson(response: Response): Promise<unknown> {
   return JSON.parse(new TextDecoder().decode(bytes)) as unknown;
 }
 
-async function requestJson(url: string): Promise<unknown> {
+async function requestJson(
+  url: string,
+  onRateLimit?: (retryAfter: string | null) => void,
+): Promise<unknown> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   try {
@@ -476,6 +489,7 @@ async function requestJson(url: string): Promise<unknown> {
       redirect: typeof window === 'undefined' ? 'error' : 'follow',
       signal: controller.signal,
     });
+    if (response.status === 429) onRateLimit?.(response.headers.get('Retry-After'));
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return await boundedJson(response);
   } finally {
@@ -923,15 +937,19 @@ function rememberJilChat(
   });
 }
 
-async function requestJilChat(userId: string): Promise<Assignment[]> {
+async function requestJilChat(userId: string, generation: number): Promise<Assignment[]> {
+  let rateLimited = false;
   try {
     const body = await requestJson(
       `/api/twitch/jilchat-badges?userId=${encodeURIComponent(userId)}`,
+      (retryAfter) => {
+        rateLimited = true;
+        if (generation === jilChatGeneration) pauseJilChatForRetryAfter(retryAfter);
+      },
     );
 
     const badges = asArray(body).flatMap((raw, index) => {
       if (!isRecord(raw)) return [];
-
       const title = asString(raw.title) || 'JilChat';
       const item = assignment(
         'jilchat',
@@ -940,75 +958,139 @@ async function requestJilChat(userId: string): Promise<Assignment[]> {
         asString(raw.url),
         [userId],
       );
-
       return item ? [item] : [];
     });
 
+    if (generation !== jilChatGeneration) return [];
     rememberJilChat(userId, badges);
     return badges;
   } catch {
-    /*
-     * A provider outage must not make every subsequent message from the same
-     * chatter immediately retry the ownership endpoint. Cache the miss briefly,
-     * then allow it to be checked again after the provider has had time to
-     * recover.
-     */
-    rememberJilChat(
-      userId,
-      [],
-      JILCHAT_CLIENT_FAILURE_TTL_MS,
-    );
-
+    if (generation === jilChatGeneration) {
+      rememberJilChat(
+        userId, [],
+        rateLimited ? JILCHAT_CLIENT_THROTTLED_TTL_MS : JILCHAT_CLIENT_FAILURE_TTL_MS,
+      );
+    }
     return [];
   }
 }
 
+function refillJilChatBudget(now = Date.now()): void {
+  if (now < jilChatBudgetUpdatedAt) jilChatBudgetUpdatedAt = now;
+  const elapsed = now - jilChatBudgetUpdatedAt;
+  const tokens = Math.floor(elapsed / JILCHAT_CLIENT_REFILL_MS);
+  if (tokens > 0) {
+    jilChatBudgetTokens = Math.min(JILCHAT_CLIENT_BURST, jilChatBudgetTokens + tokens);
+    jilChatBudgetUpdatedAt += tokens * JILCHAT_CLIENT_REFILL_MS;
+  }
+}
+
+function scheduleJilChatDrain(delayMs: number): void {
+  if (jilChatDrainTimer !== null) return;
+  jilChatDrainTimer = setTimeout(() => {
+    jilChatDrainTimer = null;
+    drainJilChatQueue();
+  }, Math.max(1, delayMs));
+}
+
+function skipJilChatUser(userId: string): Assignment[] {
+  // A short negative cache avoids repeated skipped checks in busy chat, while
+  // allowing badge discovery to recover quickly when capacity returns.
+  rememberJilChat(userId, [], JILCHAT_CLIENT_THROTTLED_TTL_MS);
+  return [];
+}
+
+function pauseJilChatForRetryAfter(value: string | null): void {
+  const raw = value?.trim() ?? '';
+  const numericSeconds = /^\d+$/.test(raw) ? Number(raw) : NaN;
+  const millis = Number.isFinite(numericSeconds)
+    ? numericSeconds * 1_000
+    : raw && Number.isFinite(Date.parse(raw))
+      ? Date.parse(raw) - Date.now()
+      : 60_000;
+  const duration = Math.max(1_000, Math.min(120_000, millis));
+  jilChatCooldownUntil = Math.max(jilChatCooldownUntil, Date.now() + duration);
+
+  if (jilChatDrainTimer !== null) {
+    clearTimeout(jilChatDrainTimer);
+    jilChatDrainTimer = null;
+  }
+  // Drop pending requests immediately rather than blocking chat throughout a
+  // server-enforced cooldown. Existing successful badge cache stays untouched.
+  for (const queued of jilChatQueue.splice(0)) {
+    queued.resolve(skipJilChatUser(queued.userId));
+  }
+}
+
 function drainJilChatQueue(): void {
+  const now = Date.now();
+  if (now < jilChatCooldownUntil) {
+    for (const queued of jilChatQueue.splice(0)) {
+      queued.resolve(skipJilChatUser(queued.userId));
+    }
+    return;
+  }
+
+  refillJilChatBudget(now);
   while (
     jilChatActiveRequests < JILCHAT_CLIENT_MAX_CONCURRENT &&
+    jilChatBudgetTokens > 0 &&
     jilChatQueue.length > 0
   ) {
     const next = jilChatQueue.shift();
     if (!next) break;
-
+    jilChatBudgetTokens -= 1;
     jilChatActiveRequests += 1;
+    const generation = jilChatGeneration;
 
-    void requestJilChat(next.userId)
+    void requestJilChat(next.userId, generation)
       .then(next.resolve)
       .finally(() => {
+        if (generation !== jilChatGeneration) return;
         jilChatActiveRequests -= 1;
         drainJilChatQueue();
       });
   }
+
+  if (jilChatQueue.length > 0 && jilChatBudgetTokens === 0) {
+    scheduleJilChatDrain(jilChatBudgetUpdatedAt + JILCHAT_CLIENT_REFILL_MS - Date.now());
+  }
 }
 
-async function loadJilChat(userId: string): Promise<Assignment[]> {
+function liveJilChatResult(work: Promise<Assignment[]>): Promise<Assignment[]> {
+  // Normal chat messages cannot wait seconds for optional cosmetics. The
+  // underlying lookup still completes and caches the badge for later messages.
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve([]), JILCHAT_CLIENT_LIVE_WAIT_MS);
+    void work.then(
+      (badges) => { clearTimeout(timer); resolve(badges); },
+      () => { clearTimeout(timer); resolve([]); },
+    );
+  });
+}
+
+async function loadJilChat(userId: string, waitForResult = false): Promise<Assignment[]> {
   if (!/^\d{1,25}$/.test(userId)) return [];
 
   const cached = cachedJilChat(userId);
   if (cached) return cached;
 
   const existing = jilChatUserInFlight.get(userId);
-  if (existing) return existing;
+  if (existing) return waitForResult ? existing : liveJilChatResult(existing);
 
-  /*
-   * Queue every unique user instead of dropping ownership checks during a busy
-   * channel. Only a small number contact JilChat simultaneously; the rest wait
-   * their turn and still receive their badge update when resolved.
-   */
+  if (Date.now() < jilChatCooldownUntil || jilChatQueue.length >= JILCHAT_CLIENT_MAX_QUEUE) {
+    return skipJilChatUser(userId);
+  }
+
   const work = new Promise<Assignment[]>((resolve) => {
     jilChatQueue.push({ userId, resolve });
     drainJilChatQueue();
   });
-
   jilChatUserInFlight.set(userId, work);
-
-  void work.then(
-    () => jilChatUserInFlight.delete(userId),
-    () => jilChatUserInFlight.delete(userId),
-  );
-
-  return work;
+  void work.then(() => {
+    if (jilChatUserInFlight.get(userId) === work) jilChatUserInFlight.delete(userId);
+  });
+  return waitForResult ? work : liveJilChatResult(work);
 }
 
 function cachedStreamNook(
@@ -1911,7 +1993,7 @@ export async function resolveTwitchJilChatBadges(
 
   if (!/^\d{1,25}$/.test(userId)) return [];
 
-  const badges = dedupe(await loadJilChat(userId));
+  const badges = dedupe(await loadJilChat(userId, true));
   const badge = badges.find(
     (candidate) => candidate.provider === 'jilchat',
   );
@@ -1940,10 +2022,18 @@ export function __resetCommunityBadgeCache(): void {
   cachedLimerino = null;
   cachedLimerinoAt = 0;
   limerinoInFlight = null;
+  jilChatGeneration += 1;
   jilChatUserCache.clear();
   jilChatUserInFlight.clear();
-  jilChatQueue.splice(0);
+  for (const pending of jilChatQueue.splice(0)) pending.resolve([]);
+  if (jilChatDrainTimer !== null) {
+    clearTimeout(jilChatDrainTimer);
+    jilChatDrainTimer = null;
+  }
   jilChatActiveRequests = 0;
+  jilChatBudgetTokens = JILCHAT_CLIENT_BURST;
+  jilChatBudgetUpdatedAt = Date.now();
+  jilChatCooldownUntil = 0;
 
   streamNookUserCache.clear();
   streamNookUserInFlight.clear();

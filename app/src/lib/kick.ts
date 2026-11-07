@@ -205,13 +205,45 @@ export function mapSevenTVEmote(e: any): SevenTVEmote {
       ? Math.trunc(e.flags)
       : 0;
 
+  const data = e?.data;
+  const files = Array.isArray(data?.host?.files)
+    ? data.host.files.filter(
+        (file: any) => file && typeof file.name === 'string' && file.name.length > 0,
+      )
+    : [];
+  const webpFiles = files.filter((file: any) => file.format === 'WEBP');
+  const selectedFile = webpFiles[webpFiles.length - 1] ?? files[files.length - 1];
+  const imageFileName: string = selectedFile?.name ?? '4x.webp';
+
+  // The active slot ID is not a reliable image URL source. Follow the
+  // underlying emote's CDN host and file metadata instead.
+  const sevenTVImageHost = data?.host?.url;
+  const actualEmoteId = typeof data?.id === 'string' && data.id
+    ? data.id
+    : e?.id;
+  const normalizedHost = typeof sevenTVImageHost === 'string'
+    ? sevenTVImageHost.replace(/\/$/, '')
+    : '';
+  const trusted7TVHost = /^\/\/cdn\.7tv\.app\/emote\/[A-Za-z0-9_-]+$/.test(normalizedHost);
+  const image = trusted7TVHost
+    ? `https:${normalizedHost}/${encodeURIComponent(imageFileName)}`
+    : `https://cdn.7tv.app/emote/${encodeURIComponent(actualEmoteId)}/${encodeURIComponent(imageFileName)}`;
+
+  const height = typeof selectedFile?.height === 'number' && selectedFile.height > 0
+    ? selectedFile.height
+    : 28;
+  const width = typeof selectedFile?.width === 'number' && selectedFile.width > 0
+    ? selectedFile.width
+    : 28;
+  const flags = typeof data?.flags === 'number' ? data.flags : 0;
+
   return {
     name: e.name,
-    image: `https://cdn.7tv.app/emote/${e.id}/4x.webp`,
-    height: e.data?.host?.files?.[3]?.height ?? e.data?.host?.files?.[1]?.height ?? 28,
-    width: e.data?.host?.files?.[3]?.width ?? e.data?.host?.files?.[1]?.width ?? 28,
-    zeroWidth: (e.data?.flags & 256) === 256,
-    upscale: (e.data?.flags & 128) === 128,
+    image,
+    height,
+    width,
+    zeroWidth: (flags & 256) === 256,
+    upscale: (flags & 128) === 128,
     activeFlags,
   };
 }
@@ -268,12 +300,16 @@ export function applySevenTVEmoteSetUpdate(
   return next;
 }
 
-export async function getSevenTVGlobalEmotes(): Promise<SevenTVEmote[]> {
+export async function getSevenTVGlobalEmotes(strict = false): Promise<SevenTVEmote[]> {
   try {
-    const res = await fetch('https://7tv.io/v3/emote-sets/global');
-    if (!res.ok) return [];
+    const res = await fetch('https://7tv.io/v3/emote-sets/global', { cache: 'no-store' });
+    if (!res.ok) {
+      if (strict) throw new Error('7TV global emote request failed');
+      return [];
+    }
     return mapEmoteSet(await res.json());
-  } catch {
+  } catch (error) {
+    if (strict) throw error;
     return [];
   }
 }
@@ -299,7 +335,7 @@ export type EmoteSetOutcome =
    so the cache layer can decide what is safe to remember. */
 export async function fetchSevenTVEmoteSet(setId: string, signal?: AbortSignal): Promise<EmoteSetOutcome> {
   try {
-    const res = await fetch(`https://7tv.io/v3/emote-sets/${setId}`, signal ? { signal } : undefined);
+    const res = await fetch(`https://7tv.io/v3/emote-sets/${setId}`, { cache: 'no-store', ...(signal ? { signal } : {}) });
     if (res.status === 404) return { status: 'missing' };
     if (!res.ok) return { status: 'error' }; // 429 / 5xx / anything else transient
     return { status: 'ok', emotes: mapEmoteSet(await res.json()) };
@@ -315,12 +351,15 @@ export async function getSevenTVEmoteSet(setId: string): Promise<SevenTVEmote[]>
   return outcome.status === 'ok' ? outcome.emotes : [];
 }
 
-export async function getSevenTVChannelEmotes(userId: string, platform: 'kick' | 'twitch' | 'youtube' = 'kick'): Promise<{ emotes: SevenTVEmote[]; setId: string | null; stvUserId: string | null }> {
+export async function getSevenTVChannelEmotes(userId: string, platform: 'kick' | 'twitch' | 'youtube' = 'kick', strict = false): Promise<{ emotes: SevenTVEmote[]; setId: string | null; stvUserId: string | null }> {
   try {
     // 7TV's public platform name for YouTube accounts is GOOGLE.
     const endpointPlatform = platform === 'youtube' ? 'google' : platform;
-    const res = await fetch(`https://7tv.io/v3/users/${endpointPlatform}/${userId}`);
-    if (!res.ok) return { emotes: [], setId: null, stvUserId: null };
+    const res = await fetch(`https://7tv.io/v3/users/${endpointPlatform}/${userId}`, { cache: 'no-store' });
+    if (!res.ok) {
+      if (strict && res.status !== 404) throw new Error('7TV channel emote request failed');
+      return { emotes: [], setId: null, stvUserId: null };
+    }
     const data = await res.json();
     // NOTE: root `id` is the PLATFORM connection id; the actual 7TV
     // user id (needed for the presence POST) is `user.id`.
@@ -338,11 +377,23 @@ export async function getSevenTVChannelEmotes(userId: string, platform: 'kick' |
     // v3 path: no inline emotes, but a set id — fetch the full set through the
     // by-id cache so a refresh, or a set shared across connectors, dedupes to
     // one request rather than refetching the whole set each time.
-    if (setId) return { emotes: await resolveSevenTVEmoteSet(setId), setId, stvUserId };
+    if (setId) {
+      if (strict) {
+        const outcome = await fetchSevenTVEmoteSet(setId);
+        if (outcome.status === 'error') throw new Error('7TV emote set request failed');
+        return {
+          emotes: outcome.status === 'ok' ? outcome.emotes : [],
+          setId,
+          stvUserId,
+        };
+      }
+      return { emotes: await resolveSevenTVEmoteSet(setId), setId, stvUserId };
+    }
 
     // Unregistered user, or a connection with no set at all.
     return { emotes: [], setId, stvUserId };
-  } catch {
+  } catch (error) {
+    if (strict) throw error;
     return { emotes: [], setId: null, stvUserId: null };
   }
 }
