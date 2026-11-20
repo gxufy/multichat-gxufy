@@ -1,0 +1,80 @@
+# Cloudflare (free plan) may sit in front of these sites. Only requests that
+# really come from Cloudflare's published ranges may name the visitor's address
+# (CF-Connecting-IP); for anyone else {client_ip} is simply the connecting
+# address, so the header can't be spoofed. Ranges from
+# https://www.cloudflare.com/ips-v4 and /ips-v6 (checked 2026-11-16).
+{
+	servers {
+		trusted_proxies static 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
+		client_ip_headers CF-Connecting-IP
+	}
+	# The idle app slot fails its health check every second by design (see
+	# below); keep those routine messages out of the log.
+	log default {
+		output stderr
+		exclude http.handlers.reverse_proxy.health_checker.active
+	}
+}
+
+# The app runs in two slots (see release.sh): A on port 3000, B on 3001. A
+# deploy starts the new version in the idle slot, and Caddy sends visitors only
+# to a slot whose health check answers 200 — preferring A when both do. While
+# the slots swap, a request waits up to 10 s for a healthy slot instead of
+# getting an error. The idle slot simply fails its health check.
+(flosschat_upstream) {
+	lb_policy first
+	lb_try_duration 10s
+	lb_try_interval 250ms
+	health_uri /api/runtime/health
+	health_interval 1s
+	health_timeout 2s
+	health_status 200
+	fail_duration 10s
+	header_up X-Forwarded-For {client_ip}
+}
+
+(flosschat_app) {
+	encode gzip
+
+	# Long-lived chat SSE — disable buffering so events flush immediately.
+	@sse path /api/tiktok/* /api/youtube/stream
+	reverse_proxy @sse localhost:3000 localhost:3001 {
+		import flosschat_upstream
+		flush_interval -1
+	}
+
+	reverse_proxy localhost:3000 localhost:3001 {
+		import flosschat_upstream
+	}
+}
+
+# flosschat.app — the tools' canonical domain → local Next.js app
+flosschat.app {
+	import flosschat_app
+}
+
+# www → apex, permanent.
+www.flosschat.app {
+	redir https://flosschat.app{uri} permanent
+}
+
+# gxufy.com — the Gxufy homepage → same local app. Its tool pages are forwarded
+# to flosschat.app by the app's middleware; its overlay URLs keep rendering here.
+gxufy.com {
+	import flosschat_app
+}
+
+# www → apex, permanent. The app has no www content of its own.
+www.gxufy.com {
+	redir https://gxufy.com{uri} permanent
+}
+
+# multichat-gxufy.com — the legacy compatibility domain → same local app.
+# Kept serving directly (NOT redirected): existing OBS browser sources carry
+# channel-parameter overlay URLs on this host, and those must keep rendering.
+# The app itself forwards only the non-overlay website pages (landing page to
+# gxufy.com, tool pages to flosschat.app), in middleware, so nothing here
+# globally redirects.
+multichat-gxufy.com, www.multichat-gxufy.com {
+	import flosschat_app
+}

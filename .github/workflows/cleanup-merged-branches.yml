@@ -1,0 +1,184 @@
+name: Cleanup repository history
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [closed]
+  schedule:
+    - cron: '17 8 * * *'
+  workflow_run:
+    workflows:
+      - Deploy to VPS
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: read
+  deployments: write
+
+concurrency:
+  group: cleanup-repository-history
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Delete only branches already integrated into main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune
+
+          while IFS= read -r ref; do
+            branch="${ref#origin/}"
+            [[ "$branch" == "main" || "$branch" == "HEAD" ]] && continue
+
+            open_prs=$(gh pr list --state open --head "$branch" --limit 100 --json number --jq 'length')
+            if [[ "$open_prs" != "0" ]]; then
+              echo "KEEP (open PR): $branch"
+              continue
+            fi
+
+            safe=false
+            if git merge-base --is-ancestor "$ref" origin/main 2>/dev/null; then
+              safe=true
+              echo "MERGED BY ANCESTRY: $branch"
+            elif git diff --quiet "$ref" origin/main; then
+              safe=true
+              echo "IDENTICAL TREE: $branch"
+            else
+              tip=$(git rev-parse "$ref")
+              if gh pr list --state merged --head "$branch" --limit 100 --json headRefOid --jq '.[].headRefOid' | grep -Fxq "$tip"; then
+                safe=true
+                echo "MERGED PR TIP: $branch"
+              fi
+            fi
+
+            if [[ "$safe" != "true" ]]; then
+              echo "KEEP (unique/unverified commits): $branch"
+              continue
+            fi
+
+            echo "DELETE: $branch"
+            gh api --method DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$branch"
+          done < <(git for-each-ref --format='%(refname:short)' refs/remotes/origin/)
+
+      - name: Keep the Actions history short
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KEEP_RUNS: '1'
+          MAX_DELETES: '700'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Only the latest of everything stays visible:
+          #  - jobs whose workflow file is gone lose every run, so they drop out
+          #    of the Actions list (GitHub stops listing some of those jobs while
+          #    their runs remain, so the full run list is swept too);
+          #  - CI and Deploy keep only their newest finished run (KEEP_RUNS);
+          #  - this cleanup job keeps none of its finished runs: the run doing
+          #    the work is still in progress, so it is the one left.
+          # Runs still in progress or queued are never touched. MAX_DELETES keeps
+          # each pass well inside GitHub's hourly API limit.
+          self_path="${GITHUB_WORKFLOW_REF#"$GITHUB_REPOSITORY/"}"
+          self_path="${self_path%@*}"
+          deleted=0
+          delete_run() {
+            if (( deleted >= MAX_DELETES )); then return 1; fi
+            if gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/$1" >/dev/null 2>&1; then
+              deleted=$((deleted + 1))
+            else
+              echo "WARN: could not delete run $1"
+            fi
+            return 0
+          }
+
+          while IFS=$'\t' read -r workflow_id workflow_path workflow_name; do
+            [[ -z "$workflow_id" ]] && continue
+            # Only files under .github/workflows; GitHub's own dynamic jobs are left alone.
+            [[ "$workflow_path" == .github/workflows/* ]] || continue
+            if [[ ! -f "$workflow_path" || "$workflow_path" == "$self_path" ]]; then
+              keep=0
+            else
+              keep="$KEEP_RUNS"
+            fi
+
+            seen=0
+            while IFS=$'\t' read -r run_id run_status; do
+              [[ -z "$run_id" ]] && continue
+              [[ "$run_status" == "completed" ]] || continue
+              seen=$((seen + 1))
+              (( seen <= keep )) && continue
+              delete_run "$run_id" || break 2
+            done < <(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/workflows/$workflow_id/runs?per_page=100" \
+                       --jq '.workflow_runs[] | [.id, .status] | @tsv')
+
+            if [[ ! -f "$workflow_path" ]]; then
+              echo "CLEARED (file gone): $workflow_name"
+            fi
+          done < <(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/workflows?per_page=100" \
+                     --jq '.workflows[] | [.id, .path, .name] | @tsv')
+
+          # Runs of jobs GitHub no longer lists can only be found in the full
+          # run list. Collect first, then delete, so paging is not disturbed.
+          if (( deleted < MAX_DELETES )); then
+            mapfile -t leftovers < <(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs?per_page=100" \
+                                       --jq '.workflow_runs[] | select(.status == "completed") | [.id, .path] | @tsv')
+            for line in "${leftovers[@]}"; do
+              run_id="${line%%$'\t'*}"
+              run_path="${line#*$'\t'}"
+              run_path="${run_path%%@*}"
+              [[ -n "$run_id" && "$run_path" == .github/workflows/* ]] || continue
+              [[ -f "$run_path" ]] && continue
+              delete_run "$run_id" || break
+            done
+          fi
+
+          echo "Deleted $deleted old run(s) this pass."
+
+      - name: Keep only the newest GitHub deployment record
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # A deployment record can appear shortly after the push. Give it a moment
+          # so this run can preserve the current release and remove the superseded
+          # deployment history shown in the repository sidebar.
+          sleep 30
+
+          deployments=$(gh api --paginate "repos/$GITHUB_REPOSITORY/deployments?per_page=100" --jq '.[] | [.id, .sha, .created_at] | @tsv')
+          [[ -z "$deployments" ]] && exit 0
+
+          keep_id=$(printf '%s\n' "$deployments" | awk -F '\t' -v sha="$GITHUB_SHA" '$2 == sha { print }' | sort -t $'\t' -k3,3r | head -n1 | cut -f1)
+          if [[ -z "$keep_id" ]]; then
+            keep_id=$(printf '%s\n' "$deployments" | sort -t $'\t' -k3,3r | head -n1 | cut -f1)
+          fi
+
+          echo "KEEP deployment: $keep_id"
+          while IFS=$'\t' read -r id sha created_at; do
+            [[ -z "$id" || "$id" == "$keep_id" ]] && continue
+            echo "REMOVE deployment: $id ($sha, $created_at)"
+
+            # GitHub only permits deletion of inactive deployments when more than
+            # one record exists. Mark the superseded record inactive first.
+            gh api --method POST "repos/$GITHUB_REPOSITORY/deployments/$id/statuses" \
+              -f state=inactive \
+              -f description='Superseded by current release' >/dev/null 2>&1 || true
+
+            gh api --method DELETE "repos/$GITHUB_REPOSITORY/deployments/$id" || \
+              echo "WARN: could not delete deployment $id"
+          done <<< "$deployments"

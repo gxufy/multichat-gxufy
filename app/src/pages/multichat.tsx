@@ -1,0 +1,1706 @@
+'use client';
+
+import {
+  useRouter } from 'next/router';
+import { useEffect,
+  useRef,
+  useState } from 'react';
+import Head from 'next/head';
+import dynamic from 'next/dynamic';
+import {
+  hasConfiguredMultichatChannel,
+  MULTICHAT_MAX_MESSAGE_LINES,
+  multichatKickChannel,
+  multichatPlatformCount,
+  safeParseMultichatConfig,
+  type MultichatConfig,
+  } from '../lib/multichatConfig';
+import {
+  getSevenTVGlobalEmotes,
+  getSevenTVChannelEmotes,
+  type KickChannel,
+  type SevenTVEmote,
+  type SevenTVBadge,
+  type SevenTVPaint,
+  type Entitlements,
+  type ParsedMessage,
+} from '../lib/kick';
+import type { Connector, Platform, UnifiedMessage } from '../lib/types';
+import { createKickConnector } from '../lib/connectors/kick';
+import { createTwitchConnector } from '../lib/connectors/twitch';
+import { createYouTubeConnector } from '../lib/connectors/youtube';
+import { createTikTokConnector } from '../lib/connectors/tiktok';
+/* The one UnifiedMessage → ParsedMessage conversion, and the one display filter,
+   shared with the generator preview so both apply the parse-time settings and the
+   blacklists identically. */
+import { buildMessageFilter, buildParsedMessage } from '../lib/multichatMessageModel';
+import type { MentionPaint } from '../lib/render';
+import { subscribeRuntimeEventVisibility } from '../lib/multichatEventRuntime';
+import { clearTwitchEmoteResourceCache, loadTwitchEmotes } from '../lib/twitchEmotes';
+import { buildSevenTVEventUrl } from '../lib/sevenTVEventUrl';
+import { routeSevenTVDispatch } from '../lib/sevenTVEventRouting';
+import { SevenTVPersonalEmoteStore } from '../lib/sevenTVPersonalEmotes';
+import { clearSevenTVEmoteSetCache } from '../lib/sevenTVEmoteSetCache';
+import { createCosmeticsFetcher } from '../lib/cosmetics';
+import { createSevenTVBadgeFromEvent, parseSevenTVPaint } from '../lib/cosmeticMetadata';
+import { createMessageFadeScheduler, MOD_DELETE_COLLAPSE_MS } from '../lib/messageFadeScheduler';
+import {
+  startTwitchHypeTrainPoller,
+  type TwitchHypeTrainEvent,
+} from '../lib/twitchHypeTrainPoller';
+import {
+  resolveMultichatRoute,
+  wantsCounterSection,
+} from '../lib/multichatRouting';
+import {
+  RELOAD_STAMP_KEY,
+  createMultichatCommandRunner,
+} from '../lib/multichatCommandRuntime';
+import { publishCounterBackgroundControl } from '../lib/multichatControlBus';
+import ChatOverlay, {
+  type StartupLoaderPhase,
+} from '../components/overlay/ChatOverlay';
+import { SunsetBanner } from '../components/SunsetBanner';
+import {
+  BURST_PRESENT_INTERVAL_MS,
+  MOD_REMOVAL_HOLD_MS,
+  drainBurstPresentationQueue,
+  startBurstPresentationTicker,
+  takeReadyPresentationPrefix,
+} from '../lib/chatBurstPresentation';
+import {
+  loadRestoredMultichatMessages,
+  multichatMessageStorageKey,
+  multichatSessionStorage,
+  saveRestoredMultichatMessages,
+} from '../lib/multichatMessagePersistence';
+import { createOverlayUsageReporter } from '../lib/overlayUsage';
+import { startOverlayRefreshWatcher, type OverlayChannel } from '../lib/overlayRefreshWatcher';
+import { multichatBadgeSlotSizePx } from '../lib/limerinoBadges';
+import { STARTUP_LOADER_FADE_MS, STARTUP_LOADER_MAX_MS, STARTUP_LOADER_MIN_MS } from '../lib/startupLoader';
+
+/* The generator is a large editing UI that OBS never renders. Keep the overlay
+ * renderer in the main /multichat bundle so its startup appearance is unchanged,
+ * but load the generator chunk only when the channel-less generator branch is
+ * actually rendered. This removes generator controls/previews/simulators from
+ * the browser-source parse/evaluation path without creating a second renderer. */
+const ClassicGenerator = dynamic(() => import('../components/classic/ClassicGenerator'));
+
+const RESTORE_WRITE_DELAY_MS = 100;
+
+/** Startup presentation timing for a configured production Chat overlay
+    (shared with FlossCounter). */
+export { STARTUP_LOADER_MIN_MS, STARTUP_LOADER_MAX_MS, STARTUP_LOADER_FADE_MS };
+
+/* The query schema, defaults, aliases, and serializer now live in
+ * lib/multichatConfig.ts. OverlayConfig is kept as an alias so the many
+ * references below (and ChatOverlay's own typing) read unchanged. */
+export type OverlayConfig = MultichatConfig;
+
+/**
+ * `/multichat` — the overlay OBS loads, and the generator that produces its URL.
+ *
+ * One route serves both, decided by whether the URL names a channel. That is not
+ * a convenience: every scene collection anybody has ever configured points a
+ * browser source at this path with channel parameters, and those files are not
+ * going to be edited. So a channel-carrying URL renders the overlay, permanently,
+ * and nothing about it redirects.
+ *
+ * A visit with no channel is somebody opening the site rather than a browser
+ * source starting up, so it renders the generator. `/tools/multichat`,
+ * `/tools/counter`, and `/classic/multichat` all redirect here.
+ *
+ * The two are separate components rather than branches inside one, because the
+ * overlay's effects — IRC connections and cosmetics fetches — must
+ * not run on a generator visit. Not rendering the component is what guarantees
+ * that, rather than a growing set of early returns inside each effect.
+ */
+export default function Page() {
+  const router = useRouter();
+
+  /* The URL fragment, captured once on the client.
+   *
+   * Fragments are never sent to the server and never appear in `router.query`,
+   * so this is the only way anything here can see one. Held in state and set
+   * from an effect rather than read during render: reading
+   * `window.location.hash` while rendering would differ between the server pass
+   * (no window) and the client pass, which is exactly the hydration mismatch
+   * this page cannot afford. `null` means "not looked yet". */
+  const [hash, setHash] = useState<string | null>(null);
+
+  useEffect(() => {
+    /* Effects are client-only, so window is available here and only here. */
+    setHash(window.location.hash);
+  }, []);
+
+  /* Overlay or generator, by one pure rule (lib/multichatRouting). Channel
+     parameters are checked first and always win. */
+  const route = resolveMultichatRoute(router.isReady ? router.query : {});
+
+  /* Nothing is decided until the query is parsed. Rendering the generator here
+     would mount it for a split second on every overlay load in OBS. */
+  if (!router.isReady) return null;
+
+  if (route.kind === 'generator') {
+    /* Wait for the client fragment read so #viewer-counter can be honored
+       without a server/client hydration disagreement. */
+    if (hash === null) return null;
+    return (
+      <ClassicGenerator
+        focusCounter={wantsCounterSection(router.query, hash)}
+      />
+    );
+  }
+
+  return <MultichatOverlay />;
+}
+
+/** The overlay itself. Mounted only for a channel-carrying URL. */
+function MultichatOverlay() {
+  const router = useRouter();
+  const [ready, setReady] = useState(false);
+  const [config, setConfig] = useState<OverlayConfig | null>(null);
+  const [messages, setMessages] = useState<ParsedMessage[]>([]);
+  const [sharedChatEnabled, setSharedChatEnabled] = useState(false);
+  const [fadingIds, setFadingIds] = useState<Set<string>>(new Set());
+  const [loaderPhase, setLoaderPhase] = useState<StartupLoaderPhase>('hidden');
+  const [error, setError] = useState<string | null>(null);
+
+  /** Messages already handed to ChatOverlay. New arrivals wait only for the next browser paint. */
+  const presentedMessagesRef = useRef<ParsedMessage[]>([]);
+  const pendingMessagesRef = useRef<ParsedMessage[]>([]);
+
+  // Mutable state that doesn't trigger rerenders
+  const stateRef = useRef<{
+    emotes: { kick: SevenTVEmote[]; twitch: SevenTVEmote[]; youtube: SevenTVEmote[] };
+    badges: SevenTVBadge[];
+    paints: SevenTVPaint[];
+    entitlements: Entitlements;
+    /** Chatters' personal 7TV emotes, keyed `${platform}:${senderId}`. */
+    personalEmotes: Record<string, SevenTVEmote[]>;
+    messages: ParsedMessage[];
+    channel: KickChannel | null;
+    config: OverlayConfig | null;
+  }>({
+    emotes: { kick: [], twitch: [], youtube: [] },
+    badges: [],
+    paints: [],
+    entitlements: {},
+    personalEmotes: {},
+    messages: [],
+    channel: null,
+    config: null,
+  });
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    setReady(true);
+
+    const parsed = safeParseMultichatConfig(router.query);
+    if (!parsed.success) return;
+    const cfg = {
+      ...parsed.data,
+      // Smooth handling is the normal runtime path. Existing/generated URLs do
+      // not need a flag; smoothScroll=0/false is the explicit legacy fallback.
+      smoothScroll: router.query.smoothScroll === undefined
+        ? true
+        : parsed.data.smoothScroll,
+    };
+    const kickChannel = multichatKickChannel(cfg);
+    const platformCount = multichatPlatformCount(cfg);
+    if (!hasConfiguredMultichatChannel(cfg)) return;
+
+    setConfig(cfg);
+    setSharedChatEnabled(cfg.sharedChatEnabled);
+    setError(null);
+    stateRef.current.config = cfg;
+    setLoaderPhase('visible');
+
+    const loaderStartedAt = Date.now();
+    let loaderDismissRequested = false;
+    let loaderMinimumTimer: ReturnType<typeof setTimeout> | null = null;
+    let loaderFadeTimer: ReturnType<typeof setTimeout> | null = null;
+    let loaderMaximumTimer: ReturnType<typeof setTimeout> | null = null;
+
+    function beginLoaderFade() {
+      if (loaderDismissRequested) return;
+      loaderDismissRequested = true;
+      setLoaderPhase('fading');
+      loaderFadeTimer = setTimeout(() => setLoaderPhase('hidden'), STARTUP_LOADER_FADE_MS);
+    }
+
+    function dismissLoaderWhenEligible() {
+      if (loaderDismissRequested || loaderMinimumTimer) return;
+      const remaining = STARTUP_LOADER_MIN_MS - (Date.now() - loaderStartedAt);
+      if (remaining <= 0) {
+        beginLoaderFade();
+        return;
+      }
+      loaderMinimumTimer = setTimeout(() => {
+        loaderMinimumTimer = null;
+        beginLoaderFade();
+      }, remaining);
+    }
+
+    loaderMaximumTimer = setTimeout(beginLoaderFade, STARTUP_LOADER_MAX_MS);
+
+    const s = stateRef.current;
+    s.messages = [];
+    presentedMessagesRef.current = [];
+    pendingMessagesRef.current = [];
+    setMessages([]);
+    const connectors: Connector[] = [];
+    const cleanups: (() => void)[] = [];
+    let twitchRoomId: string | null = null; // for !multichat refresh emotes
+    let youtubeChannelId: string | null = null;
+    let kickUsageChannel = '';
+    const usageReporter = createOverlayUsageReporter([
+      ...(kickChannel ? ['kick' as const] : []),
+      ...(cfg.twitch ? ['twitch' as const] : []),
+      ...(cfg.youtube ? ['youtube' as const] : []),
+      ...(cfg.tiktok ? ['tiktok' as const] : []),
+    ]);
+    cleanups.push(() => usageReporter.stop());
+
+    
+    const cosmeticsFetcher = createCosmeticsFetcher(
+      {
+        get paints() { return s.paints; },
+        set paints(value) { s.paints = value; },
+        get badges() { return s.badges; },
+        set badges(value) { s.badges = value; },
+        entitlements: s.entitlements,
+      },
+      (keys) => {
+        const keySet = new Set(keys);
+        let touched = false;
+        s.messages = s.messages.map(m => {
+          if (!m.platform || !m.senderId || !m.raw) return m;
+          if (!keySet.has(`${m.platform}:${m.senderId}`)) return m;
+          touched = true;
+          return rebuildParsed(m);
+        });
+        if (touched) markDirty();
+      },
+    );
+    cleanups.push(() => cosmeticsFetcher.stop());
+    // Loader hides once every requested platform has reported some status
+    const settled = new Set<string>();
+    let greeted = false;
+    function settle(platform: string) {
+      settled.add(platform);
+      if (settled.size >= platformCount) {
+        dismissLoaderWhenEligible();
+
+        if (!greeted) {
+          greeted = true;
+          showFloat(1, 'FlossChat by @Gxufy', 5000, 0.3);
+        }
+      }
+    }
+
+    
+    const mentionColors = new Map<string, string>();
+    const mentionCtx = { enabled: cfg.mentionColor, colors: mentionColors, paints: new Map<string, MentionPaint>() };
+
+    /* UnifiedMessage → ParsedMessage. The conversion itself now lives in
+       lib/multichatMessageModel, because the generator's preview has to perform
+       exactly the same one — four settings (both 7TV toggles, paintShadows,
+       mentionColor) are applied during this step rather than by ChatOverlay, so a
+       preview that built nodes by hand could not respond to any of them.
+
+       `s` is passed as the cosmetics source: its emotes/badges/paints/
+       entitlements/channel fields are precisely what the conversion reads, and
+       they are live, so a paint arriving later applies on the next rebuild. */
+    const buildParsed = (um: UnifiedMessage): ParsedMessage =>
+      buildParsedMessage(um, cfg, s, mentionCtx, Date.now());
+
+    function replacePlatformEmotes(
+      platform: 'kick' | 'twitch',
+      emotes: SevenTVEmote[],
+    ) {
+      if (!cfg.sevenTVEmotesEnabled) return;
+
+      s.emotes[platform] = emotes;
+
+      let touched = false;
+      s.messages = s.messages.map((message) => {
+        if (message.platform !== platform || message.raw == null) return message;
+        touched = true;
+        return rebuildParsed(message);
+      });
+
+      if (touched) markDirty();
+    }
+
+    const rebuildParsed = (
+      previous: ParsedMessage,
+      raw = previous.raw as UnifiedMessage,
+    ): ParsedMessage => ({
+      ...buildParsed(raw),
+      id: previous.id,
+      timestamp: previous.timestamp,
+      ...(previous.suppressEntryAnimation ? { suppressEntryAnimation: true } : {}),
+    });
+
+    /* Personal 7TV emotes: one store per overlay session, read by the message
+       model through `s.personalEmotes`. Only the messages of chatters whose
+       personal emotes changed are rebuilt. */
+    const personalEmoteStore = new SevenTVPersonalEmoteStore();
+    s.personalEmotes = personalEmoteStore.byUser;
+    const rebuildSenders = (keys: string[]) => {
+      if (!keys.length) return;
+      const keySet = new Set(keys);
+      let touched = false;
+      s.messages = s.messages.map((message) => {
+        if (!message.platform || !message.senderId || !message.raw) return message;
+        if (!keySet.has(`${message.platform}:${message.senderId}`)) return message;
+        touched = true;
+        return rebuildParsed(message);
+      });
+      if (touched) markDirty();
+    };
+
+    /* Bots and blacklists, from the same helper the generator's preview uses.
+       These gates run before ChatOverlay sees a message, so the preview has to
+       apply the identical predicate to respond to the filter settings at all. */
+    const shouldDisplay = buildMessageFilter(cfg);
+
+    /* Twitch supplies a real first-message flag. Other providers do not, so
+       their equivalent is the first live message observed from each chatter
+       during this browser-source session. Backlog rows are excluded by time. */
+    const sessionStartedAt = Date.now();
+    const sessionFirstSeen = new Set<string>();
+    function withSessionFirstMessage(message: UnifiedMessage): UnifiedMessage {
+      if (message.platform === 'twitch' || message.kind !== 'chat') return message;
+      if ((message.timestamp ?? 0) < sessionStartedAt - 2_000) return message;
+      const identity = message.senderId || message.username.trim().toLowerCase();
+      if (!identity) return message;
+      const key = `${message.platform}:${identity}`;
+      if (sessionFirstSeen.has(key)) return message;
+      sessionFirstSeen.add(key);
+      return { ...message, firstMessage: true };
+    }
+
+    /* Runtime visibility controls deliberately do not stop connectors. That is
+       what lets a moderator issue twitchon/youtubeon from a platform that is
+       currently hidden without reloading the browser source. */
+    const hiddenPlatforms = new Set<Platform>();
+    let sharedChatRuntime = cfg.sharedChatEnabled;
+    let chatPresentationPaused = false;
+    let pausedChatMessages: UnifiedMessage[] = [];
+
+    
+    /* Match the production phase-locked presentation clock: one 200 ms interval
+       commits whatever connector messages are waiting. Repaint-only mutations
+       keep their existing OBS-safe frame path and never reveal queued arrivals
+       ahead of that clock. */
+    const smoothRuntime = cfg.smoothScroll;
+    let dirty = false;
+    let flushFrame: number | null = null;
+
+    /* When each row first appeared on screen. The fade timer counts from this
+       (local clock), not from the platform's own timestamp, which can be
+       seconds off between Twitch, Kick, YouTube and TikTok. */
+    const shownAtById = new Map<string, number>();
+
+    function publishMessages(next: ParsedMessage[]) {
+      presentedMessagesRef.current = next;
+      setMessages(next);
+    }
+
+    function latestPresentedMessages() {
+      const byId = new Map(s.messages.map((message) => [message.id, message] as const));
+      return presentedMessagesRef.current
+        .filter((message) => byId.has(message.id))
+        .map((message) => byId.get(message.id)!);
+    }
+
+    function flushMessages() {
+      if (!dirty) return;
+      dirty = false;
+      publishMessages(latestPresentedMessages());
+    }
+
+    function markDirty() {
+      dirty = true;
+      if (!smoothRuntime || flushFrame !== null) return;
+      flushFrame = requestAnimationFrame(() => {
+        flushFrame = null;
+        flushMessages();
+      });
+    }
+
+    /* When each waiting message arrived, for the removal hold and the 7TV
+       cosmetics hold. */
+    const pendingArrivedAt = new Map<string, number>();
+    /* Hold each new message for half a second so a quick delete, timeout or
+       ban (moderation bots act within about 0.4 s) lands before it is shown:
+       removeMessages drops messages that are not on screen yet. Pointless when
+       moderation actions are turned off. */
+    const removalHoldMs = cfg.modAction ? MOD_REMOVAL_HOLD_MS : 0;
+
+    function flushBurstPresentation() {
+      const liveIds = new Set(s.messages.map((message) => message.id));
+      pendingMessagesRef.current = pendingMessagesRef.current.filter((message) => liveIds.has(message.id));
+      for (const id of pendingArrivedAt.keys()) if (!liveIds.has(id)) pendingArrivedAt.delete(id);
+      /* A new chatter's first message waits (briefly) for their 7TV paint and
+         badge so it is shown complete; see takeReadyPresentationPrefix. */
+      const ready = takeReadyPresentationPrefix(
+        pendingMessagesRef.current,
+        (message) => Boolean(message.platform)
+          && cosmeticsFetcher.isPending(message.platform ?? '', message.senderId),
+        (message) => pendingArrivedAt.get(message.id),
+        Date.now(),
+        removalHoldMs,
+      );
+      for (const message of ready) pendingArrivedAt.delete(message.id);
+      const batch = drainBurstPresentationQueue(ready);
+
+      if (batch.length) {
+        const byId = new Map(s.messages.map((message) => [message.id, message] as const));
+        const current = latestPresentedMessages();
+        const currentIds = new Set(current.map((message) => message.id));
+        for (const message of batch) {
+          const latest = byId.get(message.id);
+          if (!latest || currentIds.has(message.id)) continue;
+          current.push(latest);
+          currentIds.add(message.id);
+          if (!shownAtById.has(message.id)) shownAtById.set(message.id, Date.now());
+        }
+        publishMessages(current.slice(-100));
+      }
+    }
+
+    function enqueueBurstPresentation(message: ParsedMessage) {
+      if (
+        presentedMessagesRef.current.some((presented) => presented.id === message.id)
+        || pendingMessagesRef.current.some((pending) => pending.id === message.id)
+      ) return;
+      pendingMessagesRef.current.push(message);
+      pendingArrivedAt.set(message.id, Date.now());
+    }
+
+    const stopBurstPresentationTicker = startBurstPresentationTicker(flushBurstPresentation);
+
+  const restoreStorage = cfg.restoreOnReload ? multichatSessionStorage() : null;
+  const restoreStorageKey = restoreStorage ? multichatMessageStorageKey(cfg) : '';
+  const restoreOptions = {
+    maxMessages: cfg.maxMessageLines,
+    maxAgeSeconds: cfg.maxMessageAge,
+  };
+  let restoreWriteTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function persistMessagesNow() {
+    if (!restoreStorage) return;
+    if (restoreWriteTimer) {
+      clearTimeout(restoreWriteTimer);
+      restoreWriteTimer = null;
+    }
+    saveRestoredMultichatMessages(
+      restoreStorage,
+      restoreStorageKey,
+      s.messages.filter(
+        (message) =>
+          message.category !==
+          'hypetrain'
+          && !message.deleted,
+      ),
+      restoreOptions,
+    );
+  }
+
+  function scheduleMessagePersistence() {
+    if (!restoreStorage || restoreWriteTimer) return;
+    restoreWriteTimer = setTimeout(persistMessagesNow, RESTORE_WRITE_DELAY_MS);
+  }
+
+  function pauseChatPresentation() {
+    chatPresentationPaused = true;
+  }
+
+  function resumeChatPresentation() {
+    if (!chatPresentationPaused) return;
+    chatPresentationPaused = false;
+    const buffered = pausedChatMessages;
+    pausedChatMessages = [];
+    for (const message of buffered) addMessage(message);
+  }
+
+  function toggleChatPresentation() {
+    if (chatPresentationPaused) resumeChatPresentation();
+    else pauseChatPresentation();
+  }
+
+  function bufferPausedChatMessage(message: UnifiedMessage) {
+    pausedChatMessages.push(message);
+    const overflow = pausedChatMessages.length - MULTICHAT_MAX_MESSAGE_LINES;
+    if (overflow > 0) pausedChatMessages.splice(0, overflow);
+  }
+
+  /**
+   * Clear every ordinary-message layer in one command turn.
+   *
+   * Floats/media, speech, visibility controls, runtime feature switches,
+   * and provider connectors live outside these stores and are intentionally left
+   * alone. Persist immediately so a browser-source reload cannot race a delayed
+   * write and restore rows that the command just removed.
+   */
+  function clearOrdinaryChatMessages() {
+    s.messages = [];
+    pendingMessagesRef.current = [];
+    pausedChatMessages = [];
+    dirty = false;
+    publishMessages([]);
+    persistMessagesNow();
+  }
+
+  if (restoreStorage) {
+    const restored = loadRestoredMultichatMessages(
+      restoreStorage,
+      restoreStorageKey,
+      restoreOptions,
+    )
+      .filter(({ raw }) => !(raw.platform === 'twitch' && raw.sharedChat && !sharedChatRuntime))
+      .filter(({ raw }) => shouldDisplay(raw))
+      .map(({ raw, displayedAt }) => ({
+        ...buildParsed(raw),
+        timestamp: displayedAt,
+        suppressEntryAnimation: true,
+      }));
+    s.messages = restored;
+    publishMessages(restored);
+    for (const message of restored) {
+      if (
+        cfg.sevenTVCosmeticsEnabled
+        && (message.platform === 'kick' || message.platform === 'twitch')
+        && message.senderId
+      ) {
+        cosmeticsFetcher.want(message.platform, message.senderId);
+      }
+    }
+    window.addEventListener('pagehide', persistMessagesNow);
+    cleanups.push(() => {
+      window.removeEventListener('pagehide', persistMessagesNow);
+      persistMessagesNow();
+    });
+  }
+
+  const flushInterval: ReturnType<typeof setInterval> | null = smoothRuntime
+      ? null
+      : setInterval(flushMessages, 200);
+    let fadeScheduler: ReturnType<typeof createMessageFadeScheduler> | null = null;
+
+    let latestHypeTrainEvent:
+      TwitchHypeTrainEvent
+      | null = null;
+
+    let hypeTrainHideTimer:
+      ReturnType<
+        typeof setTimeout
+      >
+      | null = null;
+
+    const HYPE_TRAIN_ROW_ID =
+      'twitch:hype-train';
+
+    function removeHypeTrainRow(
+      clearLatest = false,
+    ) {
+      /*
+       * A completed train is intentionally ephemeral. If visibility changes
+       * while its five-second completion state is showing, never preserve that
+       * ended state for a later events-on/platform-on command.
+       */
+      if (
+        latestHypeTrainEvent?.phase ===
+        'end'
+      ) {
+        clearLatest = true;
+      }
+
+      if (
+        hypeTrainHideTimer
+      ) {
+        clearTimeout(
+          hypeTrainHideTimer,
+        );
+
+        hypeTrainHideTimer =
+          null;
+      }
+
+      const before =
+        s.messages.length;
+
+      s.messages =
+        s.messages.filter(
+          (message) =>
+            message.id !==
+            HYPE_TRAIN_ROW_ID,
+        );
+
+      pendingMessagesRef.current =
+        pendingMessagesRef.current.filter(
+          (message) =>
+            message.id !==
+            HYPE_TRAIN_ROW_ID,
+        );
+
+      if (clearLatest) {
+        latestHypeTrainEvent =
+          null;
+      }
+
+      if (
+        s.messages.length !==
+        before
+      ) {
+        markDirty();
+      }
+    }
+
+    function upsertHypeTrainEvent(
+      event:
+        TwitchHypeTrainEvent,
+    ) {
+      latestHypeTrainEvent =
+        event;
+
+      if (
+        event.phase ===
+        'progress' &&
+        hypeTrainHideTimer
+      ) {
+        clearTimeout(
+          hypeTrainHideTimer,
+        );
+
+        hypeTrainHideTimer =
+          null;
+      }
+
+      const raw:
+        UnifiedMessage = {
+        platform: 'twitch',
+        id: 'hype-train',
+        senderId:
+          'twitch-hype-train',
+        username: 'Twitch',
+        color: '#9147ff',
+        badges: [],
+        text:
+          event.phase ===
+          'end'
+            ? `Hype Train complete at Level ${event.level}`
+            : `Hype Train Level ${event.level}: ${event.progress} / ${event.goal}`,
+        emotes: [],
+        timestamp:
+          Date.now(),
+        kind: 'system',
+        category:
+          'hypetrain',
+        hypeTrain:
+          event,
+      };
+
+      if (
+        hiddenPlatforms.has(
+          'twitch',
+        ) ||
+        !shouldDisplay(raw)
+      ) {
+        removeHypeTrainRow();
+        return;
+      }
+
+      const parsed =
+        buildParsed(raw);
+
+      const existingIndex =
+        s.messages.findIndex(
+          (message) =>
+            message.id ===
+            parsed.id,
+        );
+
+      if (
+        existingIndex >= 0
+      ) {
+        parsed.timestamp =
+          s.messages[
+            existingIndex
+          ]!.timestamp;
+
+        parsed.suppressEntryAnimation =
+          true;
+
+        s.messages[
+          existingIndex
+        ] = parsed;
+
+        markDirty();
+      } else {
+        s.messages.push(
+          parsed,
+        );
+
+        if (
+          s.messages.length >
+          100
+        ) {
+          s.messages.shift();
+        }
+
+        enqueueBurstPresentation(
+          parsed,
+        );
+      }
+
+      if (
+        event.phase ===
+        'end'
+      ) {
+        const hideAfter =
+          Math.max(
+            0,
+            event.hideAfterMs ??
+              5_000,
+          );
+
+        hypeTrainHideTimer =
+          setTimeout(
+            () => {
+              hypeTrainHideTimer =
+                null;
+
+              latestHypeTrainEvent =
+                null;
+
+              removeHypeTrainRow(
+                true,
+              );
+            },
+            hideAfter,
+          );
+      }
+    }
+
+    const stopHypeTrainVisibility =
+      subscribeRuntimeEventVisibility(
+        (
+          target,
+          visible,
+        ) => {
+          if (
+            target !== 'all' &&
+            target !==
+              'hypetrain'
+          ) {
+            return;
+          }
+
+          if (!visible) {
+            removeHypeTrainRow();
+            return;
+          }
+
+          if (
+            latestHypeTrainEvent
+          ) {
+            upsertHypeTrainEvent(
+              latestHypeTrainEvent,
+            );
+          }
+        },
+      );
+
+    cleanups.push(
+      stopHypeTrainVisibility,
+    );
+
+    cleanups.push(() => {
+      if (
+        hypeTrainHideTimer
+      ) {
+        clearTimeout(
+          hypeTrainHideTimer,
+        );
+      }
+
+      hypeTrainHideTimer =
+        null;
+
+      latestHypeTrainEvent =
+        null;
+    });
+
+    function setPlatformChatVisible(platform: Platform, visible: boolean) {
+      if (visible) {
+        hiddenPlatforms.delete(platform);
+
+        if (
+          platform === 'twitch' &&
+          latestHypeTrainEvent
+        ) {
+          upsertHypeTrainEvent(
+            latestHypeTrainEvent,
+          );
+        }
+
+        return;
+      }
+      hiddenPlatforms.add(platform);
+      s.messages = s.messages.filter((message) => message.platform !== platform);
+      scheduleMessagePersistence();
+      markDirty();
+    }
+
+    function setSharedChatVisible(visible: boolean) {
+      sharedChatRuntime = visible;
+      setSharedChatEnabled(visible);
+      if (visible) return;
+      s.messages = s.messages.filter((message) => {
+        if (message.platform !== 'twitch' || !message.raw) return true;
+        return !(message.raw as UnifiedMessage).sharedChat;
+      });
+      scheduleMessagePersistence();
+      markDirty();
+    }
+
+    function addMessage(incoming: UnifiedMessage) {
+      const um = withSessionFirstMessage(incoming);
+      /* Shared partner traffic is completely outside the overlay while the
+         feature is off, including its commands. Local Twitch chat remains live
+         and can turn Shared Chat on at any time. */
+      if (um.platform === 'twitch' && um.sharedChat && !sharedChatRuntime) return;
+      const restoredDuplicate = cfg.restoreOnReload && s.messages.some((message) => {
+        if (!message.raw) return false;
+        const raw = message.raw as UnifiedMessage;
+        return raw.platform === um.platform && raw.id === um.id;
+      });
+      const handledCommand = restoredDuplicate
+        ? null
+        : handleCommand(um); // !multichat commands work from any enabled source chat
+      /* Commands run before platform suppression so a hidden platform can issue
+         its own ...on command. A sharedoff command can also remove its own
+         partner row immediately after it executes. */
+      if (um.platform === 'twitch' && um.sharedChat && !sharedChatRuntime) return;
+      /* Successful history/presentation controls should not become ordinary
+         chat rows themselves. Other commands keep their historical rendering
+         behavior, including while paused. */
+      if (
+        handledCommand?.name === 'clear'
+        || handledCommand?.name === 'pause'
+        || handledCommand?.name === 'resume'
+        || handledCommand?.name === 'togglepause'
+      ) return;
+      if (hiddenPlatforms.has(um.platform)) return;
+      if (!shouldDisplay(um)) return;
+      if (chatPresentationPaused && um.kind === 'chat') {
+        bufferPausedChatMessage(um);
+        return;
+      }
+      // queue this chatter for GQL cosmetics (kick/twitch only)
+      if (cfg.sevenTVCosmeticsEnabled && (um.platform === 'kick' || um.platform === 'twitch')) {
+        cosmeticsFetcher.want(um.platform, um.senderId);
+      }
+      const parsedMessage = buildParsed(um);
+      const existingIndex = cfg.restoreOnReload
+        ? s.messages.findIndex((message) => message.id === parsedMessage.id)
+        : -1;
+      if (existingIndex >= 0) {
+        parsedMessage.timestamp = s.messages[existingIndex]!.timestamp;
+        s.messages[existingIndex] = parsedMessage;
+        scheduleMessagePersistence();
+        markDirty();
+        fadeScheduler?.wake();
+        dismissLoaderWhenEligible();
+        return;
+      }
+      s.messages.push(parsedMessage);
+      if (s.messages.length > 100) s.messages.shift();
+      scheduleMessagePersistence();
+      enqueueBurstPresentation(parsedMessage);
+      fadeScheduler?.wake();
+      dismissLoaderWhenEligible();
+    }
+
+    /*
+     * Moderator deletes/bans/clears. A row that is already on screen is marked
+     * deleted: its content vanishes at once and its space closes smoothly
+     * (MOD_DELETE_COLLAPSE_MS), so the rows above glide down instead of
+     * jumping, and no gap is left behind. Once closed it is taken out of the
+     * list, which moves nothing because it has no height left. A message that
+     * has not been shown yet is simply dropped.
+     */
+    const deleteCollapseTimers = new Set<ReturnType<typeof setTimeout>>();
+    cleanups.push(() => {
+      for (const timer of deleteCollapseTimers) clearTimeout(timer);
+      deleteCollapseTimers.clear();
+    });
+
+    function dropCollapsedRows(ids: readonly string[]) {
+      const gone = new Set(ids);
+      const before = s.messages.length;
+      s.messages = s.messages.filter((m) => !gone.has(m.id));
+      for (const id of ids) shownAtById.delete(id);
+      if (s.messages.length === before) return;
+      scheduleMessagePersistence();
+      markDirty();
+      fadeScheduler?.wake();
+    }
+
+    function removeMessages(platform: string, opts: { id?: string; username?: string; senderId?: string }) {
+      if (!cfg.modAction) return;
+      const matches = (m: ParsedMessage) => {
+        if (opts.id) return m.id === `${platform}:${opts.id}`;
+        if (opts.senderId) return m.platform === platform && m.senderId === opts.senderId;
+        if (opts.username) return m.platform === platform && m.identity.username.toLowerCase() === opts.username.toLowerCase();
+        return m.platform === platform;
+      };
+      const onScreen = new Set(presentedMessagesRef.current.map((m) => m.id));
+      const collapsing: string[] = [];
+      let changed = false;
+      s.messages = s.messages.flatMap((m) => {
+        if (!matches(m)) return [m];
+        changed = true;
+        if (!onScreen.has(m.id)) return [];
+        if (m.deleted) return [m];
+        collapsing.push(m.id);
+        return [{ ...m, deleted: true }];
+      });
+      if (!changed) return;
+      scheduleMessagePersistence();
+      markDirty();
+      if (!collapsing.length) return;
+      /* The flag reaches the screen on the next presentation tick; allow for
+         that plus the full collapse before the row is removed. */
+      const timer = setTimeout(() => {
+        deleteCollapseTimers.delete(timer);
+        dropCollapsedRows(collapsing);
+      }, BURST_PRESENT_INTERVAL_MS + MOD_DELETE_COLLAPSE_MS + 50);
+      deleteCollapseTimers.add(timer);
+    }
+
+    if (kickChannel) {
+      const kick = createKickConnector({
+        channel: kickChannel,
+        onMessage: addMessage,
+        onDelete: o => removeMessages('kick', o),
+        onStatus: (status, detail) => {
+          if (status === 'connected') {
+            settle('kick');
+            if (kickUsageChannel) usageReporter.resolved('kick', kickUsageChannel);
+          }
+          if (status === 'error') { setError(detail ?? 'Kick connection error'); settle('kick'); }
+        },
+        onChannelInfo: async channel => {
+          s.channel = channel;
+          kickUsageChannel = channel.slug;
+          if (!cfg.sevenTVEmotesEnabled && !cfg.sevenTVCosmeticsEnabled) return;
+
+          /* Channel and global sets load together, not one after the other. */
+          const globalLoad = cfg.sevenTVEmotesEnabled ? getSevenTVGlobalEmotes() : null;
+          const {
+            emotes: channelEmotes,
+            setId,
+            stvUserId,
+          } = await getSevenTVChannelEmotes(channel.user_id.toString());
+
+          if (cfg.sevenTVEmotesEnabled) {
+            const global = (await globalLoad) ?? [];
+            const combined = new Map(global.map((emote) => [emote.name, emote]));
+            for (const emote of channelEmotes) combined.set(emote.name, emote);
+            s.emotes.kick = [...combined.values()];
+          }
+
+          if (cfg.sevenTVCosmeticsEnabled || cfg.sevenTVEmotesEnabled) {
+            const eventChannelId = channel.user.id.toString();
+            const connectionId = channel.user_id.toString();
+            const sseUrl = buildSevenTVEventUrl('kick', eventChannelId, stvUserId, setId);
+
+            open7TVEvents(
+              sseUrl,
+              'kick',
+              stvUserId,
+              setId,
+              eventChannelId,
+              async () => {
+                clearSevenTVEmoteSetCache();
+                const latest = await getSevenTVChannelEmotes(connectionId, 'kick', true);
+                if (cfg.sevenTVEmotesEnabled) {
+                  const global = await getSevenTVGlobalEmotes(true);
+                  const combined = new Map(global.map((emote) => [emote.name, emote]));
+                  for (const emote of latest.emotes) combined.set(emote.name, emote);
+                  replacePlatformEmotes('kick', [...combined.values()]);
+                }
+
+                return {
+                  sseUrl: buildSevenTVEventUrl(
+                    'kick',
+                    eventChannelId,
+                    latest.stvUserId,
+                    latest.setId,
+                  ),
+                  stvUserId: latest.stvUserId,
+                  setId: latest.setId,
+                };
+              },
+            );
+          }
+        },
+      });
+      connectors.push(kick);
+    }
+
+    /* ── Twitch (anonymous IRC; 7TV emotes via room-id) ── */
+    if (cfg.twitch) {
+      connectors.push(createTwitchConnector({
+        channel: cfg.twitch,
+        communityBadgeRenderOptions: {
+          slotSizePx: multichatBadgeSlotSizePx(cfg.textSize, cfg.textSizePx),
+          displayScale: window.devicePixelRatio || 1,
+          reducedMotion: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true,
+        },
+        onMessage: addMessage,
+        shouldEnrichSourceChannel: () => sharedChatRuntime,
+        onMessageUpdate: updated => {
+          let touched = false;
+          s.messages = s.messages.map(message => {
+            if (message.id !== `twitch:${updated.id}` || message.platform !== 'twitch' || !message.raw) return message;
+            const raw = message.raw as UnifiedMessage;
+            if (raw.sourceChannel?.roomId !== updated.sourceChannel?.roomId) return message;
+            touched = true;
+            return rebuildParsed(message, updated);
+          });
+          if (touched) {
+            scheduleMessagePersistence();
+            markDirty();
+          }
+        },
+        onDelete: o => removeMessages('twitch', o),
+        onBadgeMap: (badgeMap) => {
+          let touched = false;
+          s.messages = s.messages.map((message) => {
+            if (message.platform !== 'twitch' || !message.raw) return message;
+            const raw = message.raw as UnifiedMessage;
+            const badges = raw.badges.map((badge) => {
+              const version = badge.version ?? (badge.count ? String(badge.count) : '1');
+              const url = badgeMap[`${badge.type}/${version}`] ?? badgeMap[`${badge.type}/1`];
+              return url ? { ...badge, url } : badge;
+            });
+            touched = true;
+            return rebuildParsed(message, { ...raw, badges });
+          });
+          if (touched) {
+            scheduleMessagePersistence();
+            markDirty();
+          }
+
+        },
+        onStatus: (status, detail) => {
+          if (status !== 'connecting') settle('twitch');
+          if (status === 'error' && platformCount === 1) setError(detail ?? 'Twitch connection error');
+        },
+        onRoomId: async roomId => {
+          twitchRoomId = roomId;
+          usageReporter.resolved('twitch', cfg.twitch);
+
+          /* One 7TV channel request (several MB on big channels) serves both
+             the emote catalog and the event subscription below. */
+          const sevenTVChannel = cfg.sevenTVEmotesEnabled || cfg.sevenTVCosmeticsEnabled
+            ? getSevenTVChannelEmotes(roomId, 'twitch')
+            : null;
+
+          if (cfg.sevenTVEmotesEnabled) {
+            // FFZ → BTTV → 7TV (later wins), scoped to Twitch so a same-name
+            // Kick emote can never alter Twitch rendering.
+            s.emotes.twitch = await loadTwitchEmotes(roomId, undefined, false, sevenTVChannel ?? undefined);
+            let touched = false;
+            s.messages = s.messages.map((message) => {
+              if (message.platform !== 'twitch' || message.raw == null) return message;
+              touched = true;
+              return rebuildParsed(message);
+            });
+            if (touched) markDirty();
+          }
+
+          // The 7TV event connection maintains live emote sets and cosmetics independently.
+          if (sevenTVChannel) {
+            const initial = await sevenTVChannel;
+            const sseUrl = buildSevenTVEventUrl(
+              'twitch',
+              roomId,
+              initial.stvUserId,
+              initial.setId,
+            );
+
+            open7TVEvents(
+              sseUrl,
+              'twitch',
+              initial.stvUserId,
+              initial.setId,
+              roomId,
+              async () => {
+                clearSevenTVEmoteSetCache();
+                const latest = await getSevenTVChannelEmotes(roomId, 'twitch', true);
+
+                if (cfg.sevenTVEmotesEnabled) {
+                  replacePlatformEmotes(
+                    'twitch',
+                    await loadTwitchEmotes(roomId, undefined, true, latest),
+                  );
+                }
+
+                return {
+                  sseUrl: buildSevenTVEventUrl(
+                    'twitch',
+                    roomId,
+                    latest.stvUserId,
+                    latest.setId,
+                  ),
+                  stvUserId: latest.stvUserId,
+                  setId: latest.setId,
+                };
+              },
+            );
+          }
+        },
+      }));
+    }
+
+    /* ── YouTube ── */
+    if (cfg.youtube) {
+      connectors.push(createYouTubeConnector({
+        channel: cfg.youtube,
+        onMessage: addMessage,
+        onDelete: o => removeMessages('youtube', o),
+        onChannelInfo: async ({ channelId }) => {
+          youtubeChannelId = channelId;
+          usageReporter.resolved('youtube', cfg.youtube);
+          if (!cfg.sevenTVEmotesEnabled) return;
+          const [{ emotes: channelEmotes }, global] = await Promise.all([
+            getSevenTVChannelEmotes(channelId, 'youtube'),
+            getSevenTVGlobalEmotes(),
+          ]);
+          const combined = new Map(global.map((emote) => [emote.name, emote]));
+          for (const emote of channelEmotes) combined.set(emote.name, emote);
+          s.emotes.youtube = [...combined.values()];
+          let touched = false;
+          s.messages = s.messages.map((message) => {
+            if (message.platform !== 'youtube' || !message.raw) return message;
+            touched = true;
+            return rebuildParsed(message);
+          });
+          if (touched) markDirty();
+        },
+        onStatus: (status, detail) => {
+          if (status !== 'connecting') settle('youtube');
+          if (status === 'error' && platformCount === 1) setError(detail ?? 'YouTube connection error');
+        },
+      }));
+    }
+
+    /* ── TikTok ── */
+    if (cfg.tiktok) {
+      connectors.push(createTikTokConnector({
+        channel: cfg.tiktok,
+        onMessage: addMessage,
+        onDelete: o => removeMessages('tiktok', o),
+        onStatus: (status, detail) => {
+          if (status !== 'connecting') settle('tiktok');
+          if (status === 'connected') usageReporter.resolved('tiktok', cfg.tiktok);
+          if (status === 'error' && platformCount === 1) setError(detail ?? 'TikTok connection error');
+        },
+      }));
+    }
+
+    const floats: { [id: number]: { el: HTMLElement; timer: ReturnType<typeof setTimeout> | null } } = {};
+    function showFloat(id: number, msg: string, timeoutMs = 5000, alpha = 0.3) {
+      removeFloat(id);
+      const el = document.createElement('pre');
+      el.style.cssText = [
+        'position:fixed','left:50%','bottom:1%','max-width:99%','white-space:pre-wrap',
+        'margin:0','padding:2px',`background:rgba(0,0,0,${alpha})`,'color:#fff',
+        'font-weight:800','font-size:18px','z-index:9999','transform:translate(-50%,0)',
+        'pointer-events:none','font-family:inherit',
+      ].join(';');
+      el.textContent = msg;
+      document.body.appendChild(el);
+      floats[id] = { el, timer: timeoutMs > 0 ? setTimeout(() => removeFloat(id), timeoutMs) : null };
+    }
+    function removeFloat(id: number) {
+      if (floats[id]) {
+        if (floats[id].timer) clearTimeout(floats[id].timer!);
+        floats[id].el.remove();
+        delete floats[id];
+      }
+    }
+    function removeAllFloats() { Object.keys(floats).forEach(id => removeFloat(Number(id))); }
+
+    function setChatVisible(v: boolean) {
+      const el = document.getElementById('chat_container');
+      if (el) el.style.display = v ? '' : 'none';
+    }
+
+    /* ── !multichat commands ──
+       The dispatcher is lib/multichatCommandRuntime: platform-neutral, and driven
+       in tests through the real connectors. Everything platform-specific or
+       effect-local is supplied here as the host.
+
+       Audio and speech are tracked so `stop`, a further `tts`, and unmount can all
+       silence them. Previously each `tts` created an Audio nobody held a reference
+       to, so two commands talked over each other and neither stopped. */
+    let activeAudio: HTMLAudioElement | null = null;
+    let activeAudioUrl = '';
+
+    function stopSpeaking() {
+      if (activeAudio) {
+        activeAudio.pause();
+        activeAudio.src = '';
+        activeAudio = null;
+      }
+      if (activeAudioUrl) {
+        URL.revokeObjectURL(activeAudioUrl);
+        activeAudioUrl = '';
+      }
+      window.speechSynthesis?.cancel();
+    }
+    cleanups.push(stopSpeaking);
+
+    /** Browser voice, used when the server proxy fails. */
+    function speakFallback(t: string) {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      const utt = new SpeechSynthesisUtterance(t);
+      utt.volume = 1.0;
+      const go = () => {
+        const voices = window.speechSynthesis.getVoices();
+        const v = voices.find(v => v.name === 'Google UK English Male')
+          || voices.find(v => v.lang === 'en-GB')
+          || voices.find(v => v.lang.startsWith('en')) || null;
+        if (v) utt.voice = v;
+        window.speechSynthesis.speak(utt);
+      };
+      window.speechSynthesis.getVoices().length
+        ? go()
+        : window.speechSynthesis.addEventListener('voiceschanged', go, { once: true });
+    }
+
+    const commandRunner = createMultichatCommandRunner({
+      channels: {
+        kick: kickChannel,
+        twitch: cfg.twitch ?? '',
+        youtube: cfg.youtube ?? '',
+        tiktok: cfg.tiktok ?? '',
+      },
+      getBroadcasterId: platform => (
+        platform === 'youtube' ? youtubeChannelId ?? undefined : undefined
+      ),
+      showFloat,
+      removeFloat,
+      removeAllFloats,
+      clearChatMessages: clearOrdinaryChatMessages,
+      setChatPresentationPaused(paused) {
+        if (paused) pauseChatPresentation();
+        else resumeChatPresentation();
+      },
+      toggleChatPresentationPaused: toggleChatPresentation,
+      mountFloat(slot, el, timeoutMs) {
+        removeFloat(slot);
+        document.body.appendChild(el);
+        floats[slot] = { el, timer: setTimeout(() => removeFloat(slot), timeoutMs) };
+      },
+      createElement: (tag) => document.createElement(tag),
+      setChatVisible,
+      setPlatformChatVisible,
+      setSharedChatVisible,
+      setCounterBackground(visible) {
+        publishCounterBackgroundControl({
+          kick: kickChannel,
+          twitch: cfg.twitch ?? '',
+          youtube: cfg.youtube ?? '',
+          tiktok: cfg.tiktok ?? '',
+        }, visible);
+      },
+      reload: () => window.location.reload(),
+      async refreshEmotes() {
+        // A manual refresh means "go get the current sets now", so drop the
+        // by-id cache first — otherwise a set fetched under the TTL would be
+        // served from memory and the command would be a silent no-op.
+        clearSevenTVEmoteSetCache();
+        clearTwitchEmoteResourceCache();
+        const global = await getSevenTVGlobalEmotes(true);
+        const ch = s.channel;
+        const kick = new Map(global.map((emote) => [emote.name, emote]));
+        if (ch) {
+          const latest = await getSevenTVChannelEmotes(ch.user_id.toString(), 'kick', true);
+          for (const emote of latest.emotes) kick.set(emote.name, emote);
+        }
+        const twitch = twitchRoomId
+          ? await loadTwitchEmotes(twitchRoomId, undefined, true)
+          : [];
+        const youtube = new Map(global.map((emote) => [emote.name, emote]));
+        if (youtubeChannelId) {
+          const latest = await getSevenTVChannelEmotes(youtubeChannelId, 'youtube', true);
+          for (const emote of latest.emotes) youtube.set(emote.name, emote);
+        }
+        // Commit a complete refresh only after all required fetches succeed.
+        s.emotes = { kick: [...kick.values()], twitch, youtube: [...youtube.values()] };
+        s.messages = s.messages.map((message) => rebuildParsed(message));
+        markDirty();
+      },
+      findEmoteUrl: (name) => {
+        if (!name) return null;
+        return s.emotes.kick.find((emote) => emote.name === name)?.image
+          ?? s.emotes.twitch.find((emote) => emote.name === name)?.image
+          ?? s.emotes.youtube.find((emote) => emote.name === name)?.image
+          ?? null;
+      },
+      speak(t) {
+        stopSpeaking();
+        fetch(`/api/tts?voice=Brian&text=${encodeURIComponent(t)}`)
+          .then(r => { if (!r.ok) throw new Error('proxy failed'); return r.blob(); })
+          .then(blob => {
+            const url = URL.createObjectURL(blob);
+            const audio = new Audio(url);
+            audio.volume = 1.0;
+            activeAudio = audio;
+            activeAudioUrl = url;
+            audio.addEventListener('canplaythrough', () => audio.play().catch(() => {}));
+            audio.addEventListener('ended', () => {
+              if (activeAudio === audio) stopSpeaking();
+            });
+            audio.load();
+          })
+          .catch(() => speakFallback(t));
+      },
+      stopSpeaking,
+      readReloadStamp() {
+        const raw = window.sessionStorage?.getItem(RELOAD_STAMP_KEY);
+        const at = raw === null || raw === undefined ? NaN : Number(raw);
+        return Number.isFinite(at) ? at : null;
+      },
+      writeReloadStamp(at) {
+        try { window.sessionStorage?.setItem(RELOAD_STAMP_KEY, String(at)); }
+        catch { /* private mode: the cooldown degrades, the command still works */ }
+      },
+      now: () => Date.now(),
+    });
+
+    function handleCommand(um: UnifiedMessage) {
+      return commandRunner.handle(um);
+    }
+
+    /* A command sent from Owner tools for this channel: run it exactly as if
+       the streamer had typed it in chat. */
+    let ownerCommandCount = 0;
+    function runOwnerCommand(text: string) {
+      ownerCommandCount += 1;
+      handleCommand({
+        platform: shownChannels[0]?.platform ?? 'twitch',
+        id: `flosschat-owner-${Date.now()}-${ownerCommandCount}`,
+        senderId: 'flosschat-owner',
+        username: 'FlossChat',
+        color: '',
+        badges: [{ type: 'broadcaster' }],
+        text: `!flosschat ${text}`,
+        emotes: [],
+        timestamp: Date.now(),
+        kind: 'chat',
+      });
+    }
+
+    /** Everything on screen or in the speakers, gone on unmount. */
+    cleanups.push(removeAllFloats);
+
+    /* Owner's "refresh all overlays" / "refresh one channel": reload the
+       moment the server says so (see lib/overlayRefreshWatcher). */
+    const shownChannels: OverlayChannel[] = [
+      { platform: 'kick' as const, channel: kickChannel },
+      { platform: 'twitch' as const, channel: cfg.twitch ?? '' },
+      { platform: 'youtube' as const, channel: cfg.youtube ?? '' },
+      { platform: 'tiktok' as const, channel: cfg.tiktok ?? '' },
+    ].filter((shown) => Boolean(shown.channel));
+    cleanups.push(startOverlayRefreshWatcher({
+      channels: () => shownChannels,
+      onRefresh: () => window.location.reload(),
+      onCommand: runOwnerCommand,
+    }));
+
+    
+    function handle7TVDispatch(data: any, platform: 'kick' | 'twitch') {
+      if (!data || typeof data !== 'object' || Array.isArray(data)) return;
+      const eventObject = data?.body && typeof data.body.object === 'object'
+        && data.body.object !== null && !Array.isArray(data.body.object)
+        ? data.body.object
+        : null;
+      if (data.type === 'cosmetic.create') {
+        if (!eventObject) return;
+        // cosmetic id lives on body.object.id (body.id is the event id —
+        // storing that orphaned every entitlement lookup)
+        const obj = eventObject;
+        const id = obj?.id ?? data.body.id;
+        if (obj.kind === 'BADGE') {
+          const badge = createSevenTVBadgeFromEvent(id, obj.data?.host?.url);
+          if (badge) s.badges.push(badge);
+        }
+        if (obj.kind === 'PAINT') {
+          const d = obj.data;
+          const paint = parseSevenTVPaint({ ...d, id });
+          if (paint) s.paints.push(paint);
+        }
+      }
+      if (data.type === 'entitlement.create') {
+        if (!eventObject) return;
+        const kind = eventObject.kind;
+
+        // Personal emote sets are tracked separately; they must never be
+        // stored as badge/paint refs (that clobbered every real paint ref).
+        if (kind === 'EMOTE_SET') {
+          if (cfg.sevenTVEmotesEnabled) rebuildSenders(personalEmoteStore.entitlement(true, eventObject, platform));
+          return;
+        }
+        if (kind !== 'BADGE' && kind !== 'PAINT') return;
+        const plat = platform === 'kick' ? 'KICK' : 'TWITCH';
+        for (const conn of (eventObject.user?.connections ?? [])) {
+          if (conn.platform === plat) {
+            s.entitlements[`${platform}:${conn.id}`] = {
+              ...s.entitlements[`${platform}:${conn.id}`],
+              [kind === 'BADGE' ? 'badge' : 'paint']: eventObject.ref_id,
+            };
+          }
+        }
+      }
+      if (data.type === 'entitlement.delete') {
+        if (!eventObject) return;
+        const kind = eventObject.kind;
+        if (kind === 'EMOTE_SET') {
+          if (cfg.sevenTVEmotesEnabled) rebuildSenders(personalEmoteStore.entitlement(false, eventObject, platform));
+          return;
+        }
+        if (kind !== 'BADGE' && kind !== 'PAINT') return;
+        const plat = platform === 'kick' ? 'KICK' : 'TWITCH';
+        for (const conn of (eventObject.user?.connections ?? [])) {
+          if (conn.platform === plat) {
+            const key = kind === 'BADGE' ? 'badge' : 'paint';
+            if (s.entitlements[`${platform}:${conn.id}`]?.[key] === eventObject.ref_id) {
+              s.entitlements[`${platform}:${conn.id}`] = { ...s.entitlements[`${platform}:${conn.id}`], [key]: undefined };
+            }
+          }
+        }
+      }
+      if (data.type === 'cosmetic.delete') {
+        const obj = eventObject;
+        if (obj?.kind === 'BADGE') s.badges = s.badges.filter(b => b.id !== obj.id);
+        if (obj?.kind === 'PAINT') s.paints = s.paints.filter(p => p.id !== obj.id);
+      }
+
+
+    }
+
+    
+    function open7TVEvents(
+      initialUrl: string,
+      platform: 'kick' | 'twitch',
+      initialStvUserId: string | null,
+      initialSetId: string | null,
+      channelId: string,
+      refreshState: () => Promise<{ sseUrl: string; stvUserId: string | null; setId: string | null }>,
+    ) {
+      let sseUrl = initialUrl;
+      let stvUserId = initialStvUserId;
+      let activeSetId = initialSetId;
+      let sse = new EventSource(sseUrl);
+      let closed = false;
+      let reconnecting = false;
+
+      const reconnectWithAuthoritativeState = async () => {
+        if (closed || reconnecting) return;
+        reconnecting = true;
+
+        try {
+          const next = await refreshState();
+          if (next?.sseUrl) sseUrl = next.sseUrl;
+          stvUserId = next?.stvUserId ?? null;
+          activeSetId = next?.setId ?? null;
+        } catch {
+          // Keep the last known subscription URL when the provider is transiently unavailable.
+        }
+
+        if (!closed) {
+          sse.close();
+          sse = new EventSource(sseUrl);
+          attach();
+        }
+
+        reconnecting = false;
+      };
+
+      let catalogRefreshRunning = false;
+      let catalogRefreshNeeded = false;
+      const refreshCatalogFromActiveSet = async () => {
+        catalogRefreshNeeded = true;
+        if (catalogRefreshRunning) return;
+        catalogRefreshRunning = true;
+        try {
+          while (!closed && catalogRefreshNeeded) {
+            catalogRefreshNeeded = false;
+            try {
+              const next = await refreshState();
+              if (next) activeSetId = next.setId ?? null;
+            } catch { /* Retain the last complete catalog. */ }
+          }
+        } finally {
+          catalogRefreshRunning = false;
+        }
+      };
+
+      const onDispatch = (e: MessageEvent) => {
+        try {
+          const data = JSON.parse(e.data);
+          const route = routeSevenTVDispatch(data, { activeSetId, stvUserId });
+          if (route === 'channel-set') {
+            void refreshCatalogFromActiveSet();
+            return;
+          }
+          if (route === 'personal-set') {
+            if (!cfg.sevenTVEmotesEnabled) return;
+            if (data.type === 'emote_set.create') rebuildSenders(personalEmoteStore.createSet(data.body));
+            else if (data.type === 'emote_set.update') rebuildSenders(personalEmoteStore.updateSet(data.body));
+            else if (data.type === 'emote_set.delete') rebuildSenders(personalEmoteStore.deleteSet(data.body));
+            return;
+          }
+          handle7TVDispatch(data, platform);
+
+          // A user update can switch the broadcaster's active emote set.
+          // Re-resolve the connection and rebuild the subscription so the old
+          // set cannot remain active in this overlay session.
+          if (route === 'broadcaster-user') {
+            void reconnectWithAuthoritativeState();
+          }
+        } catch { /* malformed provider events are ignored locally */ }
+      };
+
+      const onHello = (e: MessageEvent) => {
+        if (!stvUserId) return;
+        try {
+          const sessionId = JSON.parse(e.data)?.session_id;
+          if (!sessionId) return;
+          fetch(`https://7tv.io/v3/users/${stvUserId}/presences`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              kind: 1,
+              passive: true,
+              session_id: sessionId,
+              data: { platform: platform.toUpperCase(), id: channelId },
+            }),
+          }).catch(() => { /* cosmetics degrade to delta-only */ });
+        } catch { /* malformed hello */ }
+      };
+
+      const attach = () => {
+        sse.addEventListener('dispatch', onDispatch);
+        sse.addEventListener('hello', onHello);
+        sse.onerror = () => {
+          sse.close();
+          if (closed) return;
+
+          setTimeout(() => {
+            if (closed) return;
+            void reconnectWithAuthoritativeState();
+          }, 3000);
+        };
+      };
+
+      attach();
+      cleanups.push(() => { closed = true; sse.close(); });
+    }
+
+    connectors.forEach(c => c.start());
+
+    if (cfg.twitch) {
+      cleanups.push(
+        startTwitchHypeTrainPoller({
+          channel: cfg.twitch,
+          onEvent:
+            upsertHypeTrainEvent,
+        }),
+      );
+    }
+
+    if (cfg.fade !== false) {
+      fadeScheduler = createMessageFadeScheduler({
+        /* Screen order (oldest first); rows that have not been shown yet are
+           not on screen, so they cannot be the one to fade next. */
+        getMessages: () => {
+          const onScreen = new Set(presentedMessagesRef.current.map((message) => message.id));
+          return s.messages
+            .filter((message) => message.category !== 'hypetrain' && onScreen.has(message.id))
+            .map((message) => ({ id: message.id, timestamp: message.timestamp, shownAt: shownAtById.get(message.id) }));
+        },
+        fadeMs: (cfg.fade as number) * 1000,
+        onFadingChange: setFadingIds,
+        onRemove: (id) => {
+          shownAtById.delete(id);
+          s.messages = s.messages.filter((message) => message.id !== id);
+          scheduleMessagePersistence();
+          markDirty(); // removal uses the active flush policy
+        },
+      });
+      // A connector may synchronously seed messages during start(). Arm the
+      // first deadline once here even when addMessage ran before the scheduler
+      // existed; later arrivals call wake() themselves.
+      fadeScheduler.wake();
+    }
+
+    return () => {
+      if (loaderMinimumTimer) clearTimeout(loaderMinimumTimer);
+      if (loaderFadeTimer) clearTimeout(loaderFadeTimer);
+      if (loaderMaximumTimer) clearTimeout(loaderMaximumTimer);
+      if (flushInterval) clearInterval(flushInterval);
+      if (flushFrame !== null) cancelAnimationFrame(flushFrame);
+      stopBurstPresentationTicker();
+      fadeScheduler?.stop();
+      connectors.forEach(c => c.stop());
+      cleanups.forEach(fn => fn());
+    };
+  }, [router.isReady]);
+
+  if (!ready) return null;
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-black text-white p-8">
+        <div className="text-center max-w-md">
+          <div className="text-4xl mb-4">⚠️</div>
+          <h1 className="text-xl font-bold mb-2">Connection Error</h1>
+          <p className="text-gray-300">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!config) return null;
+
+  return (
+    <>
+      <Head>
+        <title>FlossChat</title>
+      </Head>
+      <SunsetBanner variant="overlay" />
+      <ChatOverlay
+        config={config}
+        messages={messages}
+        fadingIds={fadingIds}
+        showLoader={loaderPhase}
+        sharedChatEnabled={sharedChatEnabled}
+        /* The parser defaults sourceTag to 'icon', so only the raw query can say
+           whether the user actually asked for a mode. */
+        sourceTagExplicit={router.query.sourceTag !== undefined}
+      />
+    </>
+  );
+}
