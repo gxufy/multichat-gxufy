@@ -1,0 +1,691 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`/api/auth/logout > answers as a GET 1`] = `
+{
+  "body": "{"error":"Method not allowed."}",
+  "cookies": [],
+  "headers": {
+    "allow": "POST",
+    "cache-control": "private, no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""q7enjxdx0kv"",
+  },
+  "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+  "status": 405,
+}
+`;
+
+exports[`/api/auth/logout > answers from another site 1`] = `
+{
+  "body": "{"error":"Forbidden."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""j2wskt68ihm"",
+  },
+  "sha256": "71b94782dbdc7e128da28a8fca4409cb51bb589733b993ab14f9b1a88b829557",
+  "status": 403,
+}
+`;
+
+exports[`/api/auth/logout > answers from gxufy.com 1`] = `
+{
+  "body": "",
+  "cookies": [
+    "__Host-fc_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 204,
+}
+`;
+
+exports[`/api/auth/logout > answers from our own page 1`] = `
+{
+  "body": "",
+  "cookies": [
+    "__Host-fc_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 204,
+}
+`;
+
+exports[`/api/auth/logout > answers with no Origin 1`] = `
+{
+  "body": "{"error":"Forbidden."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""j2wskt68ihm"",
+  },
+  "sha256": "71b94782dbdc7e128da28a8fca4409cb51bb589733b993ab14f9b1a88b829557",
+  "status": 403,
+}
+`;
+
+exports[`/api/auth/me > answers a cookie with a changed signature 1`] = `
+{
+  "body": "{"signInReady":true,"user":null,"badges":[]}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "44",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""e620psfi4w18"",
+  },
+  "sha256": "d159c5a1ec78e85ff3b8d365ce1f28e03f16a14d9dba243595f7bc2c4690cc60",
+  "status": 200,
+}
+`;
+
+exports[`/api/auth/me > answers a viewer holding no badge 1`] = `
+{
+  "body": "{"signInReady":true,"user":{"id":"12345","login":"someviewer","displayName":"SomeViewer"},"badges":[],"standing":{"owner":false,"tier":null,"founder":false,"prices":{"supporter":500,"suvy":1000,"top-suvy":2000}}}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "212",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""10ou3lo89fd5w"",
+  },
+  "sha256": "cd5d91c4820431cddeeee5e7498b0e193b52ab52d7ae8c9887ac7102fabe655d",
+  "status": 200,
+}
+`;
+
+exports[`/api/auth/me > answers an expired session 1`] = `
+{
+  "body": "{"signInReady":true,"user":null,"badges":[]}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "44",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""e620psfi4w18"",
+  },
+  "sha256": "d159c5a1ec78e85ff3b8d365ce1f28e03f16a14d9dba243595f7bc2c4690cc60",
+  "status": 200,
+}
+`;
+
+exports[`/api/auth/me > answers signed out 1`] = `
+{
+  "body": "{"signInReady":true,"user":null,"badges":[]}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "44",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""e620psfi4w18"",
+  },
+  "sha256": "d159c5a1ec78e85ff3b8d365ce1f28e03f16a14d9dba243595f7bc2c4690cc60",
+  "status": 200,
+}
+`;
+
+exports[`/api/auth/me > answers the owner, signed in 1`] = `
+{
+  "body": "{"signInReady":true,"user":{"id":"204219574","login":"gxufy","displayName":"Gxufy"},"badges":[{"id":"owner","title":"Owner","url":"/badges/gxufy/owner-hand.webp","owned":true,"worn":true},{"id":"founder","title":"Founder","url":"/badges/gxufy/founder-hand.webp","owned":true,"worn":false},{"id":"top-suvy","title":"Top Suvy","url":"/badges/gxufy/top-suvy-hand.webp","owned":true,"worn":false},{"id":"suvy","title":"Suvy","url":"/badges/gxufy/suvy-hand.webp","owned":true,"worn":false},{"id":"supporter","title":"Sanctioned","url":"/badges/gxufy/supporter-hand.webp","owned":true,"worn":false}],"standing":{"owner":true,"tier":"top-suvy","founder":true,"prices":{"supporter":null,"suvy":null,"top-suvy":null}},"owner":true}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "722",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""13myt70qyvgk2"",
+  },
+  "sha256": "daab3ab73bc545fed5cb4a3063de0ff93a1e1e88a2b774a6298e812f38397826",
+  "status": 200,
+}
+`;
+
+exports[`/api/auth/me > answers the session among other cookies 1`] = `
+{
+  "body": "{"signInReady":true,"user":{"id":"12345","login":"someviewer","displayName":"SomeViewer"},"badges":[],"standing":{"owner":false,"tier":null,"founder":false,"prices":{"supporter":500,"suvy":1000,"top-suvy":2000}}}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "212",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""10ou3lo89fd5w"",
+  },
+  "sha256": "cd5d91c4820431cddeeee5e7498b0e193b52ab52d7ae8c9887ac7102fabe655d",
+  "status": 200,
+}
+`;
+
+exports[`/api/auth/me > is off (404) without a session key 1`] = `
+{
+  "body": "{"error":"Not found."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""7rxkpsxxpxm"",
+  },
+  "sha256": "58e46b31fc6d69e3ecdb843eeff8bac8d49c9a70cdac583c73986a8a4fb5d1b0",
+  "status": 404,
+}
+`;
+
+exports[`/api/auth/me > refuses DELETE 1`] = `
+{
+  "body": "{"error":"Method not allowed."}",
+  "cookies": [],
+  "headers": {
+    "allow": "GET",
+    "cache-control": "private, no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""q7enjxdx0kv"",
+  },
+  "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+  "status": 405,
+}
+`;
+
+exports[`/api/auth/me > refuses HEAD 1`] = `
+{
+  "body": "",
+  "cookies": [],
+  "headers": {
+    "allow": "GET",
+    "cache-control": "private, no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""q7enjxdx0kv"",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 405,
+}
+`;
+
+exports[`/api/auth/me > refuses POST 1`] = `
+{
+  "body": "{"error":"Method not allowed."}",
+  "cookies": [],
+  "headers": {
+    "allow": "GET",
+    "cache-control": "private, no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""q7enjxdx0kv"",
+  },
+  "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+  "status": 405,
+}
+`;
+
+exports[`/api/auth/twitch/login > is off (404) without the Twitch app keys 1`] = `
+{
+  "body": "{"error":"Not found."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""7rxkpsxxpxm"",
+  },
+  "sha256": "58e46b31fc6d69e3ecdb843eeff8bac8d49c9a70cdac583c73986a8a4fb5d1b0",
+  "status": 404,
+}
+`;
+
+exports[`/api/auth/twitch/login > keeps only same-site return paths 1`] = `
+{
+  "body": "https://id.twitch.tv/oauth2/authorize?client_id=parity-client-id&redirect_uri=https%3A%2F%2Fflosschat.app%2Fapi%2Ftwitch%2Foauth%2Fcallback&response_type=code&scope=&state=STATE",
+  "cookies": [
+    "__Host-fc_oauth=TOKEN; Path=/; HttpOnly; SameSite=Lax; Max-Age=600; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "204",
+    "location": "https://id.twitch.tv/oauth2/authorize?client_id=parity-client-id&redirect_uri=https%3A%2F%2Fflosschat.app%2Fapi%2Ftwitch%2Foauth%2Fcallback&response_type=code&scope=&state=STATE",
+  },
+  "sha256": "",
+  "status": 302,
+}
+`;
+
+exports[`/api/auth/twitch/login > keeps only same-site return paths 2`] = `
+{
+  "body": "https://id.twitch.tv/oauth2/authorize?client_id=parity-client-id&redirect_uri=https%3A%2F%2Fflosschat.app%2Fapi%2Ftwitch%2Foauth%2Fcallback&response_type=code&scope=&state=STATE",
+  "cookies": [
+    "__Host-fc_oauth=TOKEN; Path=/; HttpOnly; SameSite=Lax; Max-Age=600; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "204",
+    "location": "https://id.twitch.tv/oauth2/authorize?client_id=parity-client-id&redirect_uri=https%3A%2F%2Fflosschat.app%2Fapi%2Ftwitch%2Foauth%2Fcallback&response_type=code&scope=&state=STATE",
+  },
+  "sha256": "",
+  "status": 302,
+}
+`;
+
+exports[`/api/auth/twitch/login > keeps only same-site return paths 3`] = `
+{
+  "body": "https://id.twitch.tv/oauth2/authorize?client_id=parity-client-id&redirect_uri=https%3A%2F%2Fflosschat.app%2Fapi%2Ftwitch%2Foauth%2Fcallback&response_type=code&scope=&state=STATE",
+  "cookies": [
+    "__Host-fc_oauth=TOKEN; Path=/; HttpOnly; SameSite=Lax; Max-Age=600; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "204",
+    "location": "https://id.twitch.tv/oauth2/authorize?client_id=parity-client-id&redirect_uri=https%3A%2F%2Fflosschat.app%2Fapi%2Ftwitch%2Foauth%2Fcallback&response_type=code&scope=&state=STATE",
+  },
+  "sha256": "",
+  "status": 302,
+}
+`;
+
+exports[`/api/auth/twitch/login > keeps only same-site return paths 4`] = `
+{
+  "body": "https://id.twitch.tv/oauth2/authorize?client_id=parity-client-id&redirect_uri=https%3A%2F%2Fflosschat.app%2Fapi%2Ftwitch%2Foauth%2Fcallback&response_type=code&scope=&state=STATE",
+  "cookies": [
+    "__Host-fc_oauth=TOKEN; Path=/; HttpOnly; SameSite=Lax; Max-Age=600; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "204",
+    "location": "https://id.twitch.tv/oauth2/authorize?client_id=parity-client-id&redirect_uri=https%3A%2F%2Fflosschat.app%2Fapi%2Ftwitch%2Foauth%2Fcallback&response_type=code&scope=&state=STATE",
+  },
+  "sha256": "",
+  "status": 302,
+}
+`;
+
+exports[`/api/auth/twitch/login > refuses POST 1`] = `
+{
+  "body": "{"error":"Method not allowed."}",
+  "cookies": [],
+  "headers": {
+    "allow": "GET",
+    "cache-control": "private, no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""q7enjxdx0kv"",
+  },
+  "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+  "status": 405,
+}
+`;
+
+exports[`/api/auth/twitch/login > sends the visitor to Twitch with a state cookie 1`] = `
+{
+  "body": "https://id.twitch.tv/oauth2/authorize?client_id=parity-client-id&redirect_uri=https%3A%2F%2Fflosschat.app%2Fapi%2Ftwitch%2Foauth%2Fcallback&response_type=code&scope=&state=STATE",
+  "cookies": [
+    "__Host-fc_oauth=TOKEN; Path=/; HttpOnly; SameSite=Lax; Max-Age=600; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "204",
+    "location": "https://id.twitch.tv/oauth2/authorize?client_id=parity-client-id&redirect_uri=https%3A%2F%2Fflosschat.app%2Fapi%2Ftwitch%2Foauth%2Fcallback&response_type=code&scope=&state=STATE",
+  },
+  "sha256": "",
+  "status": 302,
+}
+`;
+
+exports[`/api/auth/twitch/login > starts over on flosschat.app from gxufy.com, 1`] = `
+{
+  "body": "https://flosschat.app/api/auth/twitch/login?next=%2Fsupport",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "59",
+    "location": "https://flosschat.app/api/auth/twitch/login?next=%2Fsupport",
+  },
+  "sha256": "048a0765fc1d7b16f6fc1d3de55d4ef1d9026e8d3b28a1bb4e8a8112ecf405f3",
+  "status": 302,
+}
+`;
+
+exports[`/api/auth/twitch/login > starts over on flosschat.app from multichat-gxufy.com, 1`] = `
+{
+  "body": "https://flosschat.app/api/auth/twitch/login?next=%2Fsupport",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "59",
+    "location": "https://flosschat.app/api/auth/twitch/login?next=%2Fsupport",
+  },
+  "sha256": "048a0765fc1d7b16f6fc1d3de55d4ef1d9026e8d3b28a1bb4e8a8112ecf405f3",
+  "status": 302,
+}
+`;
+
+exports[`/api/auth/twitch/login > starts over on flosschat.app from www.flosschat.app, 1`] = `
+{
+  "body": "https://flosschat.app/api/auth/twitch/login?next=%2Fsupport",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "59",
+    "location": "https://flosschat.app/api/auth/twitch/login?next=%2Fsupport",
+  },
+  "sha256": "048a0765fc1d7b16f6fc1d3de55d4ef1d9026e8d3b28a1bb4e8a8112ecf405f3",
+  "status": 302,
+}
+`;
+
+exports[`/api/badges/wear > answers a GET 1`] = `
+{
+  "body": "{"error":"Method not allowed."}",
+  "cookies": [],
+  "headers": {
+    "allow": "POST",
+    "cache-control": "private, no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""q7enjxdx0kv"",
+  },
+  "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+  "status": 405,
+}
+`;
+
+exports[`/api/badges/wear > answers a body that is not JSON 1`] = `
+{
+  "body": "Invalid JSON",
+  "cookies": [],
+  "headers": {
+    "content-length": "12",
+  },
+  "sha256": "f60c824125e6408ed711d8980a8b063a7c921b1ffc29bf0e224afd6043d56514",
+  "status": 400,
+}
+`;
+
+exports[`/api/badges/wear > answers a viewer wearing a badge they do not hold 1`] = `
+{
+  "body": "{"error":"You do not own this badge."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "38",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""107ap67ya1g12"",
+  },
+  "sha256": "49fdba95631640140f331f184acb7e57061e8786033dba2231cb16dc99b1a3c3",
+  "status": 403,
+}
+`;
+
+exports[`/api/badges/wear > answers an unknown badge 1`] = `
+{
+  "body": "{"error":"Unknown badge."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "26",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""n5s98vlgi7q"",
+  },
+  "sha256": "f7acaebba9b045898460f57417ceaacf0ec22c38979ac571be8cbdaf99b1a913",
+  "status": 400,
+}
+`;
+
+exports[`/api/badges/wear > answers another site 1`] = `
+{
+  "body": "{"error":"Forbidden."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""j2wskt68ihm"",
+  },
+  "sha256": "71b94782dbdc7e128da28a8fca4409cb51bb589733b993ab14f9b1a88b829557",
+  "status": 403,
+}
+`;
+
+exports[`/api/badges/wear > answers no Origin 1`] = `
+{
+  "body": "{"error":"Forbidden."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""j2wskt68ihm"",
+  },
+  "sha256": "71b94782dbdc7e128da28a8fca4409cb51bb589733b993ab14f9b1a88b829557",
+  "status": 403,
+}
+`;
+
+exports[`/api/badges/wear > answers no session 1`] = `
+{
+  "body": "{"error":"Sign in again."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "26",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""12wn6p6apn4q"",
+  },
+  "sha256": "f0dc96cbc8c7942b6b919251af73a8174051e4fbcab38085a2afdd50e414beae",
+  "status": 401,
+}
+`;
+
+exports[`/api/badges/wear > answers the owner taking it off 1`] = `
+{
+  "body": "{"worn":false,"badgeId":"owner"}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "32",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""kn1dnx1wo2w"",
+  },
+  "sha256": "6ef1db02603f4efb8eb0e080416b29c31408ebf1e8e1bfe4dea685e0ecfdafb6",
+  "status": 200,
+}
+`;
+
+exports[`/api/badges/wear > answers the owner wearing the Owner badge 1`] = `
+{
+  "body": "{"worn":true,"badgeId":"owner"}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""w4x2dm3jlqv"",
+  },
+  "sha256": "15822b9aa914b7ab7f9ec8b37aebbc7376346fcc474caaaa0040da1efd49eeab",
+  "status": 200,
+}
+`;
+
+exports[`/api/twitch/oauth/callback > refuses POST 1`] = `
+{
+  "body": "{"error":"Method not allowed."}",
+  "cookies": [],
+  "headers": {
+    "allow": "GET",
+    "cache-control": "private, no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""q7enjxdx0kv"",
+  },
+  "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+  "status": 405,
+}
+`;
+
+exports[`/api/twitch/oauth/callback > sends the visitor back on Twitch not answering, 1`] = `
+{
+  "body": "/support?tier=x&signin=failed",
+  "cookies": [
+    "__Host-fc_oauth=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "29",
+    "location": "/support?tier=x&signin=failed",
+  },
+  "sha256": "9262fc6613cb889d23aac7e50630543995c4074e3d077c5feb1867f11bfb73b1",
+  "status": 302,
+}
+`;
+
+exports[`/api/twitch/oauth/callback > sends the visitor back on Twitch refusing the code, 1`] = `
+{
+  "body": "/support?tier=x&signin=failed",
+  "cookies": [
+    "__Host-fc_oauth=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "29",
+    "location": "/support?tier=x&signin=failed",
+  },
+  "sha256": "9262fc6613cb889d23aac7e50630543995c4074e3d077c5feb1867f11bfb73b1",
+  "status": 302,
+}
+`;
+
+exports[`/api/twitch/oauth/callback > sends the visitor back on a malformed code, 1`] = `
+{
+  "body": "/support?signin=failed",
+  "cookies": [
+    "__Host-fc_oauth=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "22",
+    "location": "/support?signin=failed",
+  },
+  "sha256": "21f5a8aadb3b7cdfa4a4c377810617ead24797c2015962d1090e7c79fe858c55",
+  "status": 302,
+}
+`;
+
+exports[`/api/twitch/oauth/callback > sends the visitor back on a state cookie with a changed signature, 1`] = `
+{
+  "body": "/badges?signin=failed",
+  "cookies": [
+    "__Host-fc_oauth=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "21",
+    "location": "/badges?signin=failed",
+  },
+  "sha256": "30d475af3cd6cbe1e8d06c3500c7b2964594aedbaee907ef6ceaf27b99562641",
+  "status": 302,
+}
+`;
+
+exports[`/api/twitch/oauth/callback > sends the visitor back on a state that does not match, 1`] = `
+{
+  "body": "/badges?signin=failed",
+  "cookies": [
+    "__Host-fc_oauth=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "21",
+    "location": "/badges?signin=failed",
+  },
+  "sha256": "30d475af3cd6cbe1e8d06c3500c7b2964594aedbaee907ef6ceaf27b99562641",
+  "status": 302,
+}
+`;
+
+exports[`/api/twitch/oauth/callback > sends the visitor back on an expired state, 1`] = `
+{
+  "body": "/badges?signin=failed",
+  "cookies": [
+    "__Host-fc_oauth=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "21",
+    "location": "/badges?signin=failed",
+  },
+  "sha256": "30d475af3cd6cbe1e8d06c3500c7b2964594aedbaee907ef6ceaf27b99562641",
+  "status": 302,
+}
+`;
+
+exports[`/api/twitch/oauth/callback > sends the visitor back on an unexpected user answer, 1`] = `
+{
+  "body": "/support?tier=x&signin=failed",
+  "cookies": [
+    "__Host-fc_oauth=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "29",
+    "location": "/support?tier=x&signin=failed",
+  },
+  "sha256": "9262fc6613cb889d23aac7e50630543995c4074e3d077c5feb1867f11bfb73b1",
+  "status": 302,
+}
+`;
+
+exports[`/api/twitch/oauth/callback > sends the visitor back on no state cookie, 1`] = `
+{
+  "body": "/badges?signin=failed",
+  "cookies": [
+    "__Host-fc_oauth=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "21",
+    "location": "/badges?signin=failed",
+  },
+  "sha256": "30d475af3cd6cbe1e8d06c3500c7b2964594aedbaee907ef6ceaf27b99562641",
+  "status": 302,
+}
+`;
+
+exports[`/api/twitch/oauth/callback > sends the visitor back on the visitor cancelling on Twitch, 1`] = `
+{
+  "body": "/support?signin=cancelled",
+  "cookies": [
+    "__Host-fc_oauth=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "25",
+    "location": "/support?signin=cancelled",
+  },
+  "sha256": "04e76a775d602653950073b849b7056f362fa573f93a0858dd5f6cf8bc916e77",
+  "status": 302,
+}
+`;
+
+exports[`/api/twitch/oauth/callback > signs the visitor in and returns to their page, 1`] = `
+{
+  "body": "/support?tier=x",
+  "cookies": [
+    "__Host-fc_oauth=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure",
+    "__Host-fc_session=eyJpZCI6IjIwNDIxOTU3NCIsImxvZ2luIjoiZ3h1ZnkiLCJkaXNwbGF5TmFtZSI6Ikd4dWZ5IiwiYXZhdGFyVXJsIjoiaHR0cHM6Ly9zdGF0aWMtY2RuLmp0dm53Lm5ldC9qdHZfdXNlcl9waWN0dXJlcy9neHVmeS5wbmciLCJleHAiOjE3OTgyNTA0MDAwMDB9.E8JZ2rnT-dNpNkfjSu9IXOrsfU3sEahLmaRYIvygOdw; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000; Secure",
+  ],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "15",
+    "location": "/support?tier=x",
+  },
+  "sha256": "08477b939ab4d657c9868e6f06d20723664100d31b0392d29443b4051351c330",
+  "status": 302,
+}
+`;

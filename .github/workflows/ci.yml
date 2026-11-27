@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Test
+        run: npm test
+
+  # The site, in web/ (SvelteKit). It has its own package.json; the root
+  # install is there for the shared code it imports from app/src.
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            web/package-lock.json
+      - name: Install (shared code)
+        run: npm ci
+      - name: Install (web)
+        run: npm ci
+        working-directory: web
+      - name: Install Chromium for component tests
+        run: npx playwright install --with-deps chromium
+        working-directory: web
+      - name: Typecheck
+        run: npm run check
+        working-directory: web
+      - name: Test
+        run: npm test
+        working-directory: web
+      - name: Build
+        run: npm run build
+        working-directory: web
+      # The built overlay against fixed limits: script size, time to the
+      # first message, frames and main-thread load at busy chat speeds, rows
+      # never moving once shown, memory over a long session. The numbers are
+      # in the run's summary.
+      - name: Overlay speed checks
+        run: npm run speed
+        working-directory: web

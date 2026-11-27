@@ -1,0 +1,21 @@
+{
+	"extends": "$app/tsconfig",
+	"compilerOptions": {
+		"strict": true,
+		"types": [
+			"$app/types",
+			"node"
+		],
+		"paths": {
+			"@/*": [
+				"../app/src/*"
+			]
+		},
+		"checkJs": false,
+		"jsx": "react-jsx"
+	},
+	"include": [
+		"src",
+		"vite.config.ts"
+	]
+}

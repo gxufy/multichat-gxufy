@@ -1,0 +1,88 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`the long-lived streams > /api/kick/realtime > opens with its status, headers and first events 1`] = `
+{
+  "first": "retry: 2000
+
+data: {"type":"status","status":"connecting"}
+
+",
+  "headers": {
+    "cache-control": "no-cache, no-transform",
+    "content-type": "text/event-stream",
+    "x-accel-buffering": "no",
+  },
+  "status": 200,
+}
+`;
+
+exports[`the long-lived streams > /api/overlay/live > opens with its status, headers and first events 1`] = `
+{
+  "first": "retry: 3000
+
+event: state
+data: {"token":1,"targets":[],"commands":[],"now":5}
+
+",
+  "headers": {
+    "cache-control": "no-cache, no-transform",
+    "content-type": "text/event-stream",
+    "x-accel-buffering": "no",
+  },
+  "status": 200,
+}
+`;
+
+exports[`the long-lived streams > /api/overlay/stream > opens with its status, headers and first events 1`] = `
+{
+  "first": "data: k0	.open		
+
+data: k0	state		{"token":1,"targets":[],"commands":[],"now":5}
+
+data: k1	.open		
+
+data: k1	message		{"type":"status","status":"connecting"}
+
+data: k2	.open		
+
+data: k2	message		{"type":"status","status":"connecting"}
+
+data: k3	.open		
+
+data: k3	message",
+  "headers": {
+    "cache-control": "no-cache, no-transform",
+    "content-type": "text/event-stream",
+    "x-accel-buffering": "no",
+  },
+  "status": 200,
+}
+`;
+
+exports[`the long-lived streams > /api/tiktok/chat > opens with its status, headers and first events 1`] = `
+{
+  "first": "data: {"type":"status","status":"connecting"}
+
+",
+  "headers": {
+    "cache-control": "no-cache, no-transform",
+    "content-type": "text/event-stream",
+    "x-accel-buffering": "no",
+  },
+  "status": 200,
+}
+`;
+
+exports[`the long-lived streams > /api/youtube/stream > opens with its status, headers and first events 1`] = `
+{
+  "first": "data: {"type":"status","status":"connecting"}
+
+",
+  "headers": {
+    "cache-control": "no-cache, no-transform",
+    "content-type": "text/event-stream",
+    "x-accel-buffering": "no",
+  },
+  "status": 200,
+}
+`;

@@ -1,0 +1,978 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`/api/overlay/usage > answers with no webhook set, and says so in the log 1`] = `
+[
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+]
+`;
+
+exports[`/api/overlay/usage > limits one visitor, with one abuse alert 1`] = `
+[
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+  {
+    "body": "{"error":"Too many requests."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "30",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""yyqdij90n8u"",
+      "retry-after": "600",
+    },
+    "sha256": "800018f7534f793e722f22686b2f27b9518f1f855f2ef48087712bcdeb70c51f",
+    "status": 429,
+  },
+  {
+    "body": "{"error":"Too many requests."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "30",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""yyqdij90n8u"",
+      "retry-after": "600",
+    },
+    "sha256": "800018f7534f793e722f22686b2f27b9518f1f855f2ef48087712bcdeb70c51f",
+    "status": 429,
+  },
+  {
+    "body": "{"error":"Too many requests."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "30",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""yyqdij90n8u"",
+      "retry-after": "600",
+    },
+    "sha256": "800018f7534f793e722f22686b2f27b9518f1f855f2ef48087712bcdeb70c51f",
+    "status": 429,
+  },
+]
+`;
+
+exports[`/api/overlay/usage > limits one visitor, with one abuse alert 2`] = `
+[
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 3900150,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossChat opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 3900150,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossChat opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 3900150,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossChat opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 3900150,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossChat opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 3900150,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossChat opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 3900150,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossChat opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 3900150,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossChat opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 3900150,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossChat opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 3900150,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossChat opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 3900150,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossChat opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 3900150,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossChat opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 3900150,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossChat opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 15680580,
+          "description": "Repeated rate limits indicate possible abuse.",
+          "fields": [
+            {
+              "inline": true,
+              "name": "Area",
+              "value": "Overlay usage reports",
+            },
+            {
+              "inline": true,
+              "name": "IP",
+              "value": "\`127.0.0.1\`",
+            },
+            {
+              "inline": true,
+              "name": "Lookup",
+              "value": "[AbuseIPDB](https://www.abuseipdb.com/check/127.0.0.1)",
+            },
+            {
+              "inline": true,
+              "name": "Trigger",
+              "value": "3 rejections within 60s",
+            },
+            {
+              "inline": true,
+              "name": "Retry after",
+              "value": "600s",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "Abuse-prevention limit",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-abuse-hook-0123456789abcdef",
+  },
+]
+`;
+
+exports[`/api/overlay/usage > refuses what is not an overlay event 1`] = `
+[
+  {
+    "body": "{"error":"Invalid request."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "28",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""ohjudehk9ds"",
+    },
+    "sha256": "8a92cb70489574538eeb2157507c4a6c474eac1970cc5947ca0f14657ee3095e",
+    "status": 400,
+  },
+  {
+    "body": "{"error":"Invalid request."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "28",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""ohjudehk9ds"",
+    },
+    "sha256": "8a92cb70489574538eeb2157507c4a6c474eac1970cc5947ca0f14657ee3095e",
+    "status": 400,
+  },
+  {
+    "body": "{"error":"Invalid request."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "28",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""ohjudehk9ds"",
+    },
+    "sha256": "8a92cb70489574538eeb2157507c4a6c474eac1970cc5947ca0f14657ee3095e",
+    "status": 400,
+  },
+  {
+    "body": "Invalid JSON",
+    "cookies": [],
+    "headers": {
+      "content-length": "12",
+    },
+    "sha256": "f60c824125e6408ed711d8980a8b063a7c921b1ffc29bf0e224afd6043d56514",
+    "status": 400,
+  },
+  {
+    "body": "{"error":"Forbidden."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "22",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""j2wskt68ihm"",
+    },
+    "sha256": "71b94782dbdc7e128da28a8fca4409cb51bb589733b993ab14f9b1a88b829557",
+    "status": 403,
+  },
+  {
+    "body": "Body exceeded 2kb limit",
+    "cookies": [],
+    "headers": {
+      "content-length": "23",
+    },
+    "sha256": "554e89418a7424a7dd940cd567dbbd5ae9011e3a0db066111459d711cd5b09fb",
+    "status": 413,
+  },
+  {
+    "body": "{"error":"Method not allowed."}",
+    "cookies": [],
+    "headers": {
+      "allow": "POST",
+      "cache-control": "no-store",
+      "content-length": "31",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""q7enjxdx0kv"",
+    },
+    "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+    "status": 405,
+  },
+  {
+    "body": "{"error":"Method not allowed."}",
+    "cookies": [],
+    "headers": {
+      "allow": "POST",
+      "cache-control": "no-store",
+      "content-length": "31",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""q7enjxdx0kv"",
+    },
+    "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+    "status": 405,
+  },
+]
+`;
+
+exports[`/api/overlay/usage > sends one Discord message per overlay event, and none for a repeat 1`] = `
+[
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+]
+`;
+
+exports[`/api/overlay/usage > sends one Discord message per overlay event, and none for a repeat 2`] = `
+[
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 3900150,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossChat opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 1357990,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Mode",
+              "value": "Combined",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossCounter opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+]
+`;
+
+exports[`/api/overlay/usage > takes a report with no Origin 1`] = `
+[
+  {
+    "body": "",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+    },
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": 204,
+  },
+]
+`;
+
+exports[`/api/overlay/usage > takes a report with no Origin 2`] = `
+[
+  {
+    "body": {
+      "allowed_mentions": {
+        "parse": [],
+      },
+      "embeds": [
+        {
+          "color": 3900150,
+          "fields": [
+            {
+              "inline": true,
+              "name": "Twitch",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Kick",
+              "value": "gxufy",
+            },
+            {
+              "inline": true,
+              "name": "Instance",
+              "value": "0a1b2c3d",
+            },
+          ],
+          "timestamp": "2026-11-26T15:00:00.000Z",
+          "title": "FlossChat opened",
+        },
+      ],
+      "username": "FlossChat",
+    },
+    "url": "https://discord.com/api/webhooks/123456789/parity-usage-hook-0123456789abcdef",
+  },
+]
+`;
+
+exports[`/api/runtime/health > answers DELETE 1`] = `
+{
+  "body": "{"error":"Method not allowed."}",
+  "cookies": [],
+  "headers": {
+    "allow": "GET",
+    "cache-control": "no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""q7enjxdx0kv"",
+  },
+  "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+  "status": 405,
+}
+`;
+
+exports[`/api/runtime/health > answers HEAD 1`] = `
+{
+  "body": "",
+  "cookies": [],
+  "headers": {
+    "allow": "GET",
+    "cache-control": "no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""q7enjxdx0kv"",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 405,
+}
+`;
+
+exports[`/api/runtime/health > answers OPTIONS 1`] = `
+{
+  "body": "{"error":"Method not allowed."}",
+  "cookies": [],
+  "headers": {
+    "allow": "GET",
+    "cache-control": "no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""q7enjxdx0kv"",
+  },
+  "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+  "status": 405,
+}
+`;
+
+exports[`/api/runtime/health > answers POST 1`] = `
+{
+  "body": "{"error":"Method not allowed."}",
+  "cookies": [],
+  "headers": {
+    "allow": "GET",
+    "cache-control": "no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""q7enjxdx0kv"",
+  },
+  "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+  "status": 405,
+}
+`;
+
+exports[`/api/runtime/health > is ok while this copy takes visitors 1`] = `
+{
+  "body": "{"status":"ok"}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "15",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""136lfa0r4opf"",
+  },
+  "sha256": "a29ee2b15c494311c52521766e44af56a3ad2248e7a8ab465e5206463c13d288",
+  "status": 200,
+}
+`;
+
+exports[`/api/runtime/health > says held, then draining, during a deploy 1`] = `
+{
+  "body": "{"status":"held"}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "17",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""17l5wg1xggh"",
+  },
+  "sha256": "0c29300e1536341a0b1e77db4c1a882273306748f51ecb6d28b6b68bb8abb865",
+  "status": 503,
+}
+`;
+
+exports[`/api/runtime/health > says held, then draining, during a deploy 2`] = `
+{
+  "body": "{"status":"draining"}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "21",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""1036l9aeyjcl"",
+  },
+  "sha256": "3067fae9b205bfad283d8f3b208d993bf8814e821d4d340f86af35ee2f9454c2",
+  "status": 503,
+}
+`;

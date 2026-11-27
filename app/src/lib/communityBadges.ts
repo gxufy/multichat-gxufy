@@ -1,0 +1,2656 @@
+import type { UnifiedBadge, ViewerBadgeLayout } from './types';
+import { viewerBadgeLayoutFrom } from './viewerBadgeLayout';
+import {
+  type LimerinoBadgeFile,
+  type LimerinoBadgeRecord,
+  type LimerinoBadgeRenderOptions,
+  parseLimerinoBadgeRecords,
+  parseLimerinoFile,
+  selectLimerinoBadgeImage,
+} from './limerinoBadges';
+import { resolvePreviewsBadge } from './previewsBadges';
+
+type ProviderName =
+  | 'chatterino'
+  | 'homies'
+  | 'custom-homies'
+  | 'moltorino'
+  | 'bluzyrino'
+  | 'solrino'
+  | 'ffz'
+  | 'bttv'
+  | 'turteg'
+  | 'polandbot'
+  | 'bchat'
+  | 'badgehq'
+  | 'folhinha'
+  | 'dankchat'
+  | 'chatty'
+  | 'chatsen'
+  | 'ffzap'
+  | 'streamnook'
+  | 'jilchat'
+  | 'limerino'
+  | 'enhancer'
+  | 'previews'
+  | 'gxufy'
+  | 'chatlee'
+  | 'uchat'
+  | 'yautc';
+
+type Assignment = {
+  provider: ProviderName;
+  id: string;
+  title: string;
+  url: string;
+  userIds: string[];
+  usernames: string[];
+  backgroundColor?: string;
+  fallbackUrl?: string;
+  limerinoBadge?: LimerinoBadgeRecord;
+};
+
+type Registry = {
+  byUserId: Map<string, Assignment[]>;
+  byUsername: Map<string, Assignment[]>;
+  /** FFZ's badge catalog by FFZ badge id, for badges a channel hands out. */
+  ffzById: Map<string, Assignment>;
+  partial: boolean;
+  /** Provider keys (as in `community:<key>:` badge types) that failed to load. */
+  failedProviders: string[];
+};
+
+const SUCCESS_TTL_MS = 30 * 60_000;
+const PARTIAL_TTL_MS = 5 * 60_000;
+const LIMERINO_CLIENT_TTL_MS = 10 * 60_000;
+const REQUEST_TIMEOUT_MS = 5_000;
+export const COMMUNITY_BADGE_RESPONSE_MAX_BYTES = 4 * 1024 * 1024;
+/* The custom Homies list carries every custom badge in a single response and
+   has grown past the shared cap, so it gets its own, larger ceiling. */
+export const CUSTOM_HOMIES_RESPONSE_MAX_BYTES = 16 * 1024 * 1024;
+export const JILCHAT_CLIENT_CACHE_TTL_MS = 15 * 60_000;
+export const JILCHAT_CLIENT_FAILURE_TTL_MS = 5 * 60_000;
+export const JILCHAT_CLIENT_CACHE_MAX_KEYS = 500;
+export const JILCHAT_CLIENT_MAX_CONCURRENT = 6;
+export const JILCHAT_CLIENT_BURST = 16;
+export const JILCHAT_CLIENT_MAX_QUEUE = 12;
+export const JILCHAT_CLIENT_REFILL_MS = 1_000;
+const JILCHAT_CLIENT_LIVE_WAIT_MS = 250;
+const JILCHAT_CLIENT_THROTTLED_TTL_MS = 10_000;
+
+const STREAMNOOK_CLIENT_CACHE_TTL_MS = 60_000;
+const STREAMNOOK_CLIENT_FAILURE_TTL_MS = 10_000;
+const STREAMNOOK_CLIENT_CACHE_MAX_KEYS = 5_000;
+const STREAMNOOK_BATCH_MAX_IDS = 200;
+const STREAMNOOK_BATCH_WINDOW_MS = 25;
+const STREAMNOOK_BATCH_MIN_INTERVAL_MS = 250;
+const STREAMNOOK_BULK_CACHE_TTL_MS = 5 * 60_000;
+const STREAMNOOK_USERS_URL = 'https://streamnook.app/api/v1/cosmetics/users';
+const STREAMNOOK_BADGES_USERS_URL = 'https://streamnook.app/api/v1/cosmetics/badges/users';
+
+const PREVIEWS_CLIENT_CACHE_TTL_MS = 5 * 60_000;
+
+type PreviewsClientDataset = {
+  twitch: Record<string, number>;
+};
+
+let cachedPreviewsDataset: PreviewsClientDataset | null = null;
+let cachedPreviewsAt = 0;
+let previewsInFlight: Promise<PreviewsClientDataset> | null = null;
+type GxufyClientBadge = {
+  id: string;
+  title: string;
+  url: string;
+  userIds: string[];
+  /** Same-origin sized set (/badges/gxufy/...), picked like Limerino's. */
+  sized?: { host: string; files: LimerinoBadgeFile[] };
+};
+
+const GXUFY_SIZED_HOST = /^\/badges\/gxufy\/[a-z0-9-]{1,40}$/;
+
+let cachedGxufyBadges: GxufyClientBadge[] | null = null;
+let cachedGxufyAt = 0;
+let gxufyInFlight: Promise<GxufyClientBadge[]> | null = null;
+/*
+ * FlossChat badge freshness. A purchase or a wear/take-off on /badges must
+ * reach live overlays within seconds, not after the 5-minute list cache. In
+ * the browser, once the list has been used, a tiny fingerprint is checked
+ * every GXUFY_VERSION_POLL_MS; when it changes the list is reloaded (with the
+ * fingerprint in the URL, so no shared cache can hand back the old list).
+ */
+export const GXUFY_VERSION_POLL_MS = 15_000;
+let gxufyVersion: string | null = null;
+let gxufyVersionTimer: ReturnType<typeof setInterval> | null = null;
+let gxufyVersionStopped = false;
+
+function gxufyListUrl(): string {
+  return gxufyVersion
+    ? `/api/twitch/gxufy-badges?v=${encodeURIComponent(gxufyVersion)}`
+    : '/api/twitch/gxufy-badges';
+}
+
+export async function checkGxufyBadgesVersion(): Promise<boolean> {
+  let body: unknown;
+  try {
+    body = await requestJson('/api/twitch/gxufy-badges-version');
+  } catch {
+    return false;
+  }
+  const v = body && typeof body === 'object' ? (body as { v?: unknown }).v : undefined;
+  if (typeof v !== 'string' || !/^[A-Za-z0-9_-]{1,64}$/.test(v)) return false;
+  /* No supporter store on the server: the list cannot change, stop asking. */
+  if ((body as { live?: unknown }).live === false && gxufyVersionTimer !== null) {
+    clearInterval(gxufyVersionTimer);
+    gxufyVersionTimer = null;
+    gxufyVersionStopped = true;
+  }
+  const changed = gxufyVersion !== null && v !== gxufyVersion;
+  gxufyVersion = v;
+  if (!changed) return false;
+  /* Keep the old list as a fallback, but treat it as stale and reload now so
+     the very next message already carries the change. */
+  cachedGxufyAt = 0;
+  void gxufyClientBadges().catch(() => undefined);
+  return true;
+}
+
+function startGxufyVersionPoll(): void {
+  if (gxufyVersionTimer !== null || gxufyVersionStopped || typeof window === 'undefined') return;
+  void checkGxufyBadgesVersion();
+  gxufyVersionTimer = setInterval(() => {
+    void checkGxufyBadgesVersion();
+  }, GXUFY_VERSION_POLL_MS);
+}
+const GXUFY_CLIENT_CACHE_TTL_MS = 5 * 60_000;
+/* Providers in this set can mirror the same client badge artwork. Keeping the
+   set explicit allows cross-provider title de-duplication. */
+const MIRRORED_CHAT_CLIENT_PROVIDERS = new Set<ProviderName>([
+  'ffz',
+  'bttv',
+  'chatterino',
+  'homies',
+  'chatsen',
+  'chatty',
+  'dankchat',
+]);
+
+let cachedRegistry: Registry | null = null;
+let cachedAt = 0;
+let inFlight: Promise<Registry> | null = null;
+
+type ProviderCacheEntry = {
+  badges: Assignment[];
+  failed: boolean;
+  expiresAt: number;
+};
+
+const providerCache = new Map<number, ProviderCacheEntry>();
+/*
+ * Last successful badge list per provider. When a provider fails (FFZ's API
+ * regularly answers slower than the request timeout) the overlay keeps these
+ * instead of dropping every chatter's badge from that provider.
+ */
+const providerLastGood = new Map<number, Assignment[]>();
+const providerInFlight = new Map<number, Promise<ProviderCacheEntry>>();
+
+let cachedLimerino: Assignment[] | null = null;
+let cachedLimerinoAt = 0;
+let limerinoInFlight: Promise<Assignment[]> | null = null;
+const jilChatUserCache = new Map<string, { badges: Assignment[]; expiresAt: number }>();
+const jilChatUserInFlight = new Map<string, Promise<Assignment[]>>();
+
+type JilChatQueueEntry = {
+  userId: string;
+  resolve: (badges: Assignment[]) => void;
+};
+
+const jilChatQueue: JilChatQueueEntry[] = [];
+let jilChatActiveRequests = 0;
+let jilChatGeneration = 0;
+let jilChatBudgetTokens = JILCHAT_CLIENT_BURST;
+let jilChatBudgetUpdatedAt = Date.now();
+let jilChatCooldownUntil = 0;
+let jilChatDrainTimer: ReturnType<typeof setTimeout> | null = null;
+
+type StreamNookQueueEntry = {
+  userId: string;
+  resolve: (badges: Assignment[]) => void;
+};
+
+const streamNookUserCache = new Map<
+  string,
+  { badges: Assignment[]; expiresAt: number }
+>();
+const streamNookUserInFlight = new Map<string, Promise<Assignment[]>>();
+
+let streamNookBulkCache: {
+  badgesByUserId: Map<string, Assignment[]>;
+  expiresAt: number;
+} | null = null;
+
+let streamNookBulkInFlight:
+  | Promise<Map<string, Assignment[]>>
+  | null = null;
+
+const streamNookQueue: StreamNookQueueEntry[] = [];
+let streamNookFlushTimer: ReturnType<typeof setTimeout> | null = null;
+let streamNookBatchActive = false;
+let streamNookLastBatchStartedAt = 0;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function asArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function asString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function asId(value: unknown): string {
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  return asString(value);
+}
+
+function httpsUrl(value: unknown): string {
+  const raw = asString(value);
+  if (!raw) return '';
+  try {
+    const url = new URL(raw);
+    return url.protocol === 'https:' ? url.toString() : '';
+  } catch {
+    return '';
+  }
+}
+
+function slug(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'badge';
+}
+
+function badgeBackgroundColor(value: unknown): string {
+  const raw = asString(value);
+  return /^#[0-9a-f]{6}$/i.test(raw) ? raw : '';
+}
+
+function strings(value: unknown): string[] {
+  return asArray(value).map(asId).filter(Boolean);
+}
+
+function unique(values: string[]): string[] {
+  return [...new Set(values.filter(Boolean))];
+}
+
+function assignment(
+  provider: ProviderName,
+  id: string,
+  title: string,
+  url: string,
+  userIds: string[] = [],
+  usernames: string[] = [],
+  backgroundColor = '',
+): Assignment | null {
+  const image = httpsUrl(url);
+  if (!image) return null;
+  const normalizedBackgroundColor = badgeBackgroundColor(backgroundColor);
+  return {
+    provider,
+    id: id || slug(title),
+    title: title || id || provider,
+    url: image,
+    userIds: unique(userIds),
+    usernames: unique(usernames.map((name) => name.toLowerCase())),
+    ...(normalizedBackgroundColor ? { backgroundColor: normalizedBackgroundColor } : {}),
+  };
+}
+
+function parsePreviewsClientDataset(
+  value: unknown,
+): PreviewsClientDataset {
+  if (!isRecord(value) || !isRecord(value.twitch)) {
+    throw new Error('Malformed Previews badge dataset');
+  }
+
+  const twitch: Record<string, number> = {};
+
+  for (const [rawHash, rawMonths] of Object.entries(value.twitch)) {
+    const hash = rawHash.trim().toLowerCase();
+
+    if (!/^[a-f0-9]{64}$/.test(hash)) continue;
+
+    if (
+      typeof rawMonths !== 'number'
+      || !Number.isInteger(rawMonths)
+      || rawMonths < 0
+    ) {
+      continue;
+    }
+
+    twitch[hash] = rawMonths;
+  }
+
+  return { twitch };
+}
+
+async function previewsClientDataset(): Promise<PreviewsClientDataset> {
+  const now = Date.now();
+
+  if (
+    cachedPreviewsDataset
+    && now - cachedPreviewsAt < PREVIEWS_CLIENT_CACHE_TTL_MS
+  ) {
+    return cachedPreviewsDataset;
+  }
+
+  if (previewsInFlight) return previewsInFlight;
+
+  const work = requestJson('/api/twitch/previews-badges')
+    .then((body) => {
+      const dataset = parsePreviewsClientDataset(body);
+      cachedPreviewsDataset = dataset;
+      cachedPreviewsAt = Date.now();
+      return dataset;
+    })
+    .catch((error) => {
+      if (cachedPreviewsDataset) {
+        return cachedPreviewsDataset;
+      }
+
+      throw error;
+    });
+
+  previewsInFlight = work;
+
+  void work.then(
+    () => {
+      if (previewsInFlight === work) {
+        previewsInFlight = null;
+      }
+    },
+    () => {
+      if (previewsInFlight === work) {
+        previewsInFlight = null;
+      }
+    },
+  );
+
+  return work;
+}
+
+async function loadPreviews(
+  login: string,
+): Promise<Assignment[]> {
+  /*
+   * The Previews extension keys Twitch ownership by SHA-256 of the
+   * canonical lower-case Twitch login. Do not fall back to displayName:
+   * localized/display casing is not part of the ownership key.
+   */
+  const normalizedLogin = login.trim().toLowerCase();
+
+  if (!normalizedLogin) return [];
+
+  const dataset = await previewsClientDataset();
+
+  const resolved = await resolvePreviewsBadge(
+    normalizedLogin,
+    dataset.twitch,
+  );
+
+  if (!resolved) return [];
+
+  return [{
+    provider: 'previews',
+    id: `subscriber-${resolved.threshold}`,
+    title: resolved.title,
+    url: resolved.url,
+    userIds: [],
+    usernames: [normalizedLogin],
+  }];
+}
+function parseGxufyClientBadges(
+  value: unknown,
+): GxufyClientBadge[] {
+  if (!Array.isArray(value)) {
+    throw new Error('Malformed GXUFY badge response');
+  }
+
+  const badges: GxufyClientBadge[] = [];
+
+  for (const item of value) {
+    if (!isRecord(item)) continue;
+    if (typeof item.id !== 'string' || !item.id.trim()) continue;
+    if (typeof item.title !== 'string' || !item.title.trim()) continue;
+    if (typeof item.url !== 'string' || !item.url.trim()) continue;
+    if (!Array.isArray(item.userIds)) continue;
+
+    const userIds = item.userIds
+      .filter((entry): entry is string => typeof entry === 'string')
+      .map((entry) => entry.trim())
+      .filter((entry) => /^\d+$/.test(entry));
+
+    const host = typeof item.host === 'string' && GXUFY_SIZED_HOST.test(item.host) ? item.host : '';
+    const files = host && Array.isArray(item.files)
+      ? item.files.map(parseLimerinoFile).filter((file): file is LimerinoBadgeFile => file !== null)
+      : [];
+
+    badges.push({
+      id: item.id.trim(),
+      title: item.title.trim(),
+      url: item.url.trim(),
+      userIds,
+      ...(host && files.some((file) => file.format === 'PNG') ? { sized: { host, files } } : {}),
+    });
+  }
+
+  return badges;
+}
+
+async function gxufyClientBadges(): Promise<GxufyClientBadge[]> {
+  startGxufyVersionPoll();
+  const now = Date.now();
+
+  if (
+    cachedGxufyBadges
+    && now - cachedGxufyAt < GXUFY_CLIENT_CACHE_TTL_MS
+  ) {
+    return cachedGxufyBadges;
+  }
+
+  if (gxufyInFlight) return gxufyInFlight;
+
+  const work = requestJson(gxufyListUrl())
+    .then((body) => {
+      const badges = parseGxufyClientBadges(body);
+      cachedGxufyBadges = badges;
+      cachedGxufyAt = Date.now();
+      return badges;
+    })
+    .catch((error) => {
+      if (cachedGxufyBadges) {
+        return cachedGxufyBadges;
+      }
+
+      throw error;
+    });
+
+  gxufyInFlight = work;
+
+  void work.then(
+    () => {
+      if (gxufyInFlight === work) {
+        gxufyInFlight = null;
+      }
+    },
+    () => {
+      if (gxufyInFlight === work) {
+        gxufyInFlight = null;
+      }
+    },
+  );
+
+  return work;
+}
+
+async function loadGxufy(
+  userId: string,
+): Promise<Assignment[]> {
+  const normalizedUserId = userId.trim();
+
+  if (!/^\d+$/.test(normalizedUserId)) return [];
+
+  const badges = await gxufyClientBadges();
+
+  return badges
+    .filter((badge) => badge.userIds.includes(normalizedUserId))
+    .map((badge) => ({
+      provider: 'gxufy' as const,
+      id: badge.id,
+      title: badge.title,
+      url: badge.url,
+      userIds: [normalizedUserId],
+      usernames: [],
+      ...(badge.sized
+        ? {
+            limerinoBadge: {
+              id: badge.id,
+              title: badge.title,
+              host: badge.sized.host,
+              files: badge.sized.files,
+              users: [normalizedUserId],
+            },
+          }
+        : {}),
+    }));
+}
+async function cancelResponseBody(response: Response): Promise<void> {
+  try {
+    await response.body?.cancel();
+  } catch {
+    // Cancellation is best-effort after rejecting a provider response.
+  }
+}
+
+/*
+ * Badge list sizes. Lists grow (the Homies list by a few KB a day) and one
+ * over its limit stops loading, so every list download records its size next
+ * to its limit; overlays warn once in the console past BADGE_LIST_WARN_SHARE,
+ * and Owner tools shows them all (measureCommunityBadgeLists). Only whole
+ * lists are recorded (no per-chatter lookups), keyed by address without query.
+ */
+export const BADGE_LIST_WARN_SHARE = 0.75;
+export type BadgeListSize = {
+  list: string;
+  /** Bytes downloaded; null when the list went over the limit and was dropped. */
+  bytes: number | null;
+  cap: number;
+  checkedAt: number;
+};
+const badgeListSizes = new Map<string, BadgeListSize>();
+const badgeListWarned = new Set<string>();
+
+function badgeListKey(url: string): string | null {
+  const [path, query = ''] = url.split('?', 2);
+  if (query && !/^v=[\w.-]{1,64}$/.test(query)) return null;
+  return path.replace(/^https:\/\//, '');
+}
+
+function recordBadgeListSize(url: string, bytes: number | null, cap: number): void {
+  const list = badgeListKey(url);
+  if (!list) return;
+  badgeListSizes.set(list, { list, bytes, cap, checkedAt: Date.now() });
+  const share = bytes === null ? 1 : bytes / cap;
+  if (share >= BADGE_LIST_WARN_SHARE && !badgeListWarned.has(list)) {
+    badgeListWarned.add(list);
+    console.warn(bytes === null
+      ? `[overlay] badge list ${list} is over its ${(cap / 1048576).toFixed(0)} MB limit and was not loaded`
+      : `[overlay] badge list ${list} is ${Math.round(share * 100)}% of its ${(cap / 1048576).toFixed(0)} MB limit`);
+  }
+}
+
+/** Sizes recorded so far, biggest share of its limit first. */
+export function communityBadgeListSizes(): BadgeListSize[] {
+  const share = (row: BadgeListSize) => (row.bytes === null ? Infinity : row.bytes / row.cap);
+  return [...badgeListSizes.values()].sort((a, b) => share(b) - share(a));
+}
+
+/** Loads every list (from cache when fresh) and returns their sizes. */
+export async function measureCommunityBadgeLists(): Promise<BadgeListSize[]> {
+  await Promise.allSettled([registry(), limerinoRegistry()]);
+  return communityBadgeListSizes();
+}
+
+async function boundedJson(
+  response: Response,
+  maxBytes = COMMUNITY_BADGE_RESPONSE_MAX_BYTES,
+  onSize?: (bytes: number | null) => void,
+): Promise<unknown> {
+  const rawLength = response.headers.get('content-length');
+  if (rawLength && /^\d+$/.test(rawLength)) {
+    const declared = Number(rawLength);
+    if (!Number.isFinite(declared) || declared > maxBytes) {
+      onSize?.(null);
+      await cancelResponseBody(response);
+      throw new Error('response too large');
+    }
+  }
+  if (!response.body) throw new Error('malformed response');
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!value?.byteLength) continue;
+      total += value.byteLength;
+      if (total > maxBytes) {
+        onSize?.(null);
+        throw new Error('response too large');
+      }
+      chunks.push(value);
+    }
+  } catch (error) {
+    try { await reader.cancel(); } catch { /* Preserve the original failure. */ }
+    throw error;
+  } finally {
+    reader.releaseLock();
+  }
+
+  onSize?.(total);
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return JSON.parse(new TextDecoder().decode(bytes)) as unknown;
+}
+
+async function requestJson(
+  url: string,
+  onRateLimit?: (retryAfter: string | null) => void,
+  maxBytes = COMMUNITY_BADGE_RESPONSE_MAX_BYTES,
+): Promise<unknown> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, {
+      redirect: typeof window === 'undefined' ? 'error' : 'follow',
+      signal: controller.signal,
+    });
+    if (response.status === 429) onRateLimit?.(response.headers.get('Retry-After'));
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await boundedJson(response, maxBytes, (bytes) => recordBadgeListSize(url, bytes, maxBytes));
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function chatterinoLike(provider: ProviderName, body: unknown): Assignment[] {
+  const badges = isRecord(body) ? asArray(body.badges) : [];
+  return badges.flatMap((raw) => {
+    if (!isRecord(raw)) return [];
+    const title = asString(raw.tooltip) || asString(raw.title) || asString(raw.id) || provider;
+    const item = assignment(
+      provider,
+      asString(raw.id) || slug(title),
+      title,
+      asString(raw.image3) || asString(raw.image2) || asString(raw.image1),
+      strings(raw.users),
+    );
+    return item ? [item] : [];
+  });
+}
+
+async function loadChatterino(): Promise<Assignment[]> {
+  return chatterinoLike('chatterino', await requestJson('https://api.chatterino.com/badges'));
+}
+
+async function loadLegacyHomies(): Promise<Assignment[]> {
+  const [one, two] = await Promise.allSettled([
+    requestJson('https://itzalex.github.io/badges'),
+    requestJson('https://itzalex.github.io/badges2'),
+  ]);
+  const out: Assignment[] = [];
+  if (one.status === 'fulfilled') out.push(...chatterinoLike('homies', one.value));
+  if (two.status === 'fulfilled') out.push(...chatterinoLike('homies', two.value));
+  return out;
+}
+
+async function loadCustomHomies(): Promise<Assignment[]> {
+  const body = await requestJson(
+    'https://chatterinohomies.com/api/badges/list',
+    undefined,
+    CUSTOM_HOMIES_RESPONSE_MAX_BYTES,
+  );
+  const badges = isRecord(body) ? asArray(body.badges) : [];
+  return badges.flatMap((raw, index) => {
+    if (!isRecord(raw)) return [];
+    const title = asString(raw.tooltip) || 'Custom Homies Badge';
+    const item = assignment(
+      'custom-homies',
+      asString(raw.badgeId) || `custom-homies-${index}`,
+      title,
+      asString(raw.image3) || asString(raw.image2) || asString(raw.image1),
+      [asId(raw.userId)].filter(Boolean),
+      [asString(raw.username)].filter(Boolean),
+    );
+    return item ? [item] : [];
+  });
+}
+
+/**
+ * Chatlee: one list in the Chatterino shape, `badges[]` with `id`, `tooltip`,
+ * `image1..3`, `priority` and the Twitch ids of the chatters who show it.
+ * Exported for tests.
+ */
+export function parseChatlee(body: unknown): Assignment[] {
+  const badges = isRecord(body) ? asArray(body.badges) : [];
+  return badges
+    .filter(isRecord)
+    .map((raw, index) => ({
+      raw,
+      index,
+      priority: typeof raw.priority === 'number' && Number.isFinite(raw.priority) ? raw.priority : Number.MAX_SAFE_INTEGER,
+    }))
+    .sort((a, b) => a.priority - b.priority || a.index - b.index)
+    .flatMap(({ raw }) => {
+      const title = asString(raw.tooltip) || asString(raw.id) || 'Chatlee';
+      const item = assignment(
+        'chatlee',
+        asString(raw.id) || slug(title),
+        title,
+        asString(raw.image3) || asString(raw.image2) || asString(raw.image1),
+        strings(raw.users).filter((id) => /^[1-9]\d{0,19}$/.test(id)),
+      );
+      return item ? [item] : [];
+    });
+}
+
+async function loadChatlee(): Promise<Assignment[]> {
+  return parseChatlee(await requestJson('https://api.chatlee.lol/api/chatlee/badges/chatterino'));
+}
+
+/**
+ * UChat and YAUTC badges, published together: `{ UChat: [...], YAUTC: [...] }`,
+ * each badge with `imgs.animated` and/or `imgs.static` at 1x–4x and the Twitch
+ * ids of its holders. The animated art is preferred, the still art kept as
+ * the fallback. Exported for tests.
+ */
+export function parseUChat(body: unknown): Assignment[] {
+  if (!isRecord(body)) return [];
+  return ['UChat', 'YAUTC'].flatMap((group) => asArray(body[group]).flatMap((raw) => {
+    if (!isRecord(raw)) return [];
+    const images = isRecord(raw.imgs) ? raw.imgs : {};
+    const pick = (set: unknown) => (isRecord(set)
+      ? asString(set['4x']) || asString(set['3x']) || asString(set['2x']) || asString(set['1x'])
+      : '');
+    const animated = pick(images.animated);
+    const still = pick(images.static);
+    const id = asString(raw.id);
+    if (!id) return [];
+    const item = assignment(
+      group === 'YAUTC' ? 'yautc' : 'uchat',
+      id,
+      asString(raw.title) || `${group} badge`,
+      animated || still,
+      strings(raw.users).filter((userId) => /^[1-9]\d{0,19}$/.test(userId)),
+    );
+    if (!item) return [];
+    const fallback = animated && still ? httpsUrl(still) : '';
+    return [fallback && fallback !== item.url ? { ...item, fallbackUrl: fallback } : item];
+  }));
+}
+
+async function loadUChat(): Promise<Assignment[]> {
+  return parseUChat(await requestJson('https://unii.molto.lol/badges'));
+}
+
+/**
+ * Moltorino v2: `users[id] = { badges, activeBadge?, order?, hidden? }`. The
+ * equipped `activeBadge` is the one that shows; without one, the owned badge
+ * with the best (lowest) priority. Catalog `hidden` badges never show.
+ * `order` and `hidden` are the person's badge layout from the Moltorino
+ * client: slot keys (`m` Moltorino, `7` 7TV, `ff` FrankerFaceZ, `ts` Twitch
+ * subscriber, ...), not badge ids. A person who hid the `m` slot shows no
+ * Moltorino badge. (Badge ids in `hidden` are still honoured, as before.)
+ * Solrino, a Moltorino fork, publishes its own badges in the same format,
+ * where `m` is the Solrino badge's slot. Exported for tests.
+ */
+/** The client's own badge slot key in a Moltorino v2 badge layout. */
+const MOLTORINO_LAYOUT_SLOT = 'm';
+
+export function parseMoltorinoV2(body: unknown, provider: 'moltorino' | 'solrino' = 'moltorino'): Assignment[] {
+  if (!isRecord(body)) return [];
+  type MoltorinoBadge = { id: string; title: string; url: string; priority: number; hidden: boolean };
+  const catalog = new Map<string, MoltorinoBadge>();
+  for (const raw of asArray(body.badges)) {
+    if (!isRecord(raw)) continue;
+    const id = asString(raw.id);
+    const images = isRecord(raw.images) ? raw.images : {};
+    const url = asString(images['3x']) || asString(images['4x']) || asString(images['2x']) || asString(images['1x']);
+    if (!id || !url) continue;
+    const priority = typeof raw.priority === 'number' && Number.isFinite(raw.priority) ? raw.priority : Number.POSITIVE_INFINITY;
+    catalog.set(id, { id, title: asString(raw.tooltip) || id, url, priority, hidden: raw.hidden === true });
+  }
+  const ownersByBadge = new Map<string, string[]>();
+  const users = isRecord(body.users) ? body.users : {};
+  for (const [rawUserId, rawUser] of Object.entries(users)) {
+    const userId = asId(rawUserId);
+    if (!userId || !isRecord(rawUser)) continue;
+    const hidden = new Set(strings(rawUser.hidden));
+    if (hidden.has(MOLTORINO_LAYOUT_SLOT)) continue;
+    const owned = strings(rawUser.badges)
+      .map((id) => catalog.get(id))
+      .filter((badge): badge is MoltorinoBadge => Boolean(badge) && !badge!.hidden && !hidden.has(badge!.id));
+    if (!owned.length) continue;
+    const active = asString(rawUser.activeBadge);
+    const shown = owned.find((badge) => badge.id === active)
+      ?? [...owned].sort((left, right) => left.priority - right.priority)[0]!;
+    const list = ownersByBadge.get(shown.id) ?? [];
+    list.push(userId);
+    ownersByBadge.set(shown.id, list);
+  }
+  return [...ownersByBadge.entries()].flatMap(([id, owners]) => {
+    const badge = catalog.get(id)!;
+    const item = assignment(provider, badge.id, badge.title, badge.url, owners);
+    return item ? [item] : [];
+  });
+}
+
+/**
+ * Moltorino v2 badge layouts: `users[id].order` / `.hidden` (slot keys) for
+ * the people who set them in the Moltorino client. Exported for tests.
+ */
+export function parseMoltorinoV2Layouts(body: unknown): Map<string, ViewerBadgeLayout> {
+  const layouts = new Map<string, ViewerBadgeLayout>();
+  const users = isRecord(body) && isRecord(body.users) ? body.users : {};
+  for (const [rawUserId, rawUser] of Object.entries(users)) {
+    if (layouts.size >= MOLTORINO_LAYOUTS_MAX) break;
+    const userId = rawUserId.trim();
+    if (!/^[1-9]\d{0,19}$/.test(userId) || !isRecord(rawUser)) continue;
+    const layout = viewerBadgeLayoutFrom(rawUser.order, rawUser.hidden);
+    if (layout) layouts.set(userId, layout);
+  }
+  return layouts;
+}
+
+const MOLTORINO_LAYOUTS_MAX = 50_000;
+/* The last good list's layouts (kept when a later load fails). */
+let moltorinoLayouts = new Map<string, ViewerBadgeLayout>();
+
+/** The badge layout this Twitch user set in Moltorino, once the community
+ * badge lists have loaded (resolveTwitchCommunityBadges loads them). */
+export function moltorinoBadgeLayoutFor(userId: string): ViewerBadgeLayout | null {
+  return moltorinoLayouts.get(userId.trim()) ?? null;
+}
+
+async function loadMoltorino(): Promise<Assignment[]> {
+  const body = await requestJson('https://api.moltorino.com/v2/badges');
+  const assignments = parseMoltorinoV2(body);
+  moltorinoLayouts = parseMoltorinoV2Layouts(body);
+  return assignments;
+}
+
+export const SOLRINO_BADGES_URL = 'https://solrino-badges.solrino-badge-server.workers.dev/v2/badges';
+
+/* Solrino's badges only; the badge layouts in its list are for the Solrino
+   client and its own slot keys, so they don't reorder anything here. */
+async function loadSolrino(): Promise<Assignment[]> {
+  return parseMoltorinoV2(await requestJson(SOLRINO_BADGES_URL), 'solrino');
+}
+
+/**
+ * Bluzyrino: `selections[userId][category]` is the badge the user equipped in
+ * that category ("none" = show none). Categories without a selection keep
+ * every owned badge; the one-slot rule below still picks the displayed one.
+ * Exported for tests.
+ */
+export function parseBluzyrino(body: unknown): Assignment[] {
+  const bchat = isRecord(body) && isRecord(body.bchat) ? body.bchat : {};
+  const selections = isRecord(body) && isRecord(body.selections) ? body.selections : {};
+  const selected = (userId: string, badgeId: string, category: string): boolean => {
+    const choice = selections[userId];
+    if (!isRecord(choice) || !(category in choice)) return true;
+    return asString(choice[category]) === badgeId;
+  };
+  return asArray(bchat.badges).flatMap((raw) => {
+    if (!isRecord(raw)) return [];
+    const users = asArray(raw.users).filter(isRecord);
+    const id = asString(raw.id);
+    const category = asString(raw.category);
+    const title = asString(raw.tooltip) || id || 'Bluzyrino';
+    const shownUsers = users.filter((user) => selected(asId(user.id), id, category));
+    const item = assignment(
+      'bluzyrino',
+      id || slug(title),
+      title,
+      asString(raw.image_url_4x) || asString(raw.image_url_2x) || asString(raw.image_url_1x),
+      shownUsers.map((user) => asId(user.id)).filter(Boolean),
+      shownUsers.filter((user) => !isRecord(selections[asId(user.id)]))
+        .map((user) => asString(user.login)).filter(Boolean),
+    );
+    return item ? [item] : [];
+  });
+}
+
+async function loadBluzyrino(): Promise<Assignment[]> {
+  return parseBluzyrino(await requestJson('https://bluzyrino-badge-registry.blu901-55.workers.dev/v1/badges'));
+}
+
+function parseFFZ(body: unknown, ownersAreIds: boolean): Assignment[] {
+  if (!isRecord(body)) return [];
+  const badges = asArray(body.badges);
+  const users = isRecord(body.users) ? body.users : {};
+  return badges.flatMap((raw) => {
+    if (!isRecord(raw)) return [];
+    const id = asId(raw.id);
+    const urls = isRecord(raw.urls) ? raw.urls : {};
+    const image = asString(urls['4']) || asString(urls['3']) || asString(urls['2']) || asString(urls['1']);
+    const title = asString(raw.title) || asString(raw.name) || `FFZ ${id}`;
+    const owners = id ? strings(users[id]) : [];
+    const item = assignment(
+      'ffz',
+      id || slug(title),
+      title,
+      image,
+      ownersAreIds ? owners : [],
+      ownersAreIds ? [] : owners,
+      asString(raw.color),
+    );
+    return item ? [item] : [];
+  });
+}
+
+async function loadFFZ(): Promise<Assignment[]> {
+  /* Prefer the endpoint that maps directly to Twitch user IDs, but retain the
+     older username feed as
+     a compatibility fallback in case the IDs endpoint is temporarily unavailable. */
+  try {
+    const byId = parseFFZ(await requestJson('https://api.frankerfacez.com/v1/badges/ids'), true);
+    if (byId.length) return byId;
+  } catch { /* fall through */ }
+  return parseFFZ(await requestJson('https://api.frankerfacez.com/v1/badges'), false);
+}
+
+function parseBTTV(body: unknown): Assignment[] {
+  return asArray(body).flatMap((raw, index) => {
+    if (!isRecord(raw)) return [];
+    const badge = isRecord(raw.badge) ? raw.badge : {};
+    const title = asString(badge.description) || asString(raw.title) || 'BTTV';
+    const item = assignment(
+      'bttv',
+      asString(raw.id) || `bttv-${index}`,
+      title,
+      asString(badge.svg) || asString(raw.url),
+      [asId(raw.providerId)].filter(Boolean),
+    );
+    return item ? [item] : [];
+  });
+}
+
+async function loadBTTV(): Promise<Assignment[]> {
+  /* Prefer the current cached-badges endpoint, with the old /twitch route
+     retained only as a fallback for provider-side compatibility. */
+  try {
+    const current = parseBTTV(await requestJson('https://api.betterttv.net/3/cached/badges'));
+    if (current.length) return current;
+  } catch { /* fall through */ }
+  return parseBTTV(await requestJson('https://api.betterttv.net/3/cached/badges/twitch'));
+}
+
+async function loadTurteg(): Promise<Assignment[]> {
+  const body = await requestJson('https://turteg-api.xslash.ovh/v1/ffz/badges');
+  const badges = isRecord(body) ? asArray(body.badges) : [];
+  return badges.flatMap((raw, index) => {
+    if (!isRecord(raw)) return [];
+    const urls = isRecord(raw.urls) ? raw.urls : {};
+    const title = asString(raw.title) || 'Turteg';
+    const item = assignment(
+      'turteg',
+      asId(raw.id) || `turteg-${index}`,
+      title,
+      asString(raw.image) || asString(urls['4']) || asString(urls['3']) || asString(urls['2']) || asString(urls['1']),
+      strings(raw.users),
+    );
+    return item ? [item] : [];
+  });
+}
+
+async function loadPolandBot(): Promise<Assignment[]> {
+  const body = await requestJson('https://devpoland.xyz/api/roles');
+  if (!isRecord(body)) return [];
+  return Object.entries(body).flatMap(([role, rawUsers]) => {
+    const item = assignment(
+      'polandbot',
+      role,
+      role,
+      `https://devpoland.xyz/badges/${encodeURIComponent(role)}.avif`,
+      strings(rawUsers),
+    );
+    return item ? [item] : [];
+  });
+}
+
+async function loadBChat(): Promise<Assignment[]> {
+  const body =
+    await requestJson(
+      '/api/twitch/bchat-badges',
+    );
+
+  return asArray(body).flatMap(
+    (raw, index) => {
+      if (!isRecord(raw)) return [];
+
+      const title =
+        asString(raw.title)
+        || 'bChat';
+
+      const item = assignment(
+        'bchat',
+        asString(raw.id)
+          || `bchat-${index}`,
+        title,
+        asString(raw.url),
+        strings(raw.users),
+      );
+
+      return item ? [item] : [];
+    },
+  );
+}
+
+async function loadBadgeHq(): Promise<Assignment[]> {
+  const body =
+    await requestJson(
+      '/api/twitch/badgehq-badges',
+    );
+
+  return asArray(body).flatMap(
+    (raw, index) => {
+      if (!isRecord(raw)) return [];
+
+      const title =
+        asString(raw.title)
+        || 'BadgeHQ';
+
+      const item = assignment(
+        'badgehq',
+        asString(raw.id)
+          || `badgehq-${index}`,
+        title,
+        asString(raw.url),
+        strings(raw.users),
+      );
+
+      return item ? [item] : [];
+    },
+  );
+}
+
+async function loadFolhinha(): Promise<Assignment[]> {
+  const body = await requestJson('https://api.folhinhabot.com/plus');
+  if (!isRecord(body)) return [];
+  const badges = isRecord(body.badges) ? body.badges : {};
+  const imageFor = (role: string): string => {
+    const raw = badges[role];
+    if (!isRecord(raw)) return '';
+    return asString(raw['4']) || asString(raw['3']) || asString(raw['2']) || asString(raw['1']);
+  };
+  const definitions = [
+    /* The current API uses `dev`; retain `devs` as a compatibility fallback for
+       older cached/provider payloads. */
+    { list: body.dev ?? body.devs, role: 'dev', imageRole: 'dev', title: 'Folhinha Developer' },
+    { list: body.admins, role: 'admin', imageRole: 'admin', title: 'Folhinha Admin' },
+    { list: body.plus, role: 'founder', imageRole: 'founder', title: 'Folhinha Founder' },
+    { list: body.supporters, role: 'supporter', imageRole: 'sub', title: 'Folhinha Supporter' },
+  ] as const;
+  return definitions.flatMap((definition) => {
+    const image = imageFor(definition.imageRole);
+    return asArray(definition.list).flatMap((raw, index) => {
+      if (!isRecord(raw)) return [];
+      const item = assignment(
+        'folhinha',
+        `${definition.role}-${asId(raw.id) || index}`,
+        definition.title,
+        image,
+        [asId(raw.userId) || asId(raw.userid)].filter(Boolean),
+        [asString(raw.currAlias)].filter(Boolean),
+      );
+      return item ? [item] : [];
+    });
+  });
+}
+
+async function loadDankChat(): Promise<Assignment[]> {
+  const body = await requestJson('/api/twitch/dankchat-badges');
+  return asArray(body).flatMap((raw, index) => {
+    if (!isRecord(raw)) return [];
+    const title = asString(raw.type) || 'DankChat';
+    const item = assignment(
+      'dankchat',
+      `dankchat-${index}`,
+      title,
+      asString(raw.url),
+      strings(raw.users),
+    );
+    return item ? [item] : [];
+  });
+}
+
+async function loadChatty(): Promise<Assignment[]> {
+  const body = await requestJson('/api/twitch/chatty-badges');
+  return asArray(body).flatMap((raw, index) => {
+    if (!isRecord(raw)) return [];
+    const title = asString(raw.title) || 'Chatty';
+    const item = assignment(
+      'chatty',
+      asString(raw.id) || `chatty-${index}`,
+      title,
+      asString(raw.url),
+      strings(raw.users),
+      strings(raw.usernames),
+      asString(raw.color),
+    );
+    return item ? [item] : [];
+  });
+}
+
+async function loadChatsen(): Promise<Assignment[]> {
+  const body = await requestJson('/api/twitch/chatsen-badges');
+  return asArray(body).flatMap((raw, index) => {
+    if (!isRecord(raw)) return [];
+    const title = asString(raw.title) || 'Chatsen';
+    const item = assignment(
+      'chatsen',
+      asString(raw.id) || `chatsen-${index}`,
+      title,
+      asString(raw.url),
+      strings(raw.users),
+      strings(raw.usernames),
+    );
+    return item ? [item] : [];
+  });
+}
+
+function normalizedProviderBadges(provider: 'ffzap', body: unknown): Assignment[] {
+  return asArray(body).flatMap((raw, index) => {
+    if (!isRecord(raw)) return [];
+    const title = asString(raw.title) || 'FFZ:AP Supporter';
+    const item = assignment(
+      provider,
+      asString(raw.id) || `${provider}-${index}`,
+      title,
+      asString(raw.url),
+      strings(raw.users),
+      [],
+      asString(raw.color),
+    );
+    return item ? [item] : [];
+  });
+}
+
+async function loadFfzAp(): Promise<Assignment[]> {
+  return normalizedProviderBadges('ffzap', await requestJson('/api/twitch/ffzap-badges'));
+}
+
+/*
+ * Enhancer: the badges each account shows, from Enhancer's global list (each
+ * account's badgesIds, read against its badge list), which is what Enhancer
+ * itself draws in chat. Their per-user lookup lists every badge an account
+ * owns, worn or not, so it is not used.
+ */
+async function loadEnhancer(): Promise<Assignment[]> {
+  const body = await requestJson('/api/twitch/enhancer-badges');
+
+  return asArray(body).flatMap((raw, index) => {
+    if (!isRecord(raw)) return [];
+
+    const title = asString(raw.title) || 'Enhancer';
+
+    const item = assignment(
+      'enhancer',
+      asString(raw.id) || `enhancer-${index}`,
+      title,
+      asString(raw.url),
+      strings(raw.users),
+    );
+
+    return item ? [item] : [];
+  });
+}
+
+/*
+ * Live Limerino changes, pushed by the server over the overlay's live
+ * connection (lib/server/limerinoLive): a patch moves the listed users to the
+ * badge they now show (or none) in the list held here; a reload (the catalog
+ * changed, or a change too big to patch) fetches the list again, at a random
+ * moment within LIMERINO_RELOAD_SPREAD_MS so open overlays don't all ask at once.
+ */
+export const LIMERINO_RELOAD_SPREAD_MS = 30_000;
+const LIMERINO_LIVE_MAX_USERS = 5_000;
+const LIMERINO_TWITCH_ID = /^\d{1,25}$/;
+let limerinoListVersion: number | null = null;
+let limerinoReloadTimer: ReturnType<typeof setTimeout> | null = null;
+
+function scheduleLimerinoReload(random: () => number): void {
+  if (limerinoReloadTimer !== null) return;
+  limerinoReloadTimer = setTimeout(() => {
+    limerinoReloadTimer = null;
+    cachedLimerinoAt = 0;
+    void limerinoRegistry().catch(() => undefined);
+  }, Math.floor(random() * LIMERINO_RELOAD_SPREAD_MS));
+}
+
+export function applyLimerinoLiveUpdate(update: unknown, random: () => number = Math.random): void {
+  if (!update || typeof update !== 'object' || Array.isArray(update)) return;
+  const { t, v, users } = update as Record<string, unknown>;
+  if (t === 'reload') {
+    if (typeof v !== 'number' || !Number.isSafeInteger(v) || v < 0) return;
+    limerinoListVersion = v;
+    scheduleLimerinoReload(random);
+    return;
+  }
+  if (t !== 'patch' || !users || typeof users !== 'object' || Array.isArray(users)) return;
+  /* Nothing held yet: the first load brings the current list anyway. */
+  if (!cachedLimerino) return;
+  const entries = Object.entries(users as Record<string, unknown>)
+    .slice(0, LIMERINO_LIVE_MAX_USERS)
+    .filter((entry): entry is [string, string | null] => (
+      LIMERINO_TWITCH_ID.test(entry[0]) && (entry[1] === null || typeof entry[1] === 'string')
+    ));
+  if (!entries.length) return;
+  const moved = new Set(entries.map(([userId]) => userId));
+  const joining = new Map<string, string[]>();
+  for (const [userId, badgeId] of entries) {
+    if (!badgeId) continue;
+    const list = joining.get(badgeId) ?? [];
+    list.push(userId);
+    joining.set(badgeId, list);
+  }
+  const known = new Set(cachedLimerino.map((badge) => badge.id));
+  cachedLimerino = cachedLimerino.map((badge) => {
+    const added = joining.get(badge.id) ?? [];
+    if (!added.length && !badge.userIds.some((userId) => moved.has(userId))) return badge;
+    const userIds = [...badge.userIds.filter((userId) => !moved.has(userId)), ...added];
+    return {
+      ...badge,
+      userIds,
+      limerinoBadge: badge.limerinoBadge ? { ...badge.limerinoBadge, users: userIds } : badge.limerinoBadge,
+    };
+  });
+  /* A badge this overlay hasn't heard of yet: fetch the list again. */
+  if ([...joining.keys()].some((badgeId) => !known.has(badgeId))) scheduleLimerinoReload(random);
+}
+
+async function loadLimerino(): Promise<Assignment[]> {
+  if (typeof window === 'undefined') return [];
+  /* The list version in the URL, so no shared cache hands back the old list. */
+  const url = limerinoListVersion === null
+    ? '/api/twitch/limerino-badges'
+    : `/api/twitch/limerino-badges?v=${limerinoListVersion}`;
+  return parseLimerinoBadgeRecords(await requestJson(url))
+    .flatMap((badge) => {
+      const image = selectLimerinoBadgeImage(badge, {
+        slotSizePx: 18,
+        displayScale: 1,
+        reducedMotion: false,
+      });
+      if (!image) return [];
+      return [{
+        provider: 'limerino' as const,
+        id: badge.id,
+        title: badge.title,
+        url: image.url,
+        fallbackUrl: image.fallbackUrl,
+        userIds: badge.users,
+        usernames: [],
+        limerinoBadge: badge,
+      }];
+    });
+}
+
+async function limerinoRegistry(): Promise<Assignment[]> {
+  const now = Date.now();
+  if (cachedLimerino && now - cachedLimerinoAt < LIMERINO_CLIENT_TTL_MS) {
+    return cachedLimerino;
+  }
+  if (limerinoInFlight) return limerinoInFlight;
+
+  const work = loadLimerino().then((badges) => {
+    cachedLimerino = badges;
+    cachedLimerinoAt = Date.now();
+    return badges;
+  }, (error) => {
+    if (cachedLimerino) return cachedLimerino;
+    throw error;
+  });
+  limerinoInFlight = work;
+  void work.then(
+    () => { if (limerinoInFlight === work) limerinoInFlight = null; },
+    () => { if (limerinoInFlight === work) limerinoInFlight = null; },
+  );
+  return work;
+}
+
+function cachedJilChat(userId: string, now = Date.now()): Assignment[] | null {
+  const cached = jilChatUserCache.get(userId);
+  if (!cached) return null;
+  if (cached.expiresAt <= now) {
+    jilChatUserCache.delete(userId);
+    return null;
+  }
+  jilChatUserCache.delete(userId);
+  jilChatUserCache.set(userId, cached);
+  return cached.badges;
+}
+
+/*
+ * Users whose current cached JilChat result came from a real server answer,
+ * as opposed to a guard skip, throttle, or failure. Lets Preview tell an
+ * authoritative "shows none" apart from "not looked up". Bounded with the cache.
+ */
+const jilChatAuthoritative = new Set<string>();
+
+function rememberJilChat(
+  userId: string,
+  badges: Assignment[],
+  ttlMs = JILCHAT_CLIENT_CACHE_TTL_MS,
+): void {
+  jilChatUserCache.delete(userId);
+  while (jilChatUserCache.size >= JILCHAT_CLIENT_CACHE_MAX_KEYS) {
+    const oldest = jilChatUserCache.keys().next();
+    if (oldest.done) break;
+    jilChatUserCache.delete(oldest.value);
+  }
+  jilChatUserCache.set(userId, {
+    badges,
+    expiresAt: Date.now() + ttlMs,
+  });
+}
+
+async function requestJilChat(userId: string, generation: number): Promise<Assignment[]> {
+  let rateLimited = false;
+  try {
+    const body = await requestJson(
+      `/api/twitch/jilchat-badges?userId=${encodeURIComponent(userId)}`,
+      (retryAfter) => {
+        rateLimited = true;
+        if (generation === jilChatGeneration) pauseJilChatForRetryAfter(retryAfter);
+      },
+    );
+
+    const badges = asArray(body).flatMap((raw, index) => {
+      if (!isRecord(raw)) return [];
+      const title = asString(raw.title) || 'JilChat';
+      const item = assignment(
+        'jilchat',
+        asString(raw.id) || `jilchat-${index}`,
+        title,
+        asString(raw.url),
+        [userId],
+      );
+      return item ? [item] : [];
+    });
+
+    if (generation !== jilChatGeneration) return [];
+    rememberJilChat(userId, badges);
+    if (jilChatAuthoritative.size >= JILCHAT_CLIENT_CACHE_MAX_KEYS * 2) jilChatAuthoritative.clear();
+    jilChatAuthoritative.add(userId);
+    return badges;
+  } catch {
+    jilChatAuthoritative.delete(userId);
+    if (generation === jilChatGeneration) {
+      rememberJilChat(
+        userId, [],
+        rateLimited ? JILCHAT_CLIENT_THROTTLED_TTL_MS : JILCHAT_CLIENT_FAILURE_TTL_MS,
+      );
+    }
+    return [];
+  }
+}
+
+function refillJilChatBudget(now = Date.now()): void {
+  if (now < jilChatBudgetUpdatedAt) jilChatBudgetUpdatedAt = now;
+  const elapsed = now - jilChatBudgetUpdatedAt;
+  const tokens = Math.floor(elapsed / JILCHAT_CLIENT_REFILL_MS);
+  if (tokens > 0) {
+    jilChatBudgetTokens = Math.min(JILCHAT_CLIENT_BURST, jilChatBudgetTokens + tokens);
+    jilChatBudgetUpdatedAt += tokens * JILCHAT_CLIENT_REFILL_MS;
+  }
+}
+
+function scheduleJilChatDrain(delayMs: number): void {
+  if (jilChatDrainTimer !== null) return;
+  jilChatDrainTimer = setTimeout(() => {
+    jilChatDrainTimer = null;
+    drainJilChatQueue();
+  }, Math.max(1, delayMs));
+}
+
+function skipJilChatUser(userId: string): Assignment[] {
+  jilChatAuthoritative.delete(userId);
+  // A short negative cache avoids repeated skipped checks in busy chat, while
+  // allowing badge discovery to recover quickly when capacity returns.
+  rememberJilChat(userId, [], JILCHAT_CLIENT_THROTTLED_TTL_MS);
+  return [];
+}
+
+function pauseJilChatForRetryAfter(value: string | null): void {
+  const raw = value?.trim() ?? '';
+  const numericSeconds = /^\d+$/.test(raw) ? Number(raw) : NaN;
+  const millis = Number.isFinite(numericSeconds)
+    ? numericSeconds * 1_000
+    : raw && Number.isFinite(Date.parse(raw))
+      ? Date.parse(raw) - Date.now()
+      : 60_000;
+  const duration = Math.max(1_000, Math.min(120_000, millis));
+  jilChatCooldownUntil = Math.max(jilChatCooldownUntil, Date.now() + duration);
+
+  if (jilChatDrainTimer !== null) {
+    clearTimeout(jilChatDrainTimer);
+    jilChatDrainTimer = null;
+  }
+  // Drop pending requests immediately rather than blocking chat throughout a
+  // server-enforced cooldown. Existing successful badge cache stays untouched.
+  for (const queued of jilChatQueue.splice(0)) {
+    queued.resolve(skipJilChatUser(queued.userId));
+  }
+}
+
+function drainJilChatQueue(): void {
+  const now = Date.now();
+  if (now < jilChatCooldownUntil) {
+    for (const queued of jilChatQueue.splice(0)) {
+      queued.resolve(skipJilChatUser(queued.userId));
+    }
+    return;
+  }
+
+  refillJilChatBudget(now);
+  while (
+    jilChatActiveRequests < JILCHAT_CLIENT_MAX_CONCURRENT &&
+    jilChatBudgetTokens > 0 &&
+    jilChatQueue.length > 0
+  ) {
+    const next = jilChatQueue.shift();
+    if (!next) break;
+    jilChatBudgetTokens -= 1;
+    jilChatActiveRequests += 1;
+    const generation = jilChatGeneration;
+
+    void requestJilChat(next.userId, generation)
+      .then(next.resolve)
+      .finally(() => {
+        if (generation !== jilChatGeneration) return;
+        jilChatActiveRequests -= 1;
+        drainJilChatQueue();
+      });
+  }
+
+  if (jilChatQueue.length > 0 && jilChatBudgetTokens === 0) {
+    scheduleJilChatDrain(jilChatBudgetUpdatedAt + JILCHAT_CLIENT_REFILL_MS - Date.now());
+  }
+}
+
+function liveJilChatResult(work: Promise<Assignment[]>): Promise<Assignment[]> {
+  // Normal chat messages cannot wait seconds for optional cosmetics. The
+  // underlying lookup still completes and caches the badge for later messages.
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve([]), JILCHAT_CLIENT_LIVE_WAIT_MS);
+    void work.then(
+      (badges) => { clearTimeout(timer); resolve(badges); },
+      () => { clearTimeout(timer); resolve([]); },
+    );
+  });
+}
+
+/*
+ * JilChat publishes one small list of every badge with the Twitch users who
+ * display it. The overlay reads it through /api/twitch/jilchat-badges (no
+ * userId) every few minutes and answers every chatter from it, so busy chat
+ * makes no request per chatter. The per-chatter path behind the traffic guard
+ * below stays as the fallback while the list can't be had (or stops naming
+ * users). A failed refresh keeps the last good list.
+ */
+export const JILCHAT_DIRECTORY_CLIENT_TTL_MS = 5 * 60_000;
+export const JILCHAT_DIRECTORY_CLIENT_RETRY_MS = 60_000;
+let jilChatDirectory: Map<string, Assignment[]> | null = null;
+let jilChatDirectoryAt = 0;
+let jilChatDirectoryFailedAt = 0;
+let jilChatDirectoryInFlight: Promise<Map<string, Assignment[]> | null> | null = null;
+
+/** The list as answered by /api/twitch/jilchat-badges; null when it can't be used. Exported for tests. */
+export function parseJilChatDirectoryAnswer(body: unknown): Map<string, Assignment[]> | null {
+  if (!isRecord(body) || body.listsUsers !== true || !Array.isArray(body.badges)) return null;
+  const byUser = new Map<string, Assignment[]>();
+  for (const raw of body.badges) {
+    if (!isRecord(raw)) continue;
+    const userIds = strings(raw.userIds).filter((id) => /^\d{1,25}$/.test(id));
+    const item = assignment(
+      'jilchat',
+      asString(raw.id) || 'jilchat',
+      asString(raw.title) || 'JilChat',
+      asString(raw.url),
+      userIds,
+    );
+    if (!item) continue;
+    for (const userId of userIds) {
+      if (!byUser.has(userId)) byUser.set(userId, [{ ...item, userIds: [userId] }]);
+    }
+  }
+  return byUser;
+}
+
+function refreshJilChatDirectory(): Promise<Map<string, Assignment[]> | null> {
+  if (jilChatDirectoryInFlight) return jilChatDirectoryInFlight;
+  const generation = jilChatGeneration;
+  const work = requestJson('/api/twitch/jilchat-badges')
+    .then((body) => parseJilChatDirectoryAnswer(body))
+    .catch(() => null)
+    .then((directory) => {
+      if (generation !== jilChatGeneration) return null;
+      if (directory) {
+        jilChatDirectory = directory;
+        jilChatDirectoryAt = Date.now();
+        jilChatDirectoryFailedAt = 0;
+      } else {
+        jilChatDirectoryFailedAt = Date.now();
+      }
+      return jilChatDirectory;
+    })
+    .finally(() => {
+      if (jilChatDirectoryInFlight === work) jilChatDirectoryInFlight = null;
+    });
+  jilChatDirectoryInFlight = work;
+  return work;
+}
+
+/*
+ * The list to answer from: a fresh one at once; a stale one at once while it
+ * refreshes; none yet, then this lookup waits for the first load (a live
+ * message only briefly). Undefined means "use the per-chatter fallback".
+ */
+async function jilChatDirectoryForLookup(waitForResult: boolean): Promise<Map<string, Assignment[]> | null | undefined> {
+  const now = Date.now();
+  if (jilChatDirectory) {
+    if (now - jilChatDirectoryAt >= JILCHAT_DIRECTORY_CLIENT_TTL_MS && now - jilChatDirectoryFailedAt >= JILCHAT_DIRECTORY_CLIENT_RETRY_MS) {
+      void refreshJilChatDirectory();
+    }
+    return jilChatDirectory;
+  }
+  if (now - jilChatDirectoryFailedAt < JILCHAT_DIRECTORY_CLIENT_RETRY_MS) return undefined;
+  const work = refreshJilChatDirectory();
+  const directory = waitForResult
+    ? await work
+    : await new Promise<Map<string, Assignment[]> | null | 'late'>((resolve) => {
+      const timer = setTimeout(() => resolve('late'), JILCHAT_CLIENT_LIVE_WAIT_MS);
+      void work.then((value) => { clearTimeout(timer); resolve(value); });
+    });
+  /* Still loading: this message goes without; the list serves the next ones. */
+  if (directory === 'late') return null;
+  return directory ?? undefined;
+}
+
+async function loadJilChat(userId: string, waitForResult = false): Promise<Assignment[]> {
+  if (!/^\d{1,25}$/.test(userId)) return [];
+
+  const directory = await jilChatDirectoryForLookup(waitForResult);
+  if (directory === null) return [];
+  if (directory) {
+    if (jilChatAuthoritative.size >= JILCHAT_CLIENT_CACHE_MAX_KEYS * 2) jilChatAuthoritative.clear();
+    jilChatAuthoritative.add(userId);
+    return directory.get(userId) ?? [];
+  }
+
+  const cached = cachedJilChat(userId);
+  if (cached) return cached;
+
+  const existing = jilChatUserInFlight.get(userId);
+  if (existing) return waitForResult ? existing : liveJilChatResult(existing);
+
+  if (Date.now() < jilChatCooldownUntil || jilChatQueue.length >= JILCHAT_CLIENT_MAX_QUEUE) {
+    return skipJilChatUser(userId);
+  }
+
+  const work = new Promise<Assignment[]>((resolve) => {
+    jilChatQueue.push({ userId, resolve });
+    drainJilChatQueue();
+  });
+  jilChatUserInFlight.set(userId, work);
+  void work.then(() => {
+    if (jilChatUserInFlight.get(userId) === work) jilChatUserInFlight.delete(userId);
+  });
+  return waitForResult ? work : liveJilChatResult(work);
+}
+
+function cachedStreamNook(
+  userId: string,
+  now = Date.now(),
+): Assignment[] | null {
+  const cached = streamNookUserCache.get(userId);
+  if (!cached || cached.expiresAt <= now) return null;
+
+  streamNookUserCache.delete(userId);
+  streamNookUserCache.set(userId, cached);
+  return cached.badges;
+}
+
+function rememberStreamNook(
+  userId: string,
+  badges: Assignment[],
+  ttlMs = STREAMNOOK_CLIENT_CACHE_TTL_MS,
+): void {
+  streamNookUserCache.delete(userId);
+
+  while (streamNookUserCache.size >= STREAMNOOK_CLIENT_CACHE_MAX_KEYS) {
+    const oldest = streamNookUserCache.keys().next();
+    if (oldest.done) break;
+    streamNookUserCache.delete(oldest.value);
+  }
+
+  streamNookUserCache.set(userId, {
+    badges,
+    expiresAt: Date.now() + ttlMs,
+  });
+}
+
+function streamNookBadgesForUser(
+  userId: string,
+  rawUser: unknown,
+  rawCosmetics: unknown,
+): Assignment[] {
+  if (!isRecord(rawUser)) return [];
+
+  const equipped = isRecord(rawUser.equipped) ? rawUser.equipped : {};
+  const badgeSlug = asString(rawUser.badge) || asString(equipped.badge);
+  if (!badgeSlug || !isRecord(rawCosmetics)) return [];
+
+  const cosmetic = rawCosmetics[badgeSlug];
+  if (!isRecord(cosmetic)) return [];
+
+  const kind = asString(cosmetic.kind);
+  if (kind && kind !== 'badge') return [];
+
+  const surfaces = asArray(cosmetic.surfaces)
+    .map(asString)
+    .filter(Boolean);
+
+  if (surfaces.length && !surfaces.includes('chat')) return [];
+
+  const item = assignment(
+    'streamnook',
+    badgeSlug,
+    asString(cosmetic.name) || 'StreamNook',
+    asString(cosmetic.image_url),
+    [userId],
+  );
+
+  return item ? [item] : [];
+}
+
+function parseStreamNookBulkRegistry(
+  body: unknown,
+): Map<string, Assignment[]> | null {
+  if (
+    !isRecord(body)
+    || !Array.isArray(body.badges)
+    || !isRecord(body.users)
+  ) {
+    return null;
+  }
+
+  const badgeDefinitions = new Map<
+    string,
+    { name: string; url: string }
+  >();
+
+  for (const rawBadge of body.badges) {
+    if (!isRecord(rawBadge)) continue;
+
+    const slug =
+      asString(rawBadge.slug)
+      || asString(rawBadge.version);
+
+    const url =
+      asString(rawBadge.image_url_4)
+      || asString(rawBadge.image_url_2)
+      || asString(rawBadge.image_url);
+
+    if (!slug || !url) continue;
+
+    badgeDefinitions.set(slug, {
+      name:
+        asString(rawBadge.name)
+        || asString(rawBadge.meta_title)
+        || 'StreamNook',
+      url,
+    });
+  }
+
+  const badgesByUserId = new Map<string, Assignment[]>();
+  let unresolvedAppliedBadge = false;
+
+  for (const [userId, rawUser] of Object.entries(body.users)) {
+    if (!/^\d{1,15}$/.test(userId) || !isRecord(rawUser)) continue;
+
+    /*
+     * StreamNook's bulk file can list every badge a member owns, but chat must
+     * render exactly one: the badge in users[id].applied.
+     */
+    const applied = asString(rawUser.applied);
+    if (!applied) continue;
+
+    const definition = badgeDefinitions.get(applied);
+
+    if (!definition) {
+      unresolvedAppliedBadge = true;
+      continue;
+    }
+
+    const item = assignment(
+      'streamnook',
+      applied,
+      definition.name,
+      definition.url,
+      [userId],
+    );
+
+    if (item) {
+      badgesByUserId.set(userId, [item]);
+    }
+  }
+
+  /*
+   * A user pointing at an unknown applied slug means this bulk response cannot
+   * faithfully render everyone. Treat that as unusable so the existing expanded
+   * per-user path can recover hidden/staged art instead of silently dropping it.
+   */
+  if (unresolvedAppliedBadge) return null;
+
+  return badgesByUserId;
+}
+
+function cachedStreamNookBulk(
+  now = Date.now(),
+): Map<string, Assignment[]> | null {
+  if (
+    !streamNookBulkCache
+    || streamNookBulkCache.expiresAt <= now
+  ) {
+    return null;
+  }
+
+  return streamNookBulkCache.badgesByUserId;
+}
+
+async function streamNookBulkRegistry():
+Promise<Map<string, Assignment[]>> {
+  const cached = cachedStreamNookBulk();
+  if (cached) return cached;
+
+  if (streamNookBulkInFlight) {
+    return streamNookBulkInFlight;
+  }
+
+  const stale = streamNookBulkCache?.badgesByUserId ?? null;
+
+  const work = (async () => {
+    try {
+      const body = await requestJson(
+        STREAMNOOK_BADGES_USERS_URL,
+      );
+
+      const badgesByUserId =
+        parseStreamNookBulkRegistry(body);
+
+      if (!badgesByUserId) {
+        throw new Error(
+          'Invalid StreamNook bulk badge registry',
+        );
+      }
+
+      streamNookBulkCache = {
+        badgesByUserId,
+        expiresAt:
+          Date.now() + STREAMNOOK_BULK_CACHE_TTL_MS,
+      };
+
+      return badgesByUserId;
+    } catch (error) {
+      /*
+       * Keep the last complete bulk file briefly during an outage. If there has
+       * never been a good copy, rethrow so loadStreamNook uses the established
+       * /users?ids= fallback path.
+       */
+      if (stale) {
+        streamNookBulkCache = {
+          badgesByUserId: stale,
+          expiresAt:
+            Date.now() + STREAMNOOK_CLIENT_FAILURE_TTL_MS,
+        };
+
+        return stale;
+      }
+
+      throw error;
+    }
+  })();
+
+  streamNookBulkInFlight = work;
+
+  void work.then(
+    () => {
+      if (streamNookBulkInFlight === work) {
+        streamNookBulkInFlight = null;
+      }
+    },
+    () => {
+      if (streamNookBulkInFlight === work) {
+        streamNookBulkInFlight = null;
+      }
+    },
+  );
+
+  return work;
+}
+async function requestStreamNookBatch(
+  entries: StreamNookQueueEntry[],
+): Promise<void> {
+  const ids = entries
+    .map((entry) => entry.userId)
+    .sort((a, b) => a.localeCompare(b));
+
+  const params = new URLSearchParams({
+    ids: ids.join(','),
+    kind: 'badge',
+    expand: '1',
+  });
+
+  try {
+    const body = await requestJson(
+      `${STREAMNOOK_USERS_URL}?${params.toString()}`,
+    );
+
+    const users = isRecord(body) && isRecord(body.users)
+      ? body.users
+      : {};
+
+    const cosmetics = isRecord(body) && isRecord(body.cosmetics)
+      ? body.cosmetics
+      : {};
+
+    for (const entry of entries) {
+      const badges = streamNookBadgesForUser(
+        entry.userId,
+        users[entry.userId],
+        cosmetics,
+      );
+
+      rememberStreamNook(entry.userId, badges);
+      entry.resolve(badges);
+    }
+  } catch {
+    for (const entry of entries) {
+      /*
+       * Keep the last known result briefly during a StreamNook outage. This
+       * prevents a busy chat from retrying the same failed batch per message
+       * while also preserving a previously known badge until the API recovers.
+       */
+      const stale = streamNookUserCache.get(entry.userId)?.badges ?? [];
+
+      rememberStreamNook(
+        entry.userId,
+        stale,
+        STREAMNOOK_CLIENT_FAILURE_TTL_MS,
+      );
+
+      entry.resolve(stale);
+    }
+  }
+}
+
+function scheduleStreamNookFlush(): void {
+  if (
+    streamNookFlushTimer !== null ||
+    streamNookBatchActive ||
+    streamNookQueue.length === 0
+  ) {
+    return;
+  }
+
+  const elapsedSinceLastBatch = streamNookLastBatchStartedAt
+    ? Date.now() - streamNookLastBatchStartedAt
+    : Number.POSITIVE_INFINITY;
+
+  const waitMs = Math.max(
+    STREAMNOOK_BATCH_WINDOW_MS,
+    STREAMNOOK_BATCH_MIN_INTERVAL_MS - elapsedSinceLastBatch,
+  );
+
+  streamNookFlushTimer = setTimeout(() => {
+    streamNookFlushTimer = null;
+
+    if (streamNookBatchActive) return;
+
+    const entries = streamNookQueue.splice(
+      0,
+      STREAMNOOK_BATCH_MAX_IDS,
+    );
+
+    if (!entries.length) return;
+
+    streamNookBatchActive = true;
+    streamNookLastBatchStartedAt = Date.now();
+
+    void requestStreamNookBatch(entries).finally(() => {
+      streamNookBatchActive = false;
+      scheduleStreamNookFlush();
+    });
+  }, waitMs);
+}
+
+async function loadStreamNook(userId: string): Promise<Assignment[]> {
+  /*
+   * StreamNook accepts Twitch numeric ids from 1 to 15 digits. It deliberately
+   * has no login-name lookup, so malformed/provider-less identities are skipped.
+   */
+  if (!/^\d{1,15}$/.test(userId)) return [];
+
+  const cached = cachedStreamNook(userId);
+  if (cached) return cached;
+
+  const existing = streamNookUserInFlight.get(userId);
+  if (existing) return existing;
+
+  const work = (async (): Promise<Assignment[]> => {
+    try {
+      /*
+       * One five-minute bulk file covers the whole chat. Every concurrent
+       * caller shares this promise, so a preview roster or busy channel does not
+       * create one StreamNook request per chatter.
+       */
+      const badgesByUserId =
+        await streamNookBulkRegistry();
+
+      const badges =
+        badgesByUserId.get(userId) ?? [];
+
+      rememberStreamNook(userId, badges);
+      return badges;
+    } catch {
+      /*
+       * Bulk is an optimization, not a dependency. If it is unavailable or
+       * malformed, retain the already-tested 200-id /users?ids= queue.
+       */
+      return new Promise<Assignment[]>((resolve) => {
+        streamNookQueue.push({ userId, resolve });
+        scheduleStreamNookFlush();
+      });
+    }
+  })();
+
+  streamNookUserInFlight.set(userId, work);
+
+  void work.then(
+    () => streamNookUserInFlight.delete(userId),
+    () => streamNookUserInFlight.delete(userId),
+  );
+
+  return work;
+}
+const PROVIDERS: ReadonlyArray<() => Promise<Assignment[]>> = [
+  loadChatterino,
+  loadLegacyHomies,
+  loadCustomHomies,
+  loadMoltorino,
+  loadBluzyrino,
+  loadSolrino,
+  loadFFZ,
+  loadBTTV,
+  loadTurteg,
+  loadPolandBot,
+  loadBChat,
+  loadBadgeHq,
+  loadFolhinha,
+  loadDankChat,
+  loadChatty,
+  loadChatsen,
+  loadFfzAp,
+  loadEnhancer,
+  loadChatlee,
+  loadUChat,
+];
+
+/* Badge-type provider key for each PROVIDERS entry, index for index. */
+const PROVIDER_KEYS: readonly string[] = [
+  'chatterino',
+  'homies',
+  'custom-homies',
+  'moltorino',
+  'bluzyrino',
+  'solrino',
+  'ffz',
+  'bttv',
+  'turteg',
+  'polandbot',
+  'bchat',
+  'badgehq',
+  'folhinha',
+  'dankchat',
+  'chatty',
+  'chatsen',
+  'ffzap',
+  'enhancer',
+  'chatlee',
+  'uchat',
+];
+
+function addToIndex(map: Map<string, Assignment[]>, key: string, badge: Assignment): void {
+  if (!key) return;
+  const list = map.get(key) ?? [];
+  list.push(badge);
+  map.set(key, list);
+}
+
+async function loadProviderCached(
+  index: number,
+  provider: () => Promise<Assignment[]>,
+): Promise<ProviderCacheEntry> {
+  const now = Date.now();
+  const cached = providerCache.get(index);
+  if (cached && now < cached.expiresAt) return cached;
+
+  const existing = providerInFlight.get(index);
+  if (existing) return existing;
+
+  const work = (async (): Promise<ProviderCacheEntry> => {
+    try {
+      const badges = await provider();
+      const result: ProviderCacheEntry = {
+        badges,
+        failed: false,
+        expiresAt: Date.now() + SUCCESS_TTL_MS,
+      };
+      providerCache.set(index, result);
+      providerLastGood.set(index, badges);
+      return result;
+    } catch {
+      const result: ProviderCacheEntry = {
+        badges: providerLastGood.get(index) ?? [],
+        failed: true,
+        expiresAt: Date.now() + PARTIAL_TTL_MS,
+      };
+      providerCache.set(index, result);
+      return result;
+    }
+  })();
+
+  providerInFlight.set(index, work);
+  void work.then(() => {
+    if (providerInFlight.get(index) === work) {
+      providerInFlight.delete(index);
+    }
+  });
+
+  return work;
+}
+
+async function buildRegistry(): Promise<Registry> {
+  const results = await Promise.all(
+    PROVIDERS.map((provider, index) =>
+      loadProviderCached(index, provider),
+    ),
+  );
+
+  const byUserId = new Map<string, Assignment[]>();
+  const byUsername = new Map<string, Assignment[]>();
+  const ffzById = new Map<string, Assignment>();
+  let partial = false;
+  const failedProviders: string[] = [];
+
+  for (const [index, result] of results.entries()) {
+    if (result.failed) {
+      partial = true;
+      const key = PROVIDER_KEYS[index];
+      if (key) failedProviders.push(key);
+      /* result.badges is that provider's last-known-good list (or empty). */
+    }
+
+    for (const badge of result.badges) {
+      if (PROVIDER_KEYS[index] === 'ffz' && badge.provider === 'ffz' && !ffzById.has(badge.id)) {
+        ffzById.set(badge.id, badge);
+      }
+      for (const userId of badge.userIds) {
+        addToIndex(byUserId, userId, badge);
+      }
+      for (const username of badge.usernames) {
+        addToIndex(byUsername, username.toLowerCase(), badge);
+      }
+    }
+  }
+
+  return { byUserId, byUsername, ffzById, partial, failedProviders };
+}
+
+/**
+ * Provider keys that failed in the most recent registry load (e.g. FFZ when
+ * its API answers slower than the request timeout). Lets Preview keep
+ * last-known-good badges for exactly those providers.
+ */
+export function communityBadgeProviderFailures(): readonly string[] {
+  return cachedRegistry?.failedProviders ?? [];
+}
+
+async function registry(): Promise<Registry> {
+  const now = Date.now();
+  const ttl = cachedRegistry?.partial ? PARTIAL_TTL_MS : SUCCESS_TTL_MS;
+  if (cachedRegistry && now - cachedAt < ttl) return cachedRegistry;
+  if (inFlight) return inFlight;
+
+  inFlight = buildRegistry().then((value) => {
+    cachedRegistry = value;
+    cachedAt = Date.now();
+    inFlight = null;
+    return value;
+  }, (error) => {
+    inFlight = null;
+    throw error;
+  });
+  return inFlight;
+}
+
+function dedupe(assignments: Assignment[]): Assignment[] {
+  const seen = new Set<string>();
+  const out: Assignment[] = [];
+  for (const badge of assignments) {
+    const key = `${badge.provider}:${badge.id}:${badge.url}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(badge);
+  }
+  return out;
+}
+
+function normalizedTitle(title: string): string {
+  return title.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function dedupeClientMirrors(assignments: Assignment[]): Assignment[] {
+  const seenTitles = new Set<string>();
+  const out: Assignment[] = [];
+
+  for (const badge of assignments) {
+    if (!MIRRORED_CHAT_CLIENT_PROVIDERS.has(badge.provider)) {
+      out.push(badge);
+      continue;
+    }
+
+    const title = normalizedTitle(badge.title);
+    if (title && seenTitles.has(title)) continue;
+    if (title) seenTitles.add(title);
+    out.push(badge);
+  }
+
+  return out;
+}
+
+const MULTI_DISPLAY_BADGE_PROVIDERS = new Set<ProviderName>([
+  /*
+   * Homies and Enhancer can intentionally display multiple active badges on one
+   * chatter. Other community providers keep one displayed slot unless their
+   * provider-specific parser has already reduced ownership to equipped state.
+   */
+  'homies',
+  'custom-homies',
+  'enhancer',
+  'badgehq',
+]);
+
+function selectDisplayedProviderBadges(
+  assignments: Assignment[],
+): Assignment[] {
+  /*
+   * Resolve the FFZ family before generic mirrored-client title dedupe.
+   *
+   * Otherwise an earlier client mirror such as Chatterino/Chatty can survive
+   * while the official FFZ assignment is later reduced independently, leaving
+   * two visible FFZ-family badges on the same chatter.
+   */
+  const isFfzFamilyAssignment = (
+    badge: Assignment,
+  ): boolean => {
+    if (
+      badge.provider === 'ffz'
+      || badge.provider === 'turteg'
+    ) {
+      return true;
+    }
+
+    if (
+      !MIRRORED_CHAT_CLIENT_PROVIDERS.has(
+        badge.provider,
+      )
+    ) {
+      return false;
+    }
+
+    const fingerprint = [
+      normalizedTitle(
+        badge.title,
+      ),
+      badge.id
+        .trim()
+        .toLowerCase(),
+      badge.url
+        .trim()
+        .toLowerCase(),
+    ].join(' ');
+
+    return (
+      /(^|[^a-z0-9])ffz([^a-z0-9]|$)/u.test(
+        fingerprint,
+      )
+      || fingerprint.includes(
+        'frankerfacez',
+      )
+    );
+  };
+
+  const ffzRank = (
+    badge: Assignment,
+  ): number => {
+    const fingerprint = [
+      normalizedTitle(
+        badge.title,
+      ),
+      badge.id
+        .trim()
+        .toLowerCase(),
+      badge.url
+        .trim()
+        .toLowerCase(),
+    ].join(' ');
+
+    /*
+     * Active Subwoofer wins over the older/permanent Supporter assignment.
+     */
+    const tierRank =
+      fingerprint.includes(
+        'subwoofer',
+      )
+        ? 300
+        : fingerprint.includes(
+            'supporter',
+          )
+          ? 200
+          : 100;
+
+    /*
+     * Within the same tier, prefer the canonical provider.
+     */
+    const providerRank =
+      badge.provider === 'ffz'
+        ? 30
+        : badge.provider === 'turteg'
+          ? 20
+          : 10;
+
+    return (
+      tierRank
+      + providerRank
+    );
+  };
+
+  let out =
+    assignments;
+
+  const ffzFamily =
+    out.filter(
+      isFfzFamilyAssignment,
+    );
+
+  if (
+    ffzFamily.length > 0
+  ) {
+    let keep =
+      ffzFamily[0]!;
+
+    let keepRank =
+      ffzRank(
+        keep,
+      );
+
+    for (
+      const badge
+      of ffzFamily.slice(1)
+    ) {
+      const rank =
+        ffzRank(
+          badge,
+        );
+
+      /*
+       * >= preserves the previous later-assignment preference on equal rank.
+       */
+      if (
+        rank >= keepRank
+      ) {
+        keep =
+          badge;
+
+        keepRank =
+          rank;
+      }
+    }
+
+    out =
+      out.filter(
+        (badge) =>
+          !isFfzFamilyAssignment(
+            badge,
+          )
+          || badge === keep,
+      );
+  }
+
+  /*
+   * Keep the existing duplicate-client cleanup for every other provider.
+   */
+  out =
+    dedupeClientMirrors(
+      out,
+    );
+
+  /*
+   * Preserve existing Bluzyrino newest-assignment behavior.
+   */
+  const blue =
+    out.filter(
+      (badge) =>
+        badge.provider ===
+          'bluzyrino',
+    );
+
+  if (
+    blue.length > 1
+  ) {
+    const keep =
+      blue[
+        blue.length - 1
+      ];
+
+    out =
+      out.filter(
+        (badge) =>
+          badge.provider !==
+            'bluzyrino'
+          || badge === keep,
+      );
+  }
+
+  /*
+   * Preserve the existing one-visible-slot rule for ordinary providers.
+   * Homies/custom-Homies/Enhancer retain their explicit multi-display contract.
+   */
+  const displayed =
+    new Map<
+      ProviderName,
+      Assignment
+    >();
+
+  for (
+    const badge
+    of out
+  ) {
+    if (
+      MULTI_DISPLAY_BADGE_PROVIDERS.has(
+        badge.provider,
+      )
+    ) {
+      continue;
+    }
+
+    if (
+      !displayed.has(
+        badge.provider,
+      )
+    ) {
+      displayed.set(
+        badge.provider,
+        badge,
+      );
+    }
+  }
+
+  return out.filter(
+    (badge) =>
+      MULTI_DISPLAY_BADGE_PROVIDERS.has(
+        badge.provider,
+      )
+      || displayed.get(
+        badge.provider,
+      ) === badge,
+  );
+}
+
+export type TwitchCommunityBadgeIdentity = {
+  userId: string;
+  login?: string;
+  displayName?: string;
+  /** FFZ badge ids the current channel gives this chatter (its FFZ room). */
+  ffzRoomBadgeIds?: readonly string[];
+};
+
+const FFZ_ROOM_BADGES_PER_CHATTER = 4;
+
+async function resolveTwitchCommunityBadgesInternal(
+  identity: TwitchCommunityBadgeIdentity,
+  limerinoOptions: Partial<LimerinoBadgeRenderOptions> | undefined,
+  includeJilChat: boolean,
+): Promise<UnifiedBadge[]> {
+  const userId = identity.userId.trim();
+  const aliases = [...new Set([
+    identity.login?.trim().toLowerCase(),
+    identity.displayName?.trim().toLowerCase(),
+  ].filter((value): value is string => Boolean(value)))];
+  if (!userId && !aliases.length) return [];
+  const [
+    limerinoResult,
+    registryResult,
+    jilChatResult,
+    streamNookResult,
+    previewsResult,
+    gxufyResult,
+  ] = await Promise.allSettled([
+    userId ? limerinoRegistry() : Promise.resolve([]),
+    registry(),
+    includeJilChat && userId ? loadJilChat(userId) : Promise.resolve([]),
+    userId ? loadStreamNook(userId) : Promise.resolve([]),
+    identity.login
+      ? loadPreviews(identity.login)
+      : Promise.resolve([]),
+    userId
+      ? loadGxufy(userId)
+      : Promise.resolve([]),
+  ]);
+
+  const matches = [
+    ...(limerinoResult.status === 'fulfilled' && userId
+      ? limerinoResult.value.filter((badge) => badge.userIds.includes(userId))
+      : []),
+    ...(registryResult.status === 'fulfilled' && userId
+      ? registryResult.value.byUserId.get(userId) ?? []
+      : []),
+    ...(registryResult.status === 'fulfilled'
+      ? aliases.flatMap((alias) => registryResult.value.byUsername.get(alias) ?? [])
+      : []),
+    ...(jilChatResult.status === 'fulfilled' ? jilChatResult.value : []),
+    ...(streamNookResult.status === 'fulfilled' ? streamNookResult.value : []),
+    ...(previewsResult.status === 'fulfilled' ? previewsResult.value : []),
+    ...(gxufyResult.status === 'fulfilled' ? gxufyResult.value : []),
+  ];
+
+  const renderOptions: LimerinoBadgeRenderOptions = {
+    slotSizePx: limerinoOptions?.slotSizePx ?? 18,
+    displayScale: limerinoOptions?.displayScale
+      ?? (typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1),
+    reducedMotion: limerinoOptions?.reducedMotion
+      ?? (typeof window !== 'undefined'
+        && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true),
+  };
+
+  /*
+   * Channel badges from FFZ (a channel's Bot badge, for example) sit next to
+   * the chatter's own FFZ badge rather than competing with it for one slot,
+   * and never twice.
+   */
+  const selected = selectDisplayedProviderBadges(dedupe(matches));
+  const ffzCatalog = registryResult.status === 'fulfilled' ? registryResult.value.ffzById : null;
+  const roomBadges: Assignment[] = [];
+  if (ffzCatalog && identity.ffzRoomBadgeIds?.length) {
+    const shown = new Set(selected.filter((badge) => badge.provider === 'ffz').map((badge) => slug(badge.id)));
+    for (const rawId of identity.ffzRoomBadgeIds) {
+      if (roomBadges.length >= FFZ_ROOM_BADGES_PER_CHATTER) break;
+      const badge = ffzCatalog.get(String(rawId).trim());
+      if (!badge || shown.has(slug(badge.id))) continue;
+      shown.add(slug(badge.id));
+      roomBadges.push(badge);
+    }
+  }
+
+  return [...selected, ...roomBadges].flatMap((badge) => {
+    const image = badge.limerinoBadge
+      ? selectLimerinoBadgeImage(badge.limerinoBadge, renderOptions)
+      : null;
+    if (badge.limerinoBadge && !image) return [];
+    return [{
+      type: `community:${badge.provider}:${slug(badge.id)}`,
+      ...((badge.provider === 'custom-homies'
+        || badge.provider === 'enhancer'
+        || badge.provider === 'previews'
+        || badge.provider === 'gxufy'
+        || badge.provider === 'chatsen'
+        || badge.provider === 'ffzap'
+        || badge.provider === 'jilchat'
+        || badge.provider === 'badgehq'
+        || badge.provider === 'streamnook'
+        || badge.provider === 'limerino'
+        || badge.provider === 'chatlee'
+        || badge.provider === 'solrino'
+        || badge.provider === 'uchat'
+        || badge.provider === 'yautc')
+        ? { title: badge.title }
+        : {}),
+      url: image?.url ?? badge.url,
+      ...((image?.fallbackUrl ?? badge.fallbackUrl)
+        ? { fallbackUrl: image?.fallbackUrl ?? badge.fallbackUrl }
+        : {}),
+      ...(badge.backgroundColor ? { backgroundColor: badge.backgroundColor } : {}),
+    }];
+  });
+}
+
+export function resolveTwitchCommunityBadges(
+  identity: TwitchCommunityBadgeIdentity,
+  limerinoOptions?: Partial<LimerinoBadgeRenderOptions>,
+): Promise<UnifiedBadge[]> {
+  return resolveTwitchCommunityBadgesInternal(
+    identity,
+    limerinoOptions,
+    true,
+  );
+}
+
+/**
+ * Preview fast path.
+ *
+ * All normal production community providers are resolved exactly as they are
+ * for live chat, but JilChat is deliberately omitted from the critical path.
+ * Preview hydrates authoritative JilChat ownership afterward.
+ */
+export function resolveTwitchCommunityBadgesWithoutJilChat(
+  identity: TwitchCommunityBadgeIdentity,
+  limerinoOptions?: Partial<LimerinoBadgeRenderOptions>,
+): Promise<UnifiedBadge[]> {
+  return resolveTwitchCommunityBadgesInternal(
+    identity,
+    limerinoOptions,
+    false,
+  );
+}
+
+/**
+ * Authoritative deferred JilChat lookup used by Preview.
+ *
+ * JilChat resolves to one displayed provider slot. When there is no explicit
+ * shown flag, the first owned badge is selected. The JilChat API consumed here
+ * does not provide a shown flag, so Preview intentionally displays only the
+ * first owned JilChat badge.
+ */
+export async function resolveTwitchJilChatBadges(
+  rawUserId: string,
+): Promise<UnifiedBadge[]> {
+  const userId = rawUserId.trim();
+
+  if (!/^\d{1,25}$/.test(userId)) return [];
+
+  const badges = dedupe(await loadJilChat(userId, true));
+  const badge = badges.find(
+    (candidate) => candidate.provider === 'jilchat',
+  );
+
+  if (!badge) return [];
+
+  return [{
+    type: `community:jilchat:${slug(badge.id)}`,
+    title: badge.title,
+    url: badge.url,
+    ...(badge.fallbackUrl
+      ? { fallbackUrl: badge.fallbackUrl }
+      : {}),
+    ...(badge.backgroundColor
+      ? { backgroundColor: badge.backgroundColor }
+      : {}),
+  }];
+}
+
+/**
+ * Same lookup as resolveTwitchJilChatBadges (same traffic guard), plus whether
+ * the answer is authoritative: a real server response rather than a skipped,
+ * throttled, or failed lookup.
+ */
+export async function resolveTwitchJilChatBadgesDetailed(
+  rawUserId: string,
+): Promise<{ badges: UnifiedBadge[]; authoritative: boolean }> {
+  const badges = await resolveTwitchJilChatBadges(rawUserId);
+  return { badges, authoritative: jilChatAuthoritative.has(rawUserId.trim()) };
+}
+
+export function __resetCommunityBadgeCache(): void {
+  cachedGxufyBadges = null;
+  cachedGxufyAt = 0;
+  gxufyInFlight = null;
+  gxufyVersion = null;
+  gxufyVersionStopped = false;
+  if (gxufyVersionTimer !== null) {
+    clearInterval(gxufyVersionTimer);
+    gxufyVersionTimer = null;
+  }
+  cachedRegistry = null;
+  cachedAt = 0;
+  inFlight = null;
+  moltorinoLayouts = new Map();
+  providerCache.clear();
+  providerLastGood.clear();
+  providerInFlight.clear();
+  cachedLimerino = null;
+  cachedLimerinoAt = 0;
+  badgeListSizes.clear();
+  badgeListWarned.clear();
+  limerinoListVersion = null;
+  if (limerinoReloadTimer !== null) clearTimeout(limerinoReloadTimer);
+  limerinoReloadTimer = null;
+  limerinoInFlight = null;
+  jilChatGeneration += 1;
+  jilChatUserCache.clear();
+  jilChatAuthoritative.clear();
+  jilChatUserInFlight.clear();
+  for (const pending of jilChatQueue.splice(0)) pending.resolve([]);
+  jilChatDirectory = null;
+  jilChatDirectoryAt = 0;
+  jilChatDirectoryFailedAt = 0;
+  jilChatDirectoryInFlight = null;
+  if (jilChatDrainTimer !== null) {
+    clearTimeout(jilChatDrainTimer);
+    jilChatDrainTimer = null;
+  }
+  jilChatActiveRequests = 0;
+  jilChatBudgetTokens = JILCHAT_CLIENT_BURST;
+  jilChatBudgetUpdatedAt = Date.now();
+  jilChatCooldownUntil = 0;
+
+  streamNookUserCache.clear();
+  streamNookUserInFlight.clear();
+  streamNookBulkCache = null;
+  streamNookBulkInFlight = null;
+  streamNookQueue.splice(0);
+
+  if (streamNookFlushTimer !== null) {
+    clearTimeout(streamNookFlushTimer);
+    streamNookFlushTimer = null;
+  }
+
+  streamNookBatchActive = false;
+  streamNookLastBatchStartedAt = 0;
+
+  cachedPreviewsDataset = null;
+  cachedPreviewsAt = 0;
+  previewsInFlight = null;
+
+  cachedGxufyBadges = null;
+  cachedGxufyAt = 0;
+  gxufyInFlight = null;
+}

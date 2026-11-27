@@ -1,0 +1,39 @@
+{
+	"name": "flosschat-web",
+	"version": "0.1.0",
+	"private": true,
+	"license": "AGPL-3.0-or-later",
+	"type": "module",
+	"engines": {
+		"node": ">=22.17"
+	},
+	"imports": {
+		"#lib": "./src/lib/index.js",
+		"#lib/*": "./src/lib/*"
+	},
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"start": "node build",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"test": "vitest --run",
+		"test:watch": "vitest",
+		"speed": "node scripts/overlay-speed.mjs"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-node": "^6.0.6",
+		"@sveltejs/kit": "^3.4.1",
+		"@sveltejs/vite-plugin-svelte": "^7.3.2",
+		"@types/node": "^24",
+		"@vitest/browser-playwright": "^5.1.2",
+		"playwright": "^1.65.1",
+		"svelte": "^5.59.2",
+		"svelte-check": "^4.7.8",
+		"typescript": "^6.0.3",
+		"vite": "^8.4.0",
+		"vitest": "^5.1.2",
+		"vitest-browser-svelte": "^3.1.0"
+	}
+}

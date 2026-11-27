@@ -1,0 +1,145 @@
+name: Deploy to VPS
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+
+permissions: {}
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        env:
+          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha }}
+          GXUFY_OVERLAY_USAGE_DISCORD_WEBHOOK_URL: ${{ secrets.GXUFY_OVERLAY_USAGE_DISCORD_WEBHOOK_URL }}
+          GXUFY_ABUSE_DISCORD_WEBHOOK_URL: ${{ secrets.GXUFY_ABUSE_DISCORD_WEBHOOK_URL }}
+          KICK_TYPESENSE_SEARCH_KEY: ${{ secrets.KICK_TYPESENSE_SEARCH_KEY }}
+          # Launch settings (optional until launch; reported by name only).
+          TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
+          TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
+          FLOSSCHAT_SESSION_SECRET: ${{ secrets.FLOSSCHAT_SESSION_SECRET }}
+          PAYPAL_CLIENT_ID: ${{ secrets.PAYPAL_CLIENT_ID }}
+          PAYPAL_CLIENT_SECRET: ${{ secrets.PAYPAL_CLIENT_SECRET }}
+          PAYPAL_WEBHOOK_ID: ${{ secrets.PAYPAL_WEBHOOK_ID }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          GXUFY_SUPPORTER_STORE_PATH: ${{ secrets.GXUFY_SUPPORTER_STORE_PATH }}
+          GXUFY_SUPPORTER_DISCORD_WEBHOOK_URL: ${{ secrets.GXUFY_SUPPORTER_DISCORD_WEBHOOK_URL }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 15m
+          envs: DEPLOY_SHA,GXUFY_OVERLAY_USAGE_DISCORD_WEBHOOK_URL,GXUFY_ABUSE_DISCORD_WEBHOOK_URL,KICK_TYPESENSE_SEARCH_KEY,TWITCH_CLIENT_ID,TWITCH_CLIENT_SECRET,FLOSSCHAT_SESSION_SECRET,PAYPAL_CLIENT_ID,PAYPAL_CLIENT_SECRET,PAYPAL_WEBHOOK_ID,STRIPE_SECRET_KEY,STRIPE_WEBHOOK_SECRET,GXUFY_SUPPORTER_STORE_PATH,GXUFY_SUPPORTER_DISCORD_WEBHOOK_URL
+          script: |
+            set -euo pipefail
+            if [ -z "${GXUFY_OVERLAY_USAGE_DISCORD_WEBHOOK_URL:-}" ]; then
+              echo "Missing Discord overlay-usage webhook configuration."
+              exit 1
+            fi
+            if [ -z "${GXUFY_ABUSE_DISCORD_WEBHOOK_URL:-}" ]; then
+              echo "Missing Discord abuse webhook configuration."
+              exit 1
+            fi
+            if [ -z "${KICK_TYPESENSE_SEARCH_KEY:-}" ]; then
+              echo "Missing Kick Typesense search configuration."
+              exit 1
+            fi
+            case "${DEPLOY_SHA:-}" in
+              ''|*[!0-9a-fA-F]*)
+                echo "Invalid deployment SHA."
+                exit 1
+                ;;
+            esac
+            if [ "${#DEPLOY_SHA}" -ne 40 ]; then
+              echo "Invalid deployment SHA."
+              exit 1
+            fi
+
+            # Releases run side by side (see release.sh): each version gets its
+            # own folder and the live one is never touched while the next is
+            # built. ~/multichat-gxufy is only used to fetch. The server setup
+            # files (release.sh, ecosystem.config.js, Caddyfile) live on the
+            # server in ~/flosschat/infra, not in this repository.
+            FLOSSCHAT_HOME="$HOME/flosschat"
+            INFRA_DIR="$FLOSSCHAT_HOME/infra"
+            for SERVER_FILE in release.sh ecosystem.config.js Caddyfile; do
+              if [ ! -f "$INFRA_DIR/$SERVER_FILE" ]; then
+                echo "Missing server setup file $INFRA_DIR/$SERVER_FILE."
+                exit 1
+              fi
+            done
+            cd ~/multichat-gxufy
+            # The live slot and its app (it also sends the overlay usage
+            # reports). Before the first release there is none.
+            ACTIVE_SLOT=none
+            PREVIOUS_DEPLOYED_SHA=none
+            if [ -f "$FLOSSCHAT_HOME/active" ]; then
+              read -r ACTIVE_SLOT PREVIOUS_DEPLOYED_SHA < "$FLOSSCHAT_HOME/active"
+            fi
+            echo "VPS_DEPLOYED_SHA=$PREVIOUS_DEPLOYED_SHA"
+            if [ "$ACTIVE_SLOT" != none ]; then
+              PM2_APP="flosschat-web-$ACTIVE_SLOT"
+              pm2 jlist 2>/dev/null | PM2_APP="$PM2_APP" node -e '
+                let input = "";
+                process.stdin.setEncoding("utf8");
+                process.stdin.on("data", (chunk) => { input += chunk; });
+                process.stdin.on("end", () => {
+                  const app = JSON.parse(input).find((entry) => entry.name === process.env.PM2_APP);
+                  const value = app?.pm2_env?.GXUFY_OVERLAY_USAGE_DISCORD_WEBHOOK_URL;
+                  console.log(`VPS_WEBHOOK_ENV=${typeof value === "string" && value.length > 0 ? "SET" : "MISSING"}`);
+                });
+              '
+              PM2_TELEMETRY_LOGS="$(pm2 logs "$PM2_APP" --nostream --lines 500 2>&1 || true)"
+              if printf '%s' "$PM2_TELEMETRY_LOGS" | grep -Fq 'Discord overlay-usage delivery is not configured.'; then
+                echo 'VPS_TELEMETRY_STATE=unconfigured'
+              fi
+              if printf '%s' "$PM2_TELEMETRY_LOGS" | grep -Fq 'Discord overlay-usage delivery failed.'; then
+                echo 'VPS_TELEMETRY_STATE=failed'
+              fi
+              unset PM2_TELEMETRY_LOGS
+            fi
+            git fetch --no-tags origin '+refs/heads/main:refs/remotes/origin/main'
+            ORIGIN_MAIN_SHA="$(git rev-parse --verify 'refs/remotes/origin/main^{commit}')"
+            if [ "$ORIGIN_MAIN_SHA" != "$DEPLOY_SHA" ]; then
+              echo "Skipping stale deployment: CI-tested commit is no longer origin/main."
+              exit 0
+            fi
+
+            CURRENT_SHA="$(git rev-parse --verify "${DEPLOY_SHA}^{commit}")"
+            if [ "$CURRENT_SHA" != "$DEPLOY_SHA" ]; then
+              echo "Deployment source verification failed."
+              exit 1
+            fi
+
+            RELEASE_DIR="$FLOSSCHAT_HOME/releases/$DEPLOY_SHA"
+            if [ "$PREVIOUS_DEPLOYED_SHA" = "$DEPLOY_SHA" ]; then
+              echo "VPS_RELEASE=ALREADY_LIVE"
+              exit 0
+            fi
+            mkdir -p "$FLOSSCHAT_HOME/releases"
+            rm -rf "$RELEASE_DIR.partial"
+            mkdir "$RELEASE_DIR.partial"
+            git archive --format=tar "$DEPLOY_SHA" | tar -x -C "$RELEASE_DIR.partial"
+            printf '%s\n' "$DEPLOY_SHA" > "$RELEASE_DIR.partial/.release-sha"
+            rm -rf "$RELEASE_DIR"
+            mv "$RELEASE_DIR.partial" "$RELEASE_DIR"
+
+            bash "$INFRA_DIR/release.sh" deploy "$DEPLOY_SHA"

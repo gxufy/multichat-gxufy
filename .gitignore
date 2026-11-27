@@ -1,0 +1,18 @@
+node_modules/
+**/.next/
+.vercel/
+*.local
+.env*
+!app/.env.example
+server.log
+**/tsconfig.tsbuildinfo
+
+# Local supporter store (sandbox testing; contains order records)
+/.data/
+app/.data/
+
+# Server setup files (release.sh, ecosystem.config.js, Caddyfile) live on the
+# server in ~/flosschat/infra; the local copy in .github/infra is the one to edit.
+/.github/infra/
+# "Used by" streamer clips live on the server in ~/flosschat/media/used-by.
+/web/public/used-by/*.mp4

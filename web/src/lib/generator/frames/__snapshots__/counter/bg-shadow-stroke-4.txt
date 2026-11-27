@@ -1,0 +1,12 @@
+<div style="padding: 8px; box-sizing: border-box; width: 100%;">
+  <style>
+    "\n@font-face { font-family: 'DejaVu Sans'; src: url('/fonts/DejaVuSans-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }\n@keyframes vcIn { from { opacity: 0; transform: translateX(-8px) scale(0.85); } to { opacity: 1; transform: none; } }\n"
+  <div style="display: flex; gap: 17px; flex-wrap: wrap; justify-content: flex-start; width: 100%; box-sizing: border-box;">
+    <div style="display: inline-flex; align-items: center; gap: 10px; background: rgba(20, 20, 24, 0.45); backdrop-filter: blur(6px); border-radius: 999px; padding: 7px 17px; font-family: &quot;DejaVu Sans&quot;, sans-serif; font-weight: 700; color: rgb(255, 255, 255); filter: drop-shadow(black 2px 2px 0.5rem); -webkit-text-stroke: 3px black; transition: 400ms;">
+      <span style="height: 31px; width: 31px; display: inline-flex; align-items: center; justify-content: center; animation: 400ms ease 0s 1 normal none running vcIn;">
+        <img alt="" draggable="false" src="/platform-twitch.png" style="height: 100%; width: auto;">
+      <span style="height: 31px; width: 31px; display: inline-flex; align-items: center; justify-content: center; animation: 400ms ease 0s 1 normal none running vcIn;">
+        <svg fill="#53FC19" viewBox="0 0 24 24" style="height: 78%; width: auto; margin: auto;">
+          <path d="M1.333 0h8v5.333H12V2.667h2.667V0h8v8H20v2.667h-2.667v2.666H20V16h2.667v8h-8v-2.667H12v-2.666H9.333V24h-8Z">
+      <span style="font-size: 34px; font-variant-numeric: tabular-nums;">
+        "99"

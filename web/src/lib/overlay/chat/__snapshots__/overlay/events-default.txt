@@ -1,0 +1,1018 @@
+<div id="chat_container" style="width: 100%; padding: 10px; position: absolute; bottom: 0px; overflow: hidden; background: transparent; color: white; font-weight: 800; word-break: break-word; font-family: &quot;Open Sans&quot;, Arial, system-ui, sans-serif; font-size: 34px;">
+  <div>
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-subscription gx-sub-card" data-sub-months="1" data-sub-type="sub" data-testid="twitch-subscription-row" style="--gx-event-accent: #c9a7ff;">
+            <span aria-hidden="true" class="gx-event-icon gx-sub-icon">
+              <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M3 9h18v12H3zM2 5h20v4H2zM12 5v16">
+                <path d="M12 5H7.7A2.2 2.2 0 1 1 10 2.8L12 5Zm0 0h4.3A2.2 2.2 0 1 0 14 2.8L12 5Z">
+            <span class="gx-event-copy gx-sub-copy">
+              <span class="gx-event-header gx-sub-header">
+                <span class="gx-event-badges gx-sub-badges">
+                  <img alt="subscriber" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3" title="subscriber" width="72" style="display: none;">
+                <span class="gx-event-name gx-sub-name" style="color: rgb(255, 127, 80);">
+                  <span class="gx-reference-glyph" data-gx-glyph="Viewer">
+                    <span class="gx-reference-glyph-foreground">
+                      "Viewer"
+                <span class="gx-event-action gx-sub-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="subscribed">
+                    <span class="gx-reference-glyph-foreground">
+                      "subscribed"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="with">
+                    <span class="gx-reference-glyph-foreground">
+                      "with"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="Tier">
+                    <span class="gx-reference-glyph-foreground">
+                      "Tier"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="1">
+                    <span class="gx-reference-glyph-foreground">
+                      "1"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-subscription gx-sub-card" data-sub-months="8" data-sub-type="resub" data-testid="twitch-subscription-row" style="--gx-event-accent: #c9a7ff;">
+            <span aria-hidden="true" class="gx-event-icon gx-sub-icon">
+              <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="m3 7 4.2 4 4.8-7 4.8 7L21 7l-2 11H5L3 7Z">
+                <path d="M5 21h14">
+            <span class="gx-event-copy gx-sub-copy">
+              <span class="gx-event-header gx-sub-header">
+                <span class="gx-event-badges gx-sub-badges">
+                  <img alt="subscriber" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3" title="subscriber" width="72" style="display: none;">
+                <span class="gx-event-name gx-sub-name" style="color: rgb(169, 112, 255);">
+                  <span class="gx-reference-glyph" data-gx-glyph="LongTimeViewer">
+                    <span class="gx-reference-glyph-foreground">
+                      "LongTimeViewer"
+                <span class="gx-event-action gx-sub-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="resubscribed">
+                    <span class="gx-reference-glyph-foreground">
+                      "resubscribed"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="for">
+                    <span class="gx-reference-glyph-foreground">
+                      "for"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="8">
+                    <span class="gx-reference-glyph-foreground">
+                      "8"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="months">
+                    <span class="gx-reference-glyph-foreground">
+                      "months"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="with">
+                    <span class="gx-reference-glyph-foreground">
+                      "with"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="Prime">
+                    <span class="gx-reference-glyph-foreground">
+                      "Prime"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="-">
+                    <span class="gx-reference-glyph-foreground">
+                      "-"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="3">
+                    <span class="gx-reference-glyph-foreground">
+                      "3"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="month">
+                    <span class="gx-reference-glyph-foreground">
+                      "month"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="streak">
+                    <span class="gx-reference-glyph-foreground">
+                      "streak"
+              <span class="gx-event-body gx-sub-body ck-body">
+                <span class="gx-reference-glyph" data-gx-glyph="still">
+                  <span class="gx-reference-glyph-foreground">
+                    "still"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="here">
+                  <span class="gx-reference-glyph-foreground">
+                    "here"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="after">
+                  <span class="gx-reference-glyph-foreground">
+                    "after"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="all">
+                  <span class="gx-reference-glyph-foreground">
+                    "all"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="this">
+                  <span class="gx-reference-glyph-foreground">
+                    "this"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="time">
+                  <span class="gx-reference-glyph-foreground">
+                    "time"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-gift gx-gift-card" data-gift-count="1" data-gift-type="gift" data-testid="twitch-gift-row" style="--gx-event-accent: #ffb184;">
+            <span aria-hidden="true" class="gx-event-icon gx-gift-icon">
+              <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M3 9h18v12H3zM2 5h20v4H2zM12 5v16">
+                <path d="M12 5H7.7A2.2 2.2 0 1 1 10 2.8L12 5Zm0 0h4.3A2.2 2.2 0 1 0 14 2.8L12 5Z">
+            <span class="gx-event-copy gx-gift-copy">
+              <span class="gx-event-header gx-gift-header">
+                <span class="gx-event-badges gx-gift-badges">
+                  <img alt="sub-gifter" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/f1d8486f-eb2e-4553-b44f-4d614617afc1/3" title="sub-gifter" width="72" style="display: none;">
+                <span class="gx-event-name gx-gift-name" style="color: rgb(255, 127, 80);">
+                  <span class="gx-reference-glyph" data-gx-glyph="GiftKing">
+                    <span class="gx-reference-glyph-foreground">
+                      "GiftKing"
+                <span class="gx-event-action gx-gift-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="gifted">
+                    <span class="gx-reference-glyph-foreground">
+                      "gifted"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="a">
+                    <span class="gx-reference-glyph-foreground">
+                      "a"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="Tier">
+                    <span class="gx-reference-glyph-foreground">
+                      "Tier"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="1">
+                    <span class="gx-reference-glyph-foreground">
+                      "1"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="sub">
+                    <span class="gx-reference-glyph-foreground">
+                      "sub"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="to">
+                    <span class="gx-reference-glyph-foreground">
+                      "to"
+                <span class="gx-event-accent gx-event-inline-value gx-gift-recipient">
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="LuckyViewer">
+                    <span class="gx-reference-glyph-foreground">
+                      "LuckyViewer"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-gift gx-gift-card" data-gift-count="5" data-gift-type="community" data-testid="twitch-gift-row" style="--gx-event-accent: #ffb184;">
+            <span aria-hidden="true" class="gx-event-icon gx-gift-icon">
+              <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M3 9h18v12H3zM2 5h20v4H2zM12 5v16">
+                <path d="M12 5H7.7A2.2 2.2 0 1 1 10 2.8L12 5Zm0 0h4.3A2.2 2.2 0 1 0 14 2.8L12 5Z">
+            <span class="gx-event-copy gx-gift-copy">
+              <span class="gx-event-header gx-gift-header">
+                <span class="gx-event-badges gx-gift-badges">
+                  <img alt="sub-gifter" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/f1d8486f-eb2e-4553-b44f-4d614617afc1/3" title="sub-gifter" width="72" style="display: none;">
+                <span class="gx-event-name gx-gift-name" style="color: rgb(169, 112, 255);">
+                  <span class="gx-reference-glyph" data-gx-glyph="GiftBoss">
+                    <span class="gx-reference-glyph-foreground">
+                      "GiftBoss"
+                <span class="gx-event-action gx-gift-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="gifted">
+                    <span class="gx-reference-glyph-foreground">
+                      "gifted"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="5">
+                    <span class="gx-reference-glyph-foreground">
+                      "5"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="Tier">
+                    <span class="gx-reference-glyph-foreground">
+                      "Tier"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="1">
+                    <span class="gx-reference-glyph-foreground">
+                      "1"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="subs">
+                    <span class="gx-reference-glyph-foreground">
+                      "subs"
+                <span class="gx-event-meta gx-gift-total">
+                  <span class="gx-reference-glyph" data-gx-glyph="120">
+                    <span class="gx-reference-glyph-foreground">
+                      "120"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="total">
+                    <span class="gx-reference-glyph-foreground">
+                      "total"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="gifted">
+                    <span class="gx-reference-glyph-foreground">
+                      "gifted"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-gift gx-gift-card" data-gift-count="1" data-gift-type="gift" data-testid="twitch-gift-row" style="--gx-event-accent: #ffb184;">
+            <span aria-hidden="true" class="gx-event-icon gx-gift-icon">
+              <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M3 9h18v12H3zM2 5h20v4H2zM12 5v16">
+                <path d="M12 5H7.7A2.2 2.2 0 1 1 10 2.8L12 5Zm0 0h4.3A2.2 2.2 0 1 0 14 2.8L12 5Z">
+            <span class="gx-event-copy gx-gift-copy">
+              <span class="gx-event-header gx-gift-header">
+                <span class="gx-event-name gx-gift-name" style="color: rgb(255, 0, 0);">
+                  <span class="gx-reference-glyph" data-gx-glyph="Anonymous">
+                    <span class="gx-reference-glyph-foreground">
+                      "Anonymous"
+                <span class="gx-event-action gx-gift-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="gifted">
+                    <span class="gx-reference-glyph-foreground">
+                      "gifted"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="a">
+                    <span class="gx-reference-glyph-foreground">
+                      "a"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="Prime">
+                    <span class="gx-reference-glyph-foreground">
+                      "Prime"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="sub">
+                    <span class="gx-reference-glyph-foreground">
+                      "sub"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="to">
+                    <span class="gx-reference-glyph-foreground">
+                      "to"
+                <span class="gx-event-accent gx-event-inline-value gx-gift-recipient">
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="Viewer">
+                    <span class="gx-reference-glyph-foreground">
+                      "Viewer"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-raid gx-raid-card" data-raid-viewers="420" data-testid="twitch-raid-row" style="--gx-event-accent: #8da8ff;">
+            <span class="gx-event-icon gx-raid-avatar-wrap">
+              <span aria-hidden="true" class="gx-event-icon-fallback gx-raid-avatar-fallback">
+                <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                  <circle cx="9" cy="8" r="3">
+                  <circle cx="17" cy="9" r="2.3">
+                  <path d="M3 20c.3-4 2.3-6 6-6s5.7 2 6 6M14 15c3.8 0 6 1.7 6.4 5">
+            <span class="gx-event-copy gx-raid-copy">
+              <span class="gx-event-header gx-raid-header">
+                <span class="gx-event-name gx-raid-name" style="color: rgb(255, 79, 145);">
+                  <span class="gx-reference-glyph" data-gx-glyph="RaidBoss">
+                    <span class="gx-reference-glyph-foreground">
+                      "RaidBoss"
+                <span class="gx-event-action gx-raid-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="raided">
+                    <span class="gx-reference-glyph-foreground">
+                      "raided"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="with">
+                    <span class="gx-reference-glyph-foreground">
+                      "with"
+                  " "
+                  <span class="gx-event-accent gx-event-inline-value gx-raid-count">
+                    <span class="gx-reference-glyph" data-gx-glyph="420">
+                      <span class="gx-reference-glyph-foreground">
+                        "420"
+                    " "
+                    <span class="gx-reference-glyph" data-gx-glyph="viewers">
+                      <span class="gx-reference-glyph-foreground">
+                        "viewers"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-raid gx-raid-card" data-raid-viewers="7" data-testid="twitch-raid-row" style="--gx-event-accent: #8da8ff;">
+            <span class="gx-event-icon gx-raid-avatar-wrap">
+              <span aria-hidden="true" class="gx-event-icon-fallback gx-raid-avatar-fallback">
+                <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                  <circle cx="9" cy="8" r="3">
+                  <circle cx="17" cy="9" r="2.3">
+                  <path d="M3 20c.3-4 2.3-6 6-6s5.7 2 6 6M14 15c3.8 0 6 1.7 6.4 5">
+            <span class="gx-event-copy gx-raid-copy">
+              <span class="gx-event-header gx-raid-header">
+                <span class="gx-event-name gx-raid-name" style="color: rgb(0, 137, 0);">
+                  <span class="gx-reference-glyph" data-gx-glyph="SmallRaider">
+                    <span class="gx-reference-glyph-foreground">
+                      "SmallRaider"
+                <span class="gx-event-action gx-raid-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="raided">
+                    <span class="gx-reference-glyph-foreground">
+                      "raided"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="with">
+                    <span class="gx-reference-glyph-foreground">
+                      "with"
+                  " "
+                  <span class="gx-event-accent gx-event-inline-value gx-raid-count">
+                    <span class="gx-reference-glyph" data-gx-glyph="7">
+                      <span class="gx-reference-glyph-foreground">
+                        "7"
+                    " "
+                    <span class="gx-reference-glyph" data-gx-glyph="viewers">
+                      <span class="gx-reference-glyph-foreground">
+                        "viewers"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-subscription gx-sub-card" data-testid="twitch-subscription-transition-row" data-transition-type="prime-paid-upgrade" style="--gx-event-accent: #c9a7ff;">
+            <span aria-hidden="true" class="gx-event-icon gx-sub-icon">
+              <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="m3 7 4.2 4 4.8-7 4.8 7L21 7l-2 11H5L3 7Z">
+                <path d="M5 21h14">
+            <span class="gx-event-copy gx-sub-copy">
+              <span class="gx-event-header gx-sub-header">
+                <span class="gx-event-badges gx-sub-badges">
+                  <img alt="subscriber" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3" title="subscriber" width="72" style="display: none;">
+                <span class="gx-event-name gx-sub-name" style="color: rgb(169, 112, 255);">
+                  <span class="gx-reference-glyph" data-gx-glyph="PrimeViewer">
+                    <span class="gx-reference-glyph-foreground">
+                      "PrimeViewer"
+                <span class="gx-event-action gx-sub-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="converted">
+                    <span class="gx-reference-glyph-foreground">
+                      "converted"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="Prime">
+                    <span class="gx-reference-glyph-foreground">
+                      "Prime"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="to">
+                    <span class="gx-reference-glyph-foreground">
+                      "to"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="a">
+                    <span class="gx-reference-glyph-foreground">
+                      "a"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="paid">
+                    <span class="gx-reference-glyph-foreground">
+                      "paid"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="sub">
+                    <span class="gx-reference-glyph-foreground">
+                      "sub"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="with">
+                    <span class="gx-reference-glyph-foreground">
+                      "with"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="Tier">
+                    <span class="gx-reference-glyph-foreground">
+                      "Tier"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="1">
+                    <span class="gx-reference-glyph-foreground">
+                      "1"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-subscription gx-sub-card" data-testid="twitch-subscription-transition-row" data-transition-type="gift-paid-upgrade" style="--gx-event-accent: #c9a7ff;">
+            <span aria-hidden="true" class="gx-event-icon gx-sub-icon">
+              <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M3 9h18v12H3zM2 5h20v4H2zM12 5v16">
+                <path d="M12 5H7.7A2.2 2.2 0 1 1 10 2.8L12 5Zm0 0h4.3A2.2 2.2 0 1 0 14 2.8L12 5Z">
+            <span class="gx-event-copy gx-sub-copy">
+              <span class="gx-event-header gx-sub-header">
+                <span class="gx-event-badges gx-sub-badges">
+                  <img alt="subscriber" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3" title="subscriber" width="72" style="display: none;">
+                <span class="gx-event-name gx-sub-name" style="color: rgb(255, 127, 80);">
+                  <span class="gx-reference-glyph" data-gx-glyph="GiftReceiver">
+                    <span class="gx-reference-glyph-foreground">
+                      "GiftReceiver"
+                <span class="gx-event-action gx-sub-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="continued">
+                    <span class="gx-reference-glyph-foreground">
+                      "continued"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="a">
+                    <span class="gx-reference-glyph-foreground">
+                      "a"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="gifted">
+                    <span class="gx-reference-glyph-foreground">
+                      "gifted"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="sub">
+                    <span class="gx-reference-glyph-foreground">
+                      "sub"
+                <span class="gx-event-meta">
+                  <span class="gx-reference-glyph" data-gx-glyph="5">
+                    <span class="gx-reference-glyph-foreground">
+                      "5"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="promo">
+                    <span class="gx-reference-glyph-foreground">
+                      "promo"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="gifts">
+                    <span class="gx-reference-glyph-foreground">
+                      "gifts"
+              <span class="gx-event-body gx-sub-body">
+                <span class="gx-reference-glyph" data-gx-glyph="originally">
+                  <span class="gx-reference-glyph-foreground">
+                    "originally"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="gifted">
+                  <span class="gx-reference-glyph-foreground">
+                    "gifted"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="by">
+                  <span class="gx-reference-glyph-foreground">
+                    "by"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="GiftBoss">
+                  <span class="gx-reference-glyph-foreground">
+                    "GiftBoss"
+              <span class="gx-event-body gx-sub-body">
+                <span class="gx-reference-glyph" data-gx-glyph="Subtember">
+                  <span class="gx-reference-glyph-foreground">
+                    "Subtember"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-subscription gx-sub-card" data-testid="twitch-subscription-transition-row" data-transition-type="standard-pay-forward" style="--gx-event-accent: #c9a7ff;">
+            <span aria-hidden="true" class="gx-event-icon gx-sub-icon">
+              <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M3 9h18v12H3zM2 5h20v4H2zM12 5v16">
+                <path d="M12 5H7.7A2.2 2.2 0 1 1 10 2.8L12 5Zm0 0h4.3A2.2 2.2 0 1 0 14 2.8L12 5Z">
+            <span class="gx-event-copy gx-sub-copy">
+              <span class="gx-event-header gx-sub-header">
+                <span class="gx-event-badges gx-sub-badges">
+                  <img alt="subscriber" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3" title="subscriber" width="72" style="display: none;">
+                <span class="gx-event-name gx-sub-name" style="color: rgb(83, 252, 24);">
+                  <span class="gx-reference-glyph" data-gx-glyph="PayForwarder">
+                    <span class="gx-reference-glyph-foreground">
+                      "PayForwarder"
+                <span class="gx-event-action gx-sub-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="paid">
+                    <span class="gx-reference-glyph-foreground">
+                      "paid"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="the">
+                    <span class="gx-reference-glyph-foreground">
+                      "the"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="gift">
+                    <span class="gx-reference-glyph-foreground">
+                      "gift"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="forward">
+                    <span class="gx-reference-glyph-foreground">
+                      "forward"
+              <span class="gx-event-body gx-sub-body">
+                <span class="gx-reference-glyph" data-gx-glyph="to">
+                  <span class="gx-reference-glyph-foreground">
+                    "to"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="NextViewer">
+                  <span class="gx-reference-glyph-foreground">
+                    "NextViewer"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="-">
+                  <span class="gx-reference-glyph-foreground">
+                    "-"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="originally">
+                  <span class="gx-reference-glyph-foreground">
+                    "originally"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="from">
+                  <span class="gx-reference-glyph-foreground">
+                    "from"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="OriginalGifter">
+                  <span class="gx-reference-glyph-foreground">
+                    "OriginalGifter"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-subscription gx-sub-card" data-testid="twitch-subscription-transition-row" data-transition-type="community-pay-forward" style="--gx-event-accent: #c9a7ff;">
+            <span aria-hidden="true" class="gx-event-icon gx-sub-icon">
+              <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M3 9h18v12H3zM2 5h20v4H2zM12 5v16">
+                <path d="M12 5H7.7A2.2 2.2 0 1 1 10 2.8L12 5Zm0 0h4.3A2.2 2.2 0 1 0 14 2.8L12 5Z">
+            <span class="gx-event-copy gx-sub-copy">
+              <span class="gx-event-header gx-sub-header">
+                <span class="gx-event-badges gx-sub-badges">
+                  <img alt="subscriber" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3" title="subscriber" width="72" style="display: none;">
+                <span class="gx-event-name gx-sub-name" style="color: rgb(56, 189, 248);">
+                  <span class="gx-reference-glyph" data-gx-glyph="CommunityForwarder">
+                    <span class="gx-reference-glyph-foreground">
+                      "CommunityForwarder"
+                <span class="gx-event-action gx-sub-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="paid">
+                    <span class="gx-reference-glyph-foreground">
+                      "paid"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="the">
+                    <span class="gx-reference-glyph-foreground">
+                      "the"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="gift">
+                    <span class="gx-reference-glyph-foreground">
+                      "gift"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="forward">
+                    <span class="gx-reference-glyph-foreground">
+                      "forward"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="to">
+                    <span class="gx-reference-glyph-foreground">
+                      "to"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="the">
+                    <span class="gx-reference-glyph-foreground">
+                      "the"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="community">
+                    <span class="gx-reference-glyph-foreground">
+                      "community"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-announcement gx-announcement-card" data-testid="twitch-announcement-row" style="--gx-event-accent: #a855f7;">
+            <span aria-hidden="true" class="gx-event-icon gx-notice-icon">
+              <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M4 10v4l11 4V6L4 10ZM15 9l5-3v12l-5-3M7 15l1.4 5h3.3l-2-4">
+            <span class="gx-event-copy gx-notice-copy">
+              <span class="gx-event-header gx-notice-header">
+                <span class="gx-event-badges">
+                  <img alt="broadcaster" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/3" title="broadcaster" width="72" style="display: none;">
+                <span class="gx-event-name gx-notice-name" style="color: rgb(169, 112, 255);">
+                  <span class="gx-reference-glyph" data-gx-glyph="Streamer">
+                    <span class="gx-reference-glyph-foreground">
+                      "Streamer"
+                <span class="gx-event-action gx-notice-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="announced">
+                    <span class="gx-reference-glyph-foreground">
+                      "announced"
+              <span class="gx-event-body gx-notice-body ck-body">
+                <span class="gx-reference-glyph" data-gx-glyph="Big">
+                  <span class="gx-reference-glyph-foreground">
+                    "Big"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="announcement">
+                  <span class="gx-reference-glyph-foreground">
+                    "announcement"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="tonight!">
+                  <span class="gx-reference-glyph-foreground">
+                    "tonight!"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-milestone gx-milestone-card" data-milestone-type="watch-streak" data-testid="twitch-milestone-row" style="--gx-event-accent: #f6c344;">
+            <span aria-hidden="true" class="gx-event-icon gx-notice-icon">
+              <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M13.2 2.5c.6 3.2-.7 4.7-2.1 6.3-1.1-1-1.5-2.1-1.4-3.6C6 7.8 4 10.7 4 14a8 8 0 0 0 16 0c0-4.3-2.4-8.3-6.8-11.5Z">
+                <path d="M12 11c2 2 2.8 3.2 2.8 4.8a2.8 2.8 0 1 1-5.6 0c0-1.4.8-2.8 2.8-4.8Z">
+            <span class="gx-event-copy gx-notice-copy">
+              <span class="gx-event-header gx-notice-header">
+                <span class="gx-event-name gx-notice-name" style="color: rgb(30, 144, 255);">
+                  <span class="gx-reference-glyph" data-gx-glyph="Viewer">
+                    <span class="gx-reference-glyph-foreground">
+                      "Viewer"
+                <span class="gx-event-action gx-notice-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="watched">
+                    <span class="gx-reference-glyph-foreground">
+                      "watched"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="7">
+                    <span class="gx-reference-glyph-foreground">
+                      "7"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="consecutive">
+                    <span class="gx-reference-glyph-foreground">
+                      "consecutive"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="streams">
+                    <span class="gx-reference-glyph-foreground">
+                      "streams"
+                <span class="gx-event-meta gx-notice-pill">
+                  <span class="gx-reference-glyph" data-gx-glyph="+">
+                    <span class="gx-reference-glyph-foreground">
+                      "+"
+                  <span class="gx-reference-glyph" data-gx-glyph="450">
+                    <span class="gx-reference-glyph-foreground">
+                      "450"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="points">
+                    <span class="gx-reference-glyph-foreground">
+                      "points"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-milestone gx-milestone-card" data-milestone-type="bits-badge" data-testid="twitch-milestone-row" style="--gx-event-accent: #38bdf8;">
+            <span aria-hidden="true" class="gx-event-icon gx-notice-icon">
+              <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="m12 2 7 7-7 13L5 9l7-7Z">
+                <path d="m5 9 7 4 7-4M12 2v11">
+            <span class="gx-event-copy gx-notice-copy">
+              <span class="gx-event-header gx-notice-header">
+                <span class="gx-event-name gx-notice-name" style="color: rgb(56, 189, 248);">
+                  <span class="gx-reference-glyph" data-gx-glyph="Cheerer">
+                    <span class="gx-reference-glyph-foreground">
+                      "Cheerer"
+                <span class="gx-event-action gx-notice-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="unlocked">
+                    <span class="gx-reference-glyph-foreground">
+                      "unlocked"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="the">
+                    <span class="gx-reference-glyph-foreground">
+                      "the"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="10,000">
+                    <span class="gx-reference-glyph-foreground">
+                      "10,000"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="Bits">
+                    <span class="gx-reference-glyph-foreground">
+                      "Bits"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="badge">
+                    <span class="gx-reference-glyph-foreground">
+                      "badge"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-milestone gx-milestone-card" data-milestone-type="modiversary" data-testid="twitch-milestone-row" style="--gx-event-accent: #22c55e;">
+            <span aria-hidden="true" class="gx-event-icon gx-notice-icon">
+              <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="m12 2.8 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.4l6.2-.9L12 2.8Z">
+            <span class="gx-event-copy gx-notice-copy">
+              <span class="gx-event-header gx-notice-header">
+                <span class="gx-event-badges">
+                  <img alt="moderator" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/3" title="moderator" width="72" style="display: none;">
+                <span class="gx-event-name gx-notice-name" style="color: rgb(34, 197, 94);">
+                  <span class="gx-reference-glyph" data-gx-glyph="ModHero">
+                    <span class="gx-reference-glyph-foreground">
+                      "ModHero"
+                <span class="gx-event-action gx-notice-action">
+                  <span class="gx-reference-glyph" data-gx-glyph="celebrates">
+                    <span class="gx-reference-glyph-foreground">
+                      "celebrates"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="36">
+                    <span class="gx-reference-glyph-foreground">
+                      "36"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="months">
+                    <span class="gx-reference-glyph-foreground">
+                      "months"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="as">
+                    <span class="gx-reference-glyph-foreground">
+                      "as"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="a">
+                    <span class="gx-reference-glyph-foreground">
+                      "a"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="moderator">
+                    <span class="gx-reference-glyph-foreground">
+                      "moderator"
+              <span class="gx-event-body gx-notice-body ck-body">
+                <span class="gx-reference-glyph" data-gx-glyph="three">
+                  <span class="gx-reference-glyph-foreground">
+                    "three"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="years">
+                  <span class="gx-reference-glyph-foreground">
+                    "years"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="already!">
+                  <span class="gx-reference-glyph-foreground">
+                    "already!"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-bits gx-cheer-card" data-cheer-bits="1000" data-testid="twitch-cheer-row" style="--gx-event-accent: #1db2a5;">
+            <span class="gx-event-icon gx-cheer-art">
+              <span aria-hidden="true" class="gx-event-icon-fallback gx-cheer-art-fallback">
+                <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                  <path d="m12 2 7 7-7 13L5 9l7-7Z">
+                  <path d="m5 9 7 4 7-4M12 2v11">
+            <span class="gx-event-copy gx-cheer-copy">
+              <span class="gx-event-header gx-cheer-header">
+                <span class="gx-event-name gx-cheer-name" style="color: rgb(255, 127, 80);">
+                  <span class="gx-reference-glyph" data-gx-glyph="BigCheerer">
+                    <span class="gx-reference-glyph-foreground">
+                      "BigCheerer"
+                <span class="gx-event-action gx-cheer-amount">
+                  <span class="gx-reference-glyph" data-gx-glyph="cheered">
+                    <span class="gx-reference-glyph-foreground">
+                      "cheered"
+                  " "
+                  <span class="gx-event-accent gx-event-inline-value">
+                    <span class="gx-reference-glyph" data-gx-glyph="1,000">
+                      <span class="gx-reference-glyph-foreground">
+                        "1,000"
+                    " "
+                    <span class="gx-reference-glyph" data-gx-glyph="bits">
+                      <span class="gx-reference-glyph-foreground">
+                        "bits"
+              <span class="gx-event-body gx-cheer-body ck-body">
+                <img alt="Cheer1000" class="ck-emote ck-native-emote ck-native-twitch" data-asset-failed="true" decoding="async" height="112" loading="eager" src="https://d3aqoihi2n8ty8.cloudfront.net/actions/cheer/dark/animated/1000/1.gif" width="112" style="display: none;">
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="lets">
+                  <span class="gx-reference-glyph-foreground">
+                    "lets"
+                " "
+                <span class="gx-reference-glyph" data-gx-glyph="go">
+                  <span class="gx-reference-glyph-foreground">
+                    "go"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div class="gx-event-strip gx-event-bits gx-cheer-card" data-cheer-bits="100" data-testid="twitch-cheer-row" style="--gx-event-accent: #9c3ee8;">
+            <span class="gx-event-icon gx-cheer-art">
+              <span aria-hidden="true" class="gx-event-icon-fallback gx-cheer-art-fallback">
+                <svg aria-hidden="true" class="gx-event-icon-svg" fill="none" focusable="false" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                  <path d="m12 2 7 7-7 13L5 9l7-7Z">
+                  <path d="m5 9 7 4 7-4M12 2v11">
+            <span class="gx-event-copy gx-cheer-copy">
+              <span class="gx-event-header gx-cheer-header">
+                <span class="gx-event-name gx-cheer-name" style="color: rgb(218, 165, 32);">
+                  <span class="gx-reference-glyph" data-gx-glyph="SmallCheerer">
+                    <span class="gx-reference-glyph-foreground">
+                      "SmallCheerer"
+                <span class="gx-event-action gx-cheer-amount">
+                  <span class="gx-reference-glyph" data-gx-glyph="cheered">
+                    <span class="gx-reference-glyph-foreground">
+                      "cheered"
+                  " "
+                  <span class="gx-event-accent gx-event-inline-value">
+                    <span class="gx-reference-glyph" data-gx-glyph="100">
+                      <span class="gx-reference-glyph-foreground">
+                        "100"
+                    " "
+                    <span class="gx-reference-glyph" data-gx-glyph="bits">
+                      <span class="gx-reference-glyph-foreground">
+                        "bits"
+              <span class="gx-event-body gx-cheer-body ck-body">
+                <img alt="Kappa" class="ck-emote" decoding="async" height="128" loading="eager" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cdefs%3E%3CradialGradient%20id%3D%22f%22%20cx%3D%2235%25%22%20cy%3D%2230%25%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ffe89a%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23f2a81c%22%2F%3E%3C%2FradialGradient%3E%3C%2Fdefs%3E%3Cg%3E%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22scale%22%20values%3D%221%3B1.06%3B1%22%20dur%3D%220.9s%22%20repeatCount%3D%22indefinite%22%20additive%3D%22sum%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210.4%22%20fill%3D%22url(%23f)%22%20stroke%3D%22%238a5a06%22%20stroke-width%3D%220.7%22%2F%3E%3Cellipse%20cx%3D%228.2%22%20cy%3D%227.8%22%20rx%3D%222.6%22%20ry%3D%221.4%22%20fill%3D%22%23fff%22%20opacity%3D%220.45%22%2F%3E%3Cpath%20fill%3D%22%232a1a05%22%20d%3D%22M6.4%208.6c1.2-1.6%203-1.6%204.2%200-1.3-.8-2.9-.8-4.2%200Z%22%2F%3E%3Cpath%20fill%3D%22%232a1a05%22%20d%3D%22M13.4%208.6c1.2-1.6%203-1.6%204.2%200-1.3-.8-2.9-.8-4.2%200Z%22%2F%3E%3Cpath%20fill%3D%22%233d1616%22%20d%3D%22M6%2012.6h12c-.6%204.8-11.4%204.8-12%200Z%22%2F%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M7.3%2013.1h9.4c-.2%201-9.2%201-9.4%200Z%22%2F%3E%3Cpath%20fill%3D%22%23e2607a%22%20d%3D%22M9.2%2017.6c1.7%201.1%203.9%201.1%205.6%200-1.3-1.4-4.3-1.4-5.6%200Z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" width="128">
+                " "
+                <img alt="Cheer100" class="ck-emote ck-native-emote ck-native-twitch" data-asset-failed="true" decoding="async" height="112" loading="eager" src="https://d3aqoihi2n8ty8.cloudfront.net/actions/cheer/dark/animated/100/1.gif" width="112" style="display: none;">
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: visible;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div aria-label="Hype Train, level 3, 60 percent, 800 bits or 2 subs to go" class="gx-hype" data-hype-kind="regular" data-hype-level="3" data-hype-phase="progress" data-testid="hype-train-row" style="--gx-hype-pct: 60%; --gx-hype-from: 60%; --gx-hype-accent: #c9b6ff; --gx-hype-flow-at: 0ms; --gx-hype-shine-at: 0ms; --gx-hype-wheel-at: 0ms; --gx-hype-bob-at: 0ms; --gx-hype-puff-at: 0ms; --gx-hype-glint-at: 0ms;">
+            <div class="gx-hype-card">
+              <div class="gx-hype-top">
+                <span class="gx-hype-info">
+                  <span class="gx-hype-mark">
+                    <svg aria-hidden="true" class="gx-hype-loco" focusable="false" viewBox="0 0 40 25">
+                      <rect class="gx-hype-loco-dark" height="2.6" rx="1.2" width="15" x="1.5" y="2.5">
+                      <rect class="gx-hype-loco-cab" height="12.6" rx="1.4" width="12" x="3" y="4.6">
+                      <rect class="gx-hype-loco-window" height="4.8" rx="1" width="6" x="6" y="7.2">
+                      <rect class="gx-hype-loco-boiler" height="9.2" rx="4.6" width="19.5" x="14" y="8">
+                      <path class="gx-hype-loco-band" d="M19 8.4v8.4M25 8.4v8.4">
+                      <circle class="gx-hype-loco-cab" cx="21.5" cy="8.2" r="2.4">
+                      <rect class="gx-hype-loco-dark" height="5" width="4" x="27" y="3.6">
+                      <rect class="gx-hype-loco-dark" height="2.2" rx="1" width="6" x="26" y="2">
+                      <circle class="gx-hype-loco-lamp" cx="34.2" cy="11.4" r="1.7">
+                      <path class="gx-hype-loco-catcher" d="M33 16.6 38.6 21.2H33Z">
+                      <rect class="gx-hype-loco-dark" height="2.1" rx="1" width="32" x="2" y="16.4">
+                      <g>
+                        <circle class="gx-hype-loco-wheel" cx="9" cy="19.6" r="4.3">
+                        <path class="gx-hype-loco-spoke" d="M5.99 19.6H12.01M9 16.59V22.61">
+                        <circle class="gx-hype-loco-hub" cx="9" cy="19.6" r="1.2">
+                      <g>
+                        <circle class="gx-hype-loco-wheel" cx="20.5" cy="20.9" r="3">
+                        <path class="gx-hype-loco-spoke" d="M18.4 20.9H22.6M20.5 18.8V23">
+                        <circle class="gx-hype-loco-hub" cx="20.5" cy="20.9" r="0.84">
+                      <g>
+                        <circle class="gx-hype-loco-wheel" cx="28.5" cy="20.9" r="3">
+                        <path class="gx-hype-loco-spoke" d="M26.4 20.9H30.6M28.5 18.8V23">
+                        <circle class="gx-hype-loco-hub" cx="28.5" cy="20.9" r="0.84">
+                      <path class="gx-hype-loco-rod" d="M9 19.6H28.5">
+                  <span class="gx-hype-title">
+                    <span class="gx-hype-plain-name">
+                      "Hype Train"
+                    <span class="gx-hype-dot">
+                      " · "
+                    "Level "
+                    <span class="gx-hype-level-num">
+                      "3"
+                  <span class="gx-hype-need">
+                    <span class="gx-hype-need-part">
+                      <svg aria-hidden="true" class="gx-hype-gem" focusable="false" viewBox="0 0 16 16" style="color: rgb(156, 62, 232);">
+                        <path class="gx-hype-gem-body" d="M8 1 14.6 6.4 8 15 1.4 6.4Z">
+                        <path class="gx-hype-gem-top" d="M8 1 11 6.4H5Z">
+                      "800"
+                    <span class="gx-hype-need-rule">
+                    <span class="gx-hype-need-part gx-hype-subs">
+                      <svg aria-hidden="true" class="gx-hype-gift" focusable="false" viewBox="0 0 16 16">
+                        <rect class="gx-hype-gift-box" height="3" rx=".8" width="13" x="1.5" y="6">
+                        <rect class="gx-hype-gift-box" height="5.5" rx=".8" width="11" x="2.5" y="9">
+                        <path class="gx-hype-gift-ribbon" d="M8 6v8.5M8 6C6.6 3.2 3.9 3.4 4.6 5.2 5 6 8 6 8 6Zm0 0c1.4-2.8 4.1-2.6 3.4-.8C11 6 8 6 8 6Z">
+                      "2"
+                  <span class="gx-hype-togo">
+                    "to go"
+              <div class="gx-hype-bottom">
+                <span class="gx-hype-track">
+                  <span class="gx-hype-glow">
+                  <span class="gx-hype-meter">
+                    <span class="gx-hype-fill">
+                      <span class="gx-hype-shine">
+                  <span class="gx-hype-rider">
+                    <span class="gx-hype-nose">
+                    <span class="gx-hype-smoke">
+                      <i>
+                      <i>
+                      <i>
+                    <span class="gx-hype-sparks">
+                      <i>
+                      <i>
+                      <i>
+                    <svg aria-hidden="true" class="gx-hype-loco" focusable="false" viewBox="0 0 40 25">
+                      <rect class="gx-hype-loco-dark" height="2.6" rx="1.2" width="15" x="1.5" y="2.5">
+                      <rect class="gx-hype-loco-cab" height="12.6" rx="1.4" width="12" x="3" y="4.6">
+                      <rect class="gx-hype-loco-window" height="4.8" rx="1" width="6" x="6" y="7.2">
+                      <rect class="gx-hype-loco-boiler" height="9.2" rx="4.6" width="19.5" x="14" y="8">
+                      <path class="gx-hype-loco-band" d="M19 8.4v8.4M25 8.4v8.4">
+                      <circle class="gx-hype-loco-cab" cx="21.5" cy="8.2" r="2.4">
+                      <rect class="gx-hype-loco-dark" height="5" width="4" x="27" y="3.6">
+                      <rect class="gx-hype-loco-dark" height="2.2" rx="1" width="6" x="26" y="2">
+                      <circle class="gx-hype-loco-lamp" cx="34.2" cy="11.4" r="1.7">
+                      <path class="gx-hype-loco-catcher" d="M33 16.6 38.6 21.2H33Z">
+                      <rect class="gx-hype-loco-dark" height="2.1" rx="1" width="32" x="2" y="16.4">
+                      <g class="gx-hype-wheel">
+                        <circle class="gx-hype-loco-wheel" cx="9" cy="19.6" r="4.3">
+                        <path class="gx-hype-loco-spoke" d="M5.99 19.6H12.01M9 16.59V22.61">
+                        <circle class="gx-hype-loco-hub" cx="9" cy="19.6" r="1.2">
+                      <g class="gx-hype-wheel">
+                        <circle class="gx-hype-loco-wheel" cx="20.5" cy="20.9" r="3">
+                        <path class="gx-hype-loco-spoke" d="M18.4 20.9H22.6M20.5 18.8V23">
+                        <circle class="gx-hype-loco-hub" cx="20.5" cy="20.9" r="0.84">
+                      <g class="gx-hype-wheel">
+                        <circle class="gx-hype-loco-wheel" cx="28.5" cy="20.9" r="3">
+                        <path class="gx-hype-loco-spoke" d="M26.4 20.9H30.6M28.5 18.8V23">
+                        <circle class="gx-hype-loco-hub" cx="28.5" cy="20.9" r="0.84">
+                      <path class="gx-hype-loco-rod" d="M9 19.6H28.5">
+                <span class="gx-hype-percent">
+                  "60%"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: visible;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: center; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span aria-hidden="true" data-platform="twitch" data-source-tag="icon" style="display: inline-flex; width: 1.15em; height: 1.15em; flex: 0 0 1.15em; align-items: center; justify-content: center; line-height: 0; overflow: visible; vertical-align: -0.2em; margin-right: 0.4em;">
+              <img alt="Twitch" decoding="async" src="/platform-twitch.png" style="width: 100%; height: 100%; display: block; overflow: visible; object-fit: contain; transform: translateY(0em) scale(0.96); transform-origin: center center;">
+          <div aria-label="Hype Train complete at level 5" class="gx-hype" data-hype-kind="regular" data-hype-level="5" data-hype-phase="end" data-testid="hype-train-row" style="--gx-hype-pct: 0%; --gx-hype-from: 0%; --gx-hype-accent: #c9b6ff; --gx-hype-flow-at: 0ms; --gx-hype-shine-at: 0ms; --gx-hype-wheel-at: 0ms; --gx-hype-bob-at: 0ms; --gx-hype-puff-at: 0ms; --gx-hype-glint-at: 0ms;">
+            <div class="gx-hype-card is-complete">
+              <div class="gx-hype-top">
+                <span class="gx-hype-info">
+                  <span class="gx-hype-mark">
+                    <svg aria-hidden="true" class="gx-hype-loco" focusable="false" viewBox="0 0 40 25">
+                      <rect class="gx-hype-loco-dark" height="2.6" rx="1.2" width="15" x="1.5" y="2.5">
+                      <rect class="gx-hype-loco-cab" height="12.6" rx="1.4" width="12" x="3" y="4.6">
+                      <rect class="gx-hype-loco-window" height="4.8" rx="1" width="6" x="6" y="7.2">
+                      <rect class="gx-hype-loco-boiler" height="9.2" rx="4.6" width="19.5" x="14" y="8">
+                      <path class="gx-hype-loco-band" d="M19 8.4v8.4M25 8.4v8.4">
+                      <circle class="gx-hype-loco-cab" cx="21.5" cy="8.2" r="2.4">
+                      <rect class="gx-hype-loco-dark" height="5" width="4" x="27" y="3.6">
+                      <rect class="gx-hype-loco-dark" height="2.2" rx="1" width="6" x="26" y="2">
+                      <circle class="gx-hype-loco-lamp" cx="34.2" cy="11.4" r="1.7">
+                      <path class="gx-hype-loco-catcher" d="M33 16.6 38.6 21.2H33Z">
+                      <rect class="gx-hype-loco-dark" height="2.1" rx="1" width="32" x="2" y="16.4">
+                      <g>
+                        <circle class="gx-hype-loco-wheel" cx="9" cy="19.6" r="4.3">
+                        <path class="gx-hype-loco-spoke" d="M5.99 19.6H12.01M9 16.59V22.61">
+                        <circle class="gx-hype-loco-hub" cx="9" cy="19.6" r="1.2">
+                      <g>
+                        <circle class="gx-hype-loco-wheel" cx="20.5" cy="20.9" r="3">
+                        <path class="gx-hype-loco-spoke" d="M18.4 20.9H22.6M20.5 18.8V23">
+                        <circle class="gx-hype-loco-hub" cx="20.5" cy="20.9" r="0.84">
+                      <g>
+                        <circle class="gx-hype-loco-wheel" cx="28.5" cy="20.9" r="3">
+                        <path class="gx-hype-loco-spoke" d="M26.4 20.9H30.6M28.5 18.8V23">
+                        <circle class="gx-hype-loco-hub" cx="28.5" cy="20.9" r="0.84">
+                      <path class="gx-hype-loco-rod" d="M9 19.6H28.5">
+                  <span class="gx-hype-title">
+                    <span class="gx-hype-plain-name">
+                      "Hype Train"
+                    <span class="gx-hype-dot">
+                      " · "
+                    "Level "
+                    <span class="gx-hype-level-num">
+                      "5"
+                  <span class="gx-hype-togo">
+                    "Level up incoming"
+              <div class="gx-hype-bottom">
+                <span class="gx-hype-track">
+                  <span class="gx-hype-glow">
+                  <span class="gx-hype-meter">
+                    <span class="gx-hype-fill">
+                      <span class="gx-hype-shine">
+                  <span class="gx-hype-rider">
+                    <span class="gx-hype-nose">
+                    <span class="gx-hype-smoke">
+                      <i>
+                      <i>
+                      <i>
+                    <span class="gx-hype-sparks">
+                      <i>
+                      <i>
+                      <i>
+                    <svg aria-hidden="true" class="gx-hype-loco" focusable="false" viewBox="0 0 40 25">
+                      <rect class="gx-hype-loco-dark" height="2.6" rx="1.2" width="15" x="1.5" y="2.5">
+                      <rect class="gx-hype-loco-cab" height="12.6" rx="1.4" width="12" x="3" y="4.6">
+                      <rect class="gx-hype-loco-window" height="4.8" rx="1" width="6" x="6" y="7.2">
+                      <rect class="gx-hype-loco-boiler" height="9.2" rx="4.6" width="19.5" x="14" y="8">
+                      <path class="gx-hype-loco-band" d="M19 8.4v8.4M25 8.4v8.4">
+                      <circle class="gx-hype-loco-cab" cx="21.5" cy="8.2" r="2.4">
+                      <rect class="gx-hype-loco-dark" height="5" width="4" x="27" y="3.6">
+                      <rect class="gx-hype-loco-dark" height="2.2" rx="1" width="6" x="26" y="2">
+                      <circle class="gx-hype-loco-lamp" cx="34.2" cy="11.4" r="1.7">
+                      <path class="gx-hype-loco-catcher" d="M33 16.6 38.6 21.2H33Z">
+                      <rect class="gx-hype-loco-dark" height="2.1" rx="1" width="32" x="2" y="16.4">
+                      <g class="gx-hype-wheel">
+                        <circle class="gx-hype-loco-wheel" cx="9" cy="19.6" r="4.3">
+                        <path class="gx-hype-loco-spoke" d="M5.99 19.6H12.01M9 16.59V22.61">
+                        <circle class="gx-hype-loco-hub" cx="9" cy="19.6" r="1.2">
+                      <g class="gx-hype-wheel">
+                        <circle class="gx-hype-loco-wheel" cx="20.5" cy="20.9" r="3">
+                        <path class="gx-hype-loco-spoke" d="M18.4 20.9H22.6M20.5 18.8V23">
+                        <circle class="gx-hype-loco-hub" cx="20.5" cy="20.9" r="0.84">
+                      <g class="gx-hype-wheel">
+                        <circle class="gx-hype-loco-wheel" cx="28.5" cy="20.9" r="3">
+                        <path class="gx-hype-loco-spoke" d="M26.4 20.9H30.6M28.5 18.8V23">
+                        <circle class="gx-hype-loco-hub" cx="28.5" cy="20.9" r="0.84">
+                      <path class="gx-hype-loco-rod" d="M9 19.6H28.5">
+                <span class="gx-hype-percent">
+                  "0%"
+              <span class="gx-hype-complete">
+                "Hype Train complete! Level 5"

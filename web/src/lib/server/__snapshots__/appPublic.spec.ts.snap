@@ -1,0 +1,1532 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`a folder of test files > GET /badges/gift_5000%2B.svg (bytes=0-) 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "41",
+    "content-range": "bytes 0-40/41",
+    "content-type": "image/svg+xml",
+    "etag": "W/"29-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "900fbe934249ad120004bd24adf66aad8817d89586273c0cc50e187bddebb601",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET /badges/gift_5000%2B.svg (bytes=0-1) 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "2",
+    "content-range": "bytes 0-1/41",
+    "content-type": "image/svg+xml",
+    "etag": "W/"29-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "fb1d7cf7e1544c7229e0513c381224c0a802bdb78840168f9fd308e48cd4ee28",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET /badges/gift_5000%2B.svg 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "41",
+    "content-type": "image/svg+xml",
+    "etag": "W/"29-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "900fbe934249ad120004bd24adf66aad8817d89586273c0cc50e187bddebb601",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET /empty.png (bytes=0-) 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-range": "bytes */0",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 416,
+}
+`;
+
+exports[`a folder of test files > GET /empty.png (bytes=0-1) 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-range": "bytes */0",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 416,
+}
+`;
+
+exports[`a folder of test files > GET /empty.png 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "0",
+    "content-type": "image/png",
+    "etag": "W/"0-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET /font.woff2 (bytes=0-) 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "8",
+    "content-range": "bytes 0-7/8",
+    "content-type": "font/woff2",
+    "etag": "W/"8-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "c6f0ff524cb7be6c8041911340f7e56f2d3b34811fc9b17f6a12b08be1a2d36e",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET /font.woff2 (bytes=0-1) 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "2",
+    "content-range": "bytes 0-1/8",
+    "content-type": "font/woff2",
+    "etag": "W/"8-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e11a3b2ac93749dd6bb9ffa2c7f3e92cfcee3ecf8590b82218943d913ede43c8",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET /font.woff2 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "8",
+    "content-type": "font/woff2",
+    "etag": "W/"8-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "c6f0ff524cb7be6c8041911340f7e56f2d3b34811fc9b17f6a12b08be1a2d36e",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET /noext (bytes=0-) 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "5",
+    "content-range": "bytes 0-4/5",
+    "content-type": "application/octet-stream",
+    "etag": "W/"5-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "a116c9ed46d6207734a43317d30fd88f52ac8634c37d904bbf4e41d865f90475",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET /noext (bytes=0-1) 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "2",
+    "content-range": "bytes 0-1/5",
+    "content-type": "application/octet-stream",
+    "etag": "W/"5-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "3485639faf1591f3c16f295198e9389db5b33c949587ec48663597d4e00299d5",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET /noext 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "5",
+    "content-type": "application/octet-stream",
+    "etag": "W/"5-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "a116c9ed46d6207734a43317d30fd88f52ac8634c37d904bbf4e41d865f90475",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET /robots.txt (bytes=0-) 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "23",
+    "content-range": "bytes 0-22/23",
+    "content-type": "text/plain; charset=UTF-8",
+    "etag": "W/"17-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET /robots.txt (bytes=0-1) 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "2",
+    "content-range": "bytes 0-1/23",
+    "content-type": "text/plain; charset=UTF-8",
+    "etag": "W/"17-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "d07eb35432c9270aec8d2f9972108c9f4efd612ae582f00fee198caa93a7158d",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET /robots.txt 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "23",
+    "content-type": "text/plain; charset=UTF-8",
+    "etag": "W/"17-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET /sitemap.xml (bytes=0-) 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "30",
+    "content-range": "bytes 0-29/30",
+    "content-type": "application/xml",
+    "etag": "W/"1e-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "5bafeca50e889e2a8c5b752480009e92526589262ac3e432e9800ed8d1fcbeba",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET /sitemap.xml (bytes=0-1) 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "2",
+    "content-range": "bytes 0-1/30",
+    "content-type": "application/xml",
+    "etag": "W/"1e-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "a92c78b91f76b2cf66002eb226fc8921b5759d20592b987225b20d462a2ea249",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET /sitemap.xml 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "30",
+    "content-type": "application/xml",
+    "etag": "W/"1e-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "5bafeca50e889e2a8c5b752480009e92526589262ac3e432e9800ed8d1fcbeba",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, both fresh 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-match: another tag 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 412,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-match: any 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-match: list 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-match: same tag 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-match: same tag, not weak 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-modified-since: earlier 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-modified-since: later 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-modified-since: not a date 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-modified-since: same time 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-none-match wins over if-modified-since 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-none-match: another tag 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-none-match: any 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-none-match: in a list 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-none-match: list with an empty entry 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-none-match: same tag 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-none-match: same tag but no-cache 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-none-match: same tag, not weak 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-unmodified-since: earlier 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 412,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-unmodified-since: later 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, if-unmodified-since: not a date 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, plain 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range + fresh tag 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range + if-range: another tag 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range + if-range: earlier time 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range + if-range: same tag 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "5",
+    "content-range": "bytes 0-4/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "c565fe03ca9b6242e01dfddefe9bba3d98b270e19cd02fd85ceaf75e2b25bf12",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range + if-range: same tag, not weak 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range + if-range: same time 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "5",
+    "content-range": "bytes 0-4/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "c565fe03ca9b6242e01dfddefe9bba3d98b270e19cd02fd85ceaf75e2b25bf12",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: another unit 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: backwards 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-range": "bytes */20",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 416,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: empty 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-range": "bytes */20",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 416,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: end past the end 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "10",
+    "content-range": "bytes 10-19/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "72399361da6a7754fec986dca5b7cbaf1c810a28ded4abaf56b2106d06cb78b0",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: first five 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "5",
+    "content-range": "bytes 0-4/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "c565fe03ca9b6242e01dfddefe9bba3d98b270e19cd02fd85ceaf75e2b25bf12",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: last fifty (more than the file) 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-range": "bytes */20",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 416,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: last five 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "5",
+    "content-range": "bytes 15-19/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "7272207e4b9c7e929f4278d245c7768380b54ecb97b1fbe941a7ccfc27cf01f4",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: leading space 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "2",
+    "content-range": "bytes 0-1/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "938db8c9f82c8cb58d3f3ef4fd250036a48d26a712753d2fde5abd03a85cabf4",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: no equals sign 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: not numbers 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-range": "bytes */20",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 416,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: open end 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "5",
+    "content-range": "bytes 15-19/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "7272207e4b9c7e929f4278d245c7768380b54ecb97b1fbe941a7ccfc27cf01f4",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: past the end 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-range": "bytes */20",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 416,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: two apart 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "6bc14bdc4517a7a682c6910de2e2946eb8e1ecd04090728fef6d092a7ceb62c5",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: two overlapping 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "10",
+    "content-range": "bytes 0-9/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "84d89877f0d4041efb6bf91a16f0248f2fd573e6af05c19f96bedb9f882f7882",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: with spaces 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "5",
+    "content-range": "bytes 0-4/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "c565fe03ca9b6242e01dfddefe9bba3d98b270e19cd02fd85ceaf75e2b25bf12",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > GET the clip, range: zero suffix 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-range": "bytes */20",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 416,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, both fresh 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-match: another tag 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 412,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-match: any 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-match: list 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-match: same tag 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-match: same tag, not weak 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-modified-since: earlier 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-modified-since: later 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-modified-since: not a date 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-modified-since: same time 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-none-match wins over if-modified-since 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-none-match: another tag 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-none-match: any 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-none-match: in a list 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-none-match: list with an empty entry 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-none-match: same tag 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-none-match: same tag but no-cache 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-none-match: same tag, not weak 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-unmodified-since: earlier 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 412,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-unmodified-since: later 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, if-unmodified-since: not a date 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, plain 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range + fresh tag 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 304,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range + if-range: another tag 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range + if-range: earlier time 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range + if-range: same tag 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "5",
+    "content-range": "bytes 0-4/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range + if-range: same tag, not weak 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range + if-range: same time 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "5",
+    "content-range": "bytes 0-4/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: another unit 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: backwards 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-range": "bytes */20",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 416,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: empty 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-range": "bytes */20",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 416,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: end past the end 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "10",
+    "content-range": "bytes 10-19/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: first five 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "5",
+    "content-range": "bytes 0-4/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: last fifty (more than the file) 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-range": "bytes */20",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 416,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: last five 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "5",
+    "content-range": "bytes 15-19/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: leading space 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "2",
+    "content-range": "bytes 0-1/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: no equals sign 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: not numbers 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-range": "bytes */20",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 416,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: open end 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "5",
+    "content-range": "bytes 15-19/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: past the end 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-range": "bytes */20",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 416,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: two apart 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 200,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: two overlapping 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "10",
+    "content-range": "bytes 0-9/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: with spaces 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=0",
+    "content-length": "5",
+    "content-range": "bytes 0-4/20",
+    "content-type": "video/mp4",
+    "etag": "W/"14-1a1e2269dc0"",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": 206,
+}
+`;
+
+exports[`a folder of test files > HEAD the clip, range: zero suffix 1`] = `
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-range": "bytes */20",
+    "last-modified": "Mon, 16 Nov 2026 02:19:04 GMT",
+  },
+  "status": 416,
+}
+`;
+
+exports[`content types > are the ones Next.js gave (send and its mime list) for every kind listed 1`] = `
+{
+  ".avif": "image/avif",
+  ".css": "text/css; charset=UTF-8",
+  ".gif": "image/gif",
+  ".html": "text/html; charset=UTF-8",
+  ".ico": "image/x-icon",
+  ".jpeg": "image/jpeg",
+  ".jpg": "image/jpeg",
+  ".js": "application/javascript; charset=UTF-8",
+  ".json": "application/json; charset=UTF-8",
+  ".mp4": "video/mp4",
+  ".otf": "font/otf",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".ttf": "font/ttf",
+  ".txt": "text/plain; charset=UTF-8",
+  ".webm": "video/webm",
+  ".webp": "image/webp",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2",
+  ".xml": "application/xml",
+}
+`;

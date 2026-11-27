@@ -1,0 +1,1117 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`/api/support/status and checkout switched off > is all off (404) with the support page switched off 1`] = `
+[
+  {
+    "body": "{"error":"Not found."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "22",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""7rxkpsxxpxm"",
+    },
+    "sha256": "58e46b31fc6d69e3ecdb843eeff8bac8d49c9a70cdac583c73986a8a4fb5d1b0",
+    "status": 404,
+  },
+  {
+    "body": "{"error":"Not found."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "22",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""7rxkpsxxpxm"",
+    },
+    "sha256": "58e46b31fc6d69e3ecdb843eeff8bac8d49c9a70cdac583c73986a8a4fb5d1b0",
+    "status": 404,
+  },
+  {
+    "body": "{"error":"Not found."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "22",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""7rxkpsxxpxm"",
+    },
+    "sha256": "58e46b31fc6d69e3ecdb843eeff8bac8d49c9a70cdac583c73986a8a4fb5d1b0",
+    "status": 404,
+  },
+]
+`;
+
+exports[`/api/support/status and checkout switched off > keeps checkout off without the PayPal keys 1`] = `
+[
+  {
+    "body": "{"checkoutReady":false,"signInReady":true,"stripe":true,"founderSlotsLeft":25}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "78",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""g8u0gcnjmc26"",
+    },
+    "sha256": "5e0dc75b8cc8ae9decf9c4a12a3bbd0341eb8e9b47c45c07f283f13d2e615d00",
+    "status": 200,
+  },
+  {
+    "body": "{"error":"Not found."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "22",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""7rxkpsxxpxm"",
+    },
+    "sha256": "58e46b31fc6d69e3ecdb843eeff8bac8d49c9a70cdac583c73986a8a4fb5d1b0",
+    "status": 404,
+  },
+  {
+    "body": "{"error":"Not found."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "22",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""7rxkpsxxpxm"",
+    },
+    "sha256": "58e46b31fc6d69e3ecdb843eeff8bac8d49c9a70cdac583c73986a8a4fb5d1b0",
+    "status": 404,
+  },
+  {
+    "body": "{"error":"Not found."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "22",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""7rxkpsxxpxm"",
+    },
+    "sha256": "58e46b31fc6d69e3ecdb843eeff8bac8d49c9a70cdac583c73986a8a4fb5d1b0",
+    "status": 404,
+  },
+]
+`;
+
+exports[`/api/support/status and checkout switched off > refuses a sandbox Stripe key on a live setup 1`] = `
+[
+  {
+    "body": "{"error":"Not found."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "22",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""7rxkpsxxpxm"",
+    },
+    "sha256": "58e46b31fc6d69e3ecdb843eeff8bac8d49c9a70cdac583c73986a8a4fb5d1b0",
+    "status": 404,
+  },
+  {
+    "body": "{"error":"Not found."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "22",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""7rxkpsxxpxm"",
+    },
+    "sha256": "58e46b31fc6d69e3ecdb843eeff8bac8d49c9a70cdac583c73986a8a4fb5d1b0",
+    "status": 404,
+  },
+]
+`;
+
+exports[`/api/support/status and checkout switched off > refuses live PayPal without its release switch 1`] = `
+[
+  {
+    "body": "{"error":"Not found."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "22",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""7rxkpsxxpxm"",
+    },
+    "sha256": "58e46b31fc6d69e3ecdb843eeff8bac8d49c9a70cdac583c73986a8a4fb5d1b0",
+    "status": 404,
+  },
+]
+`;
+
+exports[`/api/support/status and checkout switched off > tells the page what is set up 1`] = `
+[
+  {
+    "body": "{"checkoutReady":true,"signInReady":true,"paypal":{"clientId":"parity-paypal-client-id","env":"sandbox"},"stripe":true,"founderSlotsLeft":25}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "141",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""tfwbdv1sgb3x"",
+    },
+    "sha256": "465229bf3df4cce9ee5c738b5ead27cce2f60560a19b339e8443d01ebb710215",
+    "status": 200,
+  },
+]
+`;
+
+exports[`a PayPal purchase > answers a capture before approval 1`] = `
+[
+  {
+    "body": "{"approveUrl":"https://www.sandbox.paypal.com/checkoutnow?token=PARITYORDER000001","orderId":"PARITYORDER000001"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "113",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""gof9u7krf435"",
+    },
+    "sha256": "fd9ab0a6ef6dbe6b2a1facd895712f7da5ef6e753fcaad4bfac0a653f4b6a80a",
+    "status": 200,
+  },
+  {
+    "body": "{"error":"We could not confirm this payment."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "46",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""pkd4xw49vk1a"",
+    },
+    "sha256": "899765968324d284f911e4e4faf118f7d160df3915dc31789298022c4a4d6a98",
+    "status": 502,
+  },
+]
+`;
+
+exports[`a PayPal purchase > buys a badge for yourself: checkout, approve, capture, a repeat 1`] = `
+[
+  {
+    "body": "{"approveUrl":"https://www.sandbox.paypal.com/checkoutnow?token=PARITYORDER000001","orderId":"PARITYORDER000001"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "113",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""gof9u7krf435"",
+    },
+    "sha256": "fd9ab0a6ef6dbe6b2a1facd895712f7da5ef6e753fcaad4bfac0a653f4b6a80a",
+    "status": 200,
+  },
+  {
+    "body": "{"status":"completed","recipient":{"login":"someviewer","displayName":"SomeViewer"},"tier":"supporter"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "103",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""13gs533eovr2v"",
+    },
+    "sha256": "e1ba6ac71627c48f385d12063e593ad195dfb6599daca85fa82d8865825c3f04",
+    "status": 200,
+  },
+  {
+    "body": "{"status":"completed","recipient":{"login":"someviewer","displayName":"SomeViewer"},"tier":"supporter"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "103",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""13gs533eovr2v"",
+    },
+    "sha256": "e1ba6ac71627c48f385d12063e593ad195dfb6599daca85fa82d8865825c3f04",
+    "status": 200,
+  },
+  {
+    "body": "{"signInReady":true,"user":{"id":"12345","login":"someviewer","displayName":"SomeViewer"},"badges":[{"id":"founder","title":"Founder","url":"/badges/gxufy/founder-hand.webp","owned":true,"worn":false},{"id":"supporter","title":"Sanctioned","url":"/badges/gxufy/supporter-hand.webp","owned":true,"worn":true}],"standing":{"owner":false,"tier":"supporter","founder":true,"prices":{"supporter":null,"suvy":500,"top-suvy":1500}}}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "425",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""kide1r9ikbbt"",
+    },
+    "sha256": "8de3d1f411d8654c21bd8496e87f5bd806f5f07d0425dc81560128233a724f7a",
+    "status": 200,
+  },
+]
+`;
+
+exports[`a PayPal purchase > gifts a higher tier, priced by the server 1`] = `
+[
+  {
+    "body": "{"approveUrl":"https://www.sandbox.paypal.com/checkoutnow?token=PARITYORDER000001","orderId":"PARITYORDER000001"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "113",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""gof9u7krf435"",
+    },
+    "sha256": "fd9ab0a6ef6dbe6b2a1facd895712f7da5ef6e753fcaad4bfac0a653f4b6a80a",
+    "status": 200,
+  },
+  {
+    "body": "{"status":"completed","recipient":{"login":"afriend","displayName":"AFriend"},"tier":"suvy"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "92",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""n9g0t2ia4a2k"",
+    },
+    "sha256": "3abe12d70af6c6a960e3d2ca1c34c8395844a36d6710acc529e4b67700d008f4",
+    "status": 200,
+  },
+]
+`;
+
+exports[`a PayPal purchase > grants a payment PayPal finishes later through the webhook, once 1`] = `
+[
+  {
+    "body": "{"approveUrl":"https://www.sandbox.paypal.com/checkoutnow?token=PARITYORDER000001","orderId":"PARITYORDER000001"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "113",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""gof9u7krf435"",
+    },
+    "sha256": "fd9ab0a6ef6dbe6b2a1facd895712f7da5ef6e753fcaad4bfac0a653f4b6a80a",
+    "status": 200,
+  },
+  {
+    "body": "{"status":"pending","recipient":{"login":"someviewer","displayName":"SomeViewer"},"tier":"supporter"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "101",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""h6q81xros42t"",
+    },
+    "sha256": "752887a09698e6dc9f5456a1b7b89350297a6c20bcba1e260bc7f1afe16a2b25",
+    "status": 202,
+  },
+  {
+    "body": "{"ok":true}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "11",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""w6gfy8q1ypb"",
+    },
+    "sha256": "4062edaf750fb8074e7e83e0c9028c94e32468a8b6f1614774328ef045150f93",
+    "status": 200,
+  },
+  {
+    "body": "{"ok":true}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "11",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""w6gfy8q1ypb"",
+    },
+    "sha256": "4062edaf750fb8074e7e83e0c9028c94e32468a8b6f1614774328ef045150f93",
+    "status": 200,
+  },
+  {
+    "body": "{"status":"completed","recipient":{"login":"someviewer","displayName":"SomeViewer"},"tier":"supporter"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "103",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""13gs533eovr2v"",
+    },
+    "sha256": "e1ba6ac71627c48f385d12063e593ad195dfb6599daca85fa82d8865825c3f04",
+    "status": 200,
+  },
+]
+`;
+
+exports[`a PayPal purchase > grants nothing when PayPal reports another amount 1`] = `
+[
+  {
+    "body": "{"approveUrl":"https://www.sandbox.paypal.com/checkoutnow?token=PARITYORDER000001","orderId":"PARITYORDER000001"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "113",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""gof9u7krf435"",
+    },
+    "sha256": "fd9ab0a6ef6dbe6b2a1facd895712f7da5ef6e753fcaad4bfac0a653f4b6a80a",
+    "status": 200,
+  },
+  {
+    "body": "{"error":"We could not confirm this payment."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "46",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""pkd4xw49vk1a"",
+    },
+    "sha256": "899765968324d284f911e4e4faf118f7d160df3915dc31789298022c4a4d6a98",
+    "status": 409,
+  },
+  {
+    "body": "{"signInReady":true,"user":{"id":"12345","login":"someviewer","displayName":"SomeViewer"},"badges":[],"standing":{"owner":false,"tier":null,"founder":false,"prices":{"supporter":500,"suvy":1000,"top-suvy":2000}}}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "212",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""10ou3lo89fd5w"",
+    },
+    "sha256": "cd5d91c4820431cddeeee5e7498b0e193b52ab52d7ae8c9887ac7102fabe655d",
+    "status": 200,
+  },
+]
+`;
+
+exports[`a PayPal purchase > refuses a capture as a GET 1`] = `
+[
+  {
+    "body": "{"error":"Method not allowed."}",
+    "cookies": [],
+    "headers": {
+      "allow": "POST",
+      "cache-control": "private, no-store",
+      "content-length": "31",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""q7enjxdx0kv"",
+    },
+    "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+    "status": 405,
+  },
+]
+`;
+
+exports[`a PayPal purchase > refuses a capture of an id that is not one 1`] = `
+[
+  {
+    "body": "{"error":"We could not confirm this payment."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "46",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""pkd4xw49vk1a"",
+    },
+    "sha256": "899765968324d284f911e4e4faf118f7d160df3915dc31789298022c4a4d6a98",
+    "status": 400,
+  },
+]
+`;
+
+exports[`a PayPal purchase > refuses a capture of an order this server never made 1`] = `
+[
+  {
+    "body": "{"error":"We could not confirm this payment."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "46",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""pkd4xw49vk1a"",
+    },
+    "sha256": "899765968324d284f911e4e4faf118f7d160df3915dc31789298022c4a4d6a98",
+    "status": 404,
+  },
+]
+`;
+
+exports[`a PayPal purchase > refuses a checkout as a GET 1`] = `
+[
+  {
+    "body": "{"error":"Method not allowed."}",
+    "cookies": [],
+    "headers": {
+      "allow": "POST",
+      "cache-control": "private, no-store",
+      "content-length": "31",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""q7enjxdx0kv"",
+    },
+    "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+    "status": 405,
+  },
+]
+`;
+
+exports[`a PayPal purchase > refuses a checkout for an unknown tier 1`] = `
+[
+  {
+    "body": "{"error":"Pick a badge tier."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "30",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""urwkafbjxbu"",
+    },
+    "sha256": "388e7d41dd576053ee90076f21abf105695975417ba62619e37cb22fbb5713f7",
+    "status": 400,
+  },
+]
+`;
+
+exports[`a PayPal purchase > refuses a checkout over $500 1`] = `
+[
+  {
+    "body": "{"error":"Choose an amount of $5 or more (up to $500)."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "56",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""v68npkhrz01k"",
+    },
+    "sha256": "5510450722283e98da69c8f4f7f824f2a50a94a41d21d8d76831fe58ca1a61a5",
+    "status": 400,
+  },
+]
+`;
+
+exports[`a PayPal purchase > refuses a checkout signed out 1`] = `
+[
+  {
+    "body": "{"error":"Sign in with Twitch to support."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "43",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""15cwwhasmt417"",
+    },
+    "sha256": "7455a6eac314d0696d807320cf9038303fee35e9678193041aba369d5085e7d8",
+    "status": 401,
+  },
+]
+`;
+
+exports[`a PayPal purchase > refuses a checkout under $5 1`] = `
+[
+  {
+    "body": "{"error":"Choose an amount of $5 or more (up to $500)."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "56",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""v68npkhrz01k"",
+    },
+    "sha256": "5510450722283e98da69c8f4f7f824f2a50a94a41d21d8d76831fe58ca1a61a5",
+    "status": 400,
+  },
+]
+`;
+
+exports[`a PayPal purchase > refuses a checkout with an unknown button 1`] = `
+[
+  {
+    "body": "{"error":"Choose a payment method on the page."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "48",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""vvdb1dw3201c"",
+    },
+    "sha256": "8a93279bfb99a3133d2d3f4ad46f50258520ebe5cc594233fbcc523686c6ebd8",
+    "status": 400,
+  },
+]
+`;
+
+exports[`a PayPal purchase > refuses a gift to a name that is not one 1`] = `
+[
+  {
+    "body": "{"error":"That is not a valid Twitch username."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "48",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""14wth9e45fs1c"",
+    },
+    "sha256": "256b3551030e877afe4220a3202fcaa48d31127f8586d7d70c4fec517ad47633",
+    "status": 400,
+  },
+]
+`;
+
+exports[`a PayPal purchase > refuses a gift to an unknown account 1`] = `
+[
+  {
+    "body": "{"error":"No Twitch account found."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "36",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""3bhuoqvxnw10"",
+    },
+    "sha256": "77e7d0d969b1e658232073642cafe8dbf20f950e5e7e31d9d77aeaad717ab894",
+    "status": 404,
+  },
+]
+`;
+
+exports[`a PayPal purchase > refuses a webhook as a GET 1`] = `
+[
+  {
+    "body": "{"error":"Method not allowed."}",
+    "cookies": [],
+    "headers": {
+      "allow": "POST",
+      "cache-control": "private, no-store",
+      "content-length": "31",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""q7enjxdx0kv"",
+    },
+    "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+    "status": 405,
+  },
+]
+`;
+
+exports[`a PayPal purchase > refuses a webhook with a bad signature 1`] = `
+[
+  {
+    "body": "{"error":"Invalid webhook."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "28",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""s15wch3p9js"",
+    },
+    "sha256": "295aeef4be621b8e4445774bb9b538ed0bccd9f4c005aeeb078e9d49527dbc9d",
+    "status": 400,
+  },
+]
+`;
+
+exports[`a PayPal purchase > refuses a webhook without PayPal headers 1`] = `
+[
+  {
+    "body": "{"error":"Invalid webhook."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "28",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""s15wch3p9js"",
+    },
+    "sha256": "295aeef4be621b8e4445774bb9b538ed0bccd9f4c005aeeb078e9d49527dbc9d",
+    "status": 400,
+  },
+]
+`;
+
+exports[`a PayPal purchase > takes plain support with no badge 1`] = `
+[
+  {
+    "body": "{"approveUrl":"https://www.sandbox.paypal.com/checkoutnow?token=PARITYORDER000001","orderId":"PARITYORDER000001"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "113",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""gof9u7krf435"",
+    },
+    "sha256": "fd9ab0a6ef6dbe6b2a1facd895712f7da5ef6e753fcaad4bfac0a653f4b6a80a",
+    "status": 200,
+  },
+  {
+    "body": "{"status":"completed","recipient":null,"tier":null}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "51",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""ck4qr1bnyz1f"",
+    },
+    "sha256": "7999ff07974d9c66c0df27144b01c2268f2aea7c61acc71b502d87a66f74780d",
+    "status": 200,
+  },
+]
+`;
+
+exports[`a PayPal purchase > takes the badge back on a refund 1`] = `
+[
+  {
+    "body": "{"approveUrl":"https://www.sandbox.paypal.com/checkoutnow?token=PARITYORDER000001","orderId":"PARITYORDER000001"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "113",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""gof9u7krf435"",
+    },
+    "sha256": "fd9ab0a6ef6dbe6b2a1facd895712f7da5ef6e753fcaad4bfac0a653f4b6a80a",
+    "status": 200,
+  },
+  {
+    "body": "{"status":"completed","recipient":{"login":"someviewer","displayName":"SomeViewer"},"tier":"supporter"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "103",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""13gs533eovr2v"",
+    },
+    "sha256": "e1ba6ac71627c48f385d12063e593ad195dfb6599daca85fa82d8865825c3f04",
+    "status": 200,
+  },
+  {
+    "body": "{"ok":true}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "11",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""w6gfy8q1ypb"",
+    },
+    "sha256": "4062edaf750fb8074e7e83e0c9028c94e32468a8b6f1614774328ef045150f93",
+    "status": 200,
+  },
+  {
+    "body": "{"error":"We could not confirm this payment."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "46",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""pkd4xw49vk1a"",
+    },
+    "sha256": "899765968324d284f911e4e4faf118f7d160df3915dc31789298022c4a4d6a98",
+    "status": 409,
+  },
+  {
+    "body": "{"signInReady":true,"user":{"id":"12345","login":"someviewer","displayName":"SomeViewer"},"badges":[],"standing":{"owner":false,"tier":null,"founder":false,"prices":{"supporter":500,"suvy":1000,"top-suvy":2000}}}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "212",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""10ou3lo89fd5w"",
+    },
+    "sha256": "cd5d91c4820431cddeeee5e7498b0e193b52ab52d7ae8c9887ac7102fabe655d",
+    "status": 200,
+  },
+]
+`;
+
+exports[`a card purchase (Stripe) > buys a badge: checkout, pay, confirm, a repeat, then the webhook 1`] = `
+[
+  {
+    "body": "{"url":"https://checkout.stripe.com/c/pay/cs_test_parity0000000001"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "68",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""230rpelm9g1w"",
+    },
+    "sha256": "fac83131b42deb56aea3d8e2fe61691cf183117b8e6ab852b1af275f92e262e1",
+    "status": 200,
+  },
+  {
+    "body": "{"error":"We could not confirm this payment."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "46",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""pkd4xw49vk1a"",
+    },
+    "sha256": "899765968324d284f911e4e4faf118f7d160df3915dc31789298022c4a4d6a98",
+    "status": 409,
+  },
+  {
+    "body": "{"status":"completed","recipient":{"login":"someviewer","displayName":"SomeViewer"},"tier":"supporter"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "103",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""13gs533eovr2v"",
+    },
+    "sha256": "e1ba6ac71627c48f385d12063e593ad195dfb6599daca85fa82d8865825c3f04",
+    "status": 200,
+  },
+  {
+    "body": "{"status":"completed","recipient":{"login":"someviewer","displayName":"SomeViewer"},"tier":"supporter"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "103",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""13gs533eovr2v"",
+    },
+    "sha256": "e1ba6ac71627c48f385d12063e593ad195dfb6599daca85fa82d8865825c3f04",
+    "status": 200,
+  },
+  {
+    "body": "{"received":true}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "17",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""sbju7qkzw5h"",
+    },
+    "sha256": "332ddb00d111581386a54b79f7f57765ffc70cf17001c124c3db983a6e7d131b",
+    "status": 200,
+  },
+]
+`;
+
+exports[`a card purchase (Stripe) > checks the signature over the exact bytes sent (spacing, non-ASCII text) 1`] = `
+[
+  {
+    "body": "{"url":"https://checkout.stripe.com/c/pay/cs_test_parity0000000001"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "68",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""230rpelm9g1w"",
+    },
+    "sha256": "fac83131b42deb56aea3d8e2fe61691cf183117b8e6ab852b1af275f92e262e1",
+    "status": 200,
+  },
+  {
+    "body": "{"received":true}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "17",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""sbju7qkzw5h"",
+    },
+    "sha256": "332ddb00d111581386a54b79f7f57765ffc70cf17001c124c3db983a6e7d131b",
+    "status": 200,
+  },
+  {
+    "body": "{"status":"completed","recipient":{"login":"someviewer","displayName":"SomeViewer"},"tier":"supporter"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "103",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""13gs533eovr2v"",
+    },
+    "sha256": "e1ba6ac71627c48f385d12063e593ad195dfb6599daca85fa82d8865825c3f04",
+    "status": 200,
+  },
+]
+`;
+
+exports[`a card purchase (Stripe) > grants a buyer who never came back, through the webhook 1`] = `
+[
+  {
+    "body": "{"url":"https://checkout.stripe.com/c/pay/cs_test_parity0000000001"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "68",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""230rpelm9g1w"",
+    },
+    "sha256": "fac83131b42deb56aea3d8e2fe61691cf183117b8e6ab852b1af275f92e262e1",
+    "status": 200,
+  },
+  {
+    "body": "{"received":true}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "17",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""sbju7qkzw5h"",
+    },
+    "sha256": "332ddb00d111581386a54b79f7f57765ffc70cf17001c124c3db983a6e7d131b",
+    "status": 200,
+  },
+  {
+    "body": "{"status":"completed","recipient":{"login":"afriend","displayName":"AFriend"},"tier":"supporter"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "97",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""1mxr8kd81o2p"",
+    },
+    "sha256": "be38a4ed899c3a119d17587d585fbff3fe5b2946d5a84a5c2450d895e73d4871",
+    "status": 200,
+  },
+]
+`;
+
+exports[`a card purchase (Stripe) > refuses a card checkout signed out 1`] = `
+[
+  {
+    "body": "{"error":"Sign in with Twitch to support."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "43",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""15cwwhasmt417"",
+    },
+    "sha256": "7455a6eac314d0696d807320cf9038303fee35e9678193041aba369d5085e7d8",
+    "status": 401,
+  },
+]
+`;
+
+exports[`a card purchase (Stripe) > refuses a card checkout with no badge (Managed Payments) 1`] = `
+[
+  {
+    "body": "{"error":"Card checkout is for badges. Use PayPal to support without a badge."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "79",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""dgowuk2mr127"",
+    },
+    "sha256": "40f0010248a2c2c202295d20c099b58b46c754d160f7a6cb3f4eca6ea3fea643",
+    "status": 400,
+  },
+]
+`;
+
+exports[`a card purchase (Stripe) > refuses a confirm of a session this server never made 1`] = `
+[
+  {
+    "body": "{"error":"We could not confirm this payment."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "46",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""pkd4xw49vk1a"",
+    },
+    "sha256": "899765968324d284f911e4e4faf118f7d160df3915dc31789298022c4a4d6a98",
+    "status": 404,
+  },
+]
+`;
+
+exports[`a card purchase (Stripe) > refuses a confirm of an id that is not one 1`] = `
+[
+  {
+    "body": "{"error":"We could not confirm this payment."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "46",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""pkd4xw49vk1a"",
+    },
+    "sha256": "899765968324d284f911e4e4faf118f7d160df3915dc31789298022c4a4d6a98",
+    "status": 400,
+  },
+]
+`;
+
+exports[`a card purchase (Stripe) > refuses a live-mode event on a sandbox setup 1`] = `
+[
+  {
+    "body": "{"received":true}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "17",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""sbju7qkzw5h"",
+    },
+    "sha256": "332ddb00d111581386a54b79f7f57765ffc70cf17001c124c3db983a6e7d131b",
+    "status": 200,
+  },
+]
+`;
+
+exports[`a card purchase (Stripe) > refuses a signed webhook that is not JSON 1`] = `
+[
+  {
+    "body": "{"error":"Bad event."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "22",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""uicavxkn4xm"",
+    },
+    "sha256": "e1a8ceaef30059b041e726c6b8a4b8d1ff37e80d74e73e008090ff4b15f588e4",
+    "status": 400,
+  },
+]
+`;
+
+exports[`a card purchase (Stripe) > refuses a webhook as a GET 1`] = `
+[
+  {
+    "body": "{"error":"Method not allowed."}",
+    "cookies": [],
+    "headers": {
+      "allow": "POST",
+      "cache-control": "private, no-store",
+      "content-length": "31",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""q7enjxdx0kv"",
+    },
+    "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+    "status": 405,
+  },
+]
+`;
+
+exports[`a card purchase (Stripe) > refuses a webhook signed with another secret 1`] = `
+[
+  {
+    "body": "{"error":"Bad signature."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "26",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""1676bfxakrtq"",
+    },
+    "sha256": "9f968812004a278a3a479dc7e7244061e5d33e558ddc8ce32d7c45bcb52576f6",
+    "status": 400,
+  },
+]
+`;
+
+exports[`a card purchase (Stripe) > refuses a webhook with no signature 1`] = `
+[
+  {
+    "body": "{"error":"Bad signature."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "26",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""1676bfxakrtq"",
+    },
+    "sha256": "9f968812004a278a3a479dc7e7244061e5d33e558ddc8ce32d7c45bcb52576f6",
+    "status": 400,
+  },
+]
+`;
+
+exports[`a card purchase (Stripe) > takes the badge back on a refund or dispute 1`] = `
+[
+  {
+    "body": "{"url":"https://checkout.stripe.com/c/pay/cs_test_parity0000000001"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "68",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""230rpelm9g1w"",
+    },
+    "sha256": "fac83131b42deb56aea3d8e2fe61691cf183117b8e6ab852b1af275f92e262e1",
+    "status": 200,
+  },
+  {
+    "body": "{"status":"completed","recipient":{"login":"someviewer","displayName":"SomeViewer"},"tier":"supporter"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "103",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""13gs533eovr2v"",
+    },
+    "sha256": "e1ba6ac71627c48f385d12063e593ad195dfb6599daca85fa82d8865825c3f04",
+    "status": 200,
+  },
+  {
+    "body": "{"received":true}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "17",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""sbju7qkzw5h"",
+    },
+    "sha256": "332ddb00d111581386a54b79f7f57765ffc70cf17001c124c3db983a6e7d131b",
+    "status": 200,
+  },
+  {
+    "body": "{"error":"We could not confirm this payment."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "46",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""pkd4xw49vk1a"",
+    },
+    "sha256": "899765968324d284f911e4e4faf118f7d160df3915dc31789298022c4a4d6a98",
+    "status": 409,
+  },
+]
+`;
+
+exports[`a card purchase (Stripe) > takes the badge back on a refund or dispute 2`] = `
+[
+  {
+    "body": "{"url":"https://checkout.stripe.com/c/pay/cs_test_parity0000000001"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "68",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""230rpelm9g1w"",
+    },
+    "sha256": "fac83131b42deb56aea3d8e2fe61691cf183117b8e6ab852b1af275f92e262e1",
+    "status": 200,
+  },
+  {
+    "body": "{"status":"completed","recipient":{"login":"someviewer","displayName":"SomeViewer"},"tier":"supporter"}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "103",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""13gs533eovr2v"",
+    },
+    "sha256": "e1ba6ac71627c48f385d12063e593ad195dfb6599daca85fa82d8865825c3f04",
+    "status": 200,
+  },
+  {
+    "body": "{"received":true}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "17",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""sbju7qkzw5h"",
+    },
+    "sha256": "332ddb00d111581386a54b79f7f57765ffc70cf17001c124c3db983a6e7d131b",
+    "status": 200,
+  },
+  {
+    "body": "{"error":"We could not confirm this payment."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "46",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""pkd4xw49vk1a"",
+    },
+    "sha256": "899765968324d284f911e4e4faf118f7d160df3915dc31789298022c4a4d6a98",
+    "status": 409,
+  },
+]
+`;

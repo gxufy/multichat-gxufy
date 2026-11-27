@@ -1,0 +1,843 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`/api/badges/give > answers Twitch failing 1`] = `
+{
+  "body": "{"error":"Could not reach Twitch. Try again."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "46",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""13u5xavx1b61a"",
+  },
+  "sha256": "d7cf82396078fa9252074631241daa9247fb0ae84e03c59c2f0f553d4178ae95",
+  "status": 503,
+}
+`;
+
+exports[`/api/badges/give > answers Twitch out of reach 1`] = `
+{
+  "body": "{"error":"Could not reach Twitch. Try again."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "46",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""13u5xavx1b61a"",
+  },
+  "sha256": "d7cf82396078fa9252074631241daa9247fb0ae84e03c59c2f0f553d4178ae95",
+  "status": 503,
+}
+`;
+
+exports[`/api/badges/give > gives a Founder spot once 1`] = `
+[
+  {
+    "body": "{"founder":{"id":"12345","login":"someviewer","displayName":"SomeViewer","givenAt":"2026-11-26T03:00:00.000Z"},"founderSlotsLeft":24}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "133",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""v7qso3jqns3p"",
+    },
+    "sha256": "e7c1fcd2554b22f8cde431e75ab2b21806e217d936ab05a196b79d3eb1e183b6",
+    "status": 200,
+  },
+  {
+    "body": "{"founder":{"id":"12345","login":"someviewer","displayName":"SomeViewer","givenAt":"2026-11-26T03:00:00.000Z"},"founderSlotsLeft":24}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "133",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""v7qso3jqns3p"",
+    },
+    "sha256": "e7c1fcd2554b22f8cde431e75ab2b21806e217d936ab05a196b79d3eb1e183b6",
+    "status": 200,
+  },
+  {
+    "body": "{"error":"That account already has every badge."}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "49",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""2jg7n8xxo51d"",
+    },
+    "sha256": "257c6a2403e520dc2dd7deccd40fb822c92437bd9a8e28919337b36a64d7147a",
+    "status": 409,
+  },
+  {
+    "body": "{"takenBack":true}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "18",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""k8131imw5ii"",
+    },
+    "sha256": "c094b61c427486fa075bcacdf67c40bf4b4caffe1ca06f7e7d941e18327bc60d",
+    "status": 200,
+  },
+]
+`;
+
+exports[`/api/badges/give > gives, lists and takes back a tier 1`] = `
+[
+  {
+    "body": "{"given":{"id":"12345","login":"someviewer","displayName":"SomeViewer","givenAt":"2026-11-26T03:00:00.000Z","tier":"supporter"}}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "128",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""ujj4u7iidy3k"",
+    },
+    "sha256": "e2853b182637389095a4898e1e5271697645087b8047cfe7bff6366a0030dbbe",
+    "status": 200,
+  },
+  {
+    "body": "{"given":{"id":"12345","login":"someviewer","displayName":"SomeViewer","givenAt":"2026-11-26T03:00:00.000Z","tier":"top-suvy"}}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "127",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""kvf27t4zj53j"",
+    },
+    "sha256": "80481c27ac10a6ff6d64f69ffcf0caee55e4b93ab841be11a2220a8a191408ce",
+    "status": 200,
+  },
+  {
+    "body": "{"given":[{"id":"12345","login":"someviewer","displayName":"SomeViewer","givenAt":"2026-11-26T03:00:00.000Z","tier":"top-suvy"}],"founders":[],"founderSlotsLeft":25}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "165",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""2xju0fs35d4l"",
+    },
+    "sha256": "d9afdaf058ff355346cd747f2a7764454ef07e13308e2743e7d1651bc48aca48",
+    "status": 200,
+  },
+  {
+    "body": "{"takenBack":true}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "18",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""k8131imw5ii"",
+    },
+    "sha256": "c094b61c427486fa075bcacdf67c40bf4b4caffe1ca06f7e7d941e18327bc60d",
+    "status": 200,
+  },
+  {
+    "body": "{"given":[],"founders":[],"founderSlotsLeft":25}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "private, no-store",
+      "content-length": "48",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""f0wy3r6fgd1c"",
+    },
+    "sha256": "955b4ef6333612e4f9d81aa43c374b7ac5d0be5bafd8fee04d3841b08e18d0e4",
+    "status": 200,
+  },
+]
+`;
+
+exports[`/api/badges/give > is off (404) without sign-in 1`] = `
+{
+  "body": "{"error":"Not found."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""7rxkpsxxpxm"",
+  },
+  "sha256": "58e46b31fc6d69e3ecdb843eeff8bac8d49c9a70cdac583c73986a8a4fb5d1b0",
+  "status": 404,
+}
+`;
+
+exports[`/api/badges/give > lists what was given 1`] = `
+{
+  "body": "{"given":[],"founders":[],"founderSlotsLeft":25}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "48",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""f0wy3r6fgd1c"",
+  },
+  "sha256": "955b4ef6333612e4f9d81aa43c374b7ac5d0be5bafd8fee04d3841b08e18d0e4",
+  "status": 200,
+}
+`;
+
+exports[`/api/badges/give > refuses a DELETE 1`] = `
+{
+  "body": "{"error":"Method not allowed."}",
+  "cookies": [],
+  "headers": {
+    "allow": "GET, POST",
+    "cache-control": "private, no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""q7enjxdx0kv"",
+  },
+  "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+  "status": 405,
+}
+`;
+
+exports[`/api/badges/give > refuses a name that is not a Twitch name 1`] = `
+{
+  "body": "{"error":"That is not a valid Twitch username."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "48",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""14wth9e45fs1c"",
+  },
+  "sha256": "256b3551030e877afe4220a3202fcaa48d31127f8586d7d70c4fec517ad47633",
+  "status": 400,
+}
+`;
+
+exports[`/api/badges/give > refuses a take-back of an id that is not one 1`] = `
+{
+  "body": "{"error":"Unknown account."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "28",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""f802johckks"",
+  },
+  "sha256": "507fdc3741b9efc0804a82fe1631bf4ee14f574031b25063c231bc0b05d38c8a",
+  "status": 400,
+}
+`;
+
+exports[`/api/badges/give > refuses a take-back of an unknown badge 1`] = `
+{
+  "body": "{"error":"Unknown badge."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "26",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""n5s98vlgi7q"",
+  },
+  "sha256": "f7acaebba9b045898460f57417ceaacf0ec22c38979ac571be8cbdaf99b1a913",
+  "status": 400,
+}
+`;
+
+exports[`/api/badges/give > refuses a viewer giving 1`] = `
+{
+  "body": "{"error":"Forbidden."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""j2wskt68ihm"",
+  },
+  "sha256": "71b94782dbdc7e128da28a8fca4409cb51bb589733b993ab14f9b1a88b829557",
+  "status": 403,
+}
+`;
+
+exports[`/api/badges/give > refuses a viewer listing 1`] = `
+{
+  "body": "{"error":"Forbidden."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""j2wskt68ihm"",
+  },
+  "sha256": "71b94782dbdc7e128da28a8fca4409cb51bb589733b993ab14f9b1a88b829557",
+  "status": 403,
+}
+`;
+
+exports[`/api/badges/give > refuses an account Twitch does not know 1`] = `
+{
+  "body": "{"error":"No Twitch account found."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "36",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""3bhuoqvxnw10"",
+  },
+  "sha256": "77e7d0d969b1e658232073642cafe8dbf20f950e5e7e31d9d77aeaad717ab894",
+  "status": 404,
+}
+`;
+
+exports[`/api/badges/give > refuses an unknown tier 1`] = `
+{
+  "body": "{"error":"Unknown tier."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "25",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""he99lewf8tp"",
+  },
+  "sha256": "8120e2b59df1a642d1ff6a4c299504a8c06b45ddcb62df67a812707eec79a6f9",
+  "status": 400,
+}
+`;
+
+exports[`/api/badges/give > refuses someone signed out 1`] = `
+{
+  "body": "{"error":"Forbidden."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""j2wskt68ihm"",
+  },
+  "sha256": "71b94782dbdc7e128da28a8fca4409cb51bb589733b993ab14f9b1a88b829557",
+  "status": 403,
+}
+`;
+
+exports[`/api/badges/give > refuses the owner from another site 1`] = `
+{
+  "body": "{"error":"Forbidden."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""j2wskt68ihm"",
+  },
+  "sha256": "71b94782dbdc7e128da28a8fca4409cb51bb589733b993ab14f9b1a88b829557",
+  "status": 403,
+}
+`;
+
+exports[`/api/overlay/refresh > answers what overlays ask when their live connection is down 1`] = `
+{
+  "body": "{"token":0,"now":1795662000000,"targets":[],"commands":[]}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "58",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""6pcyed4p4q1m"",
+  },
+  "sha256": "3d2d438b8c22ad40e548c25ce2f084ca0af4a6a014d764a4e8607bcdf0912ccd",
+  "status": 200,
+}
+`;
+
+exports[`/api/overlay/refresh > answers with a channel that is not a name 1`] = `
+{
+  "body": "{"token":0,"now":1795662000000,"targets":[],"commands":[]}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "58",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""6pcyed4p4q1m"",
+  },
+  "sha256": "3d2d438b8c22ad40e548c25ce2f084ca0af4a6a014d764a4e8607bcdf0912ccd",
+  "status": 200,
+}
+`;
+
+exports[`/api/overlay/refresh > answers with one channel 1`] = `
+{
+  "body": "{"token":0,"now":1795662000000,"targets":[],"commands":[]}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "58",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""6pcyed4p4q1m"",
+  },
+  "sha256": "3d2d438b8c22ad40e548c25ce2f084ca0af4a6a014d764a4e8607bcdf0912ccd",
+  "status": 200,
+}
+`;
+
+exports[`/api/overlay/refresh > answers with the channels an overlay shows 1`] = `
+{
+  "body": "{"token":0,"now":1795662000000,"targets":[],"commands":[]}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "58",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""6pcyed4p4q1m"",
+  },
+  "sha256": "3d2d438b8c22ad40e548c25ce2f084ca0af4a6a014d764a4e8607bcdf0912ccd",
+  "status": 200,
+}
+`;
+
+exports[`/api/overlay/refresh > refreshes every overlay for the owner 1`] = `
+[
+  {
+    "body": "{"token":1795662000000}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "23",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""szmv6hugmen"",
+    },
+    "sha256": "7306d1caa2f08fddfb6de88066be0cbeee0e32a9cdda7cd1ad67640c966f739e",
+    "status": 200,
+  },
+  {
+    "body": "{"token":1795662000000,"now":1795662000000,"targets":[],"commands":[]}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "70",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""g0go80c19k1y"",
+    },
+    "sha256": "b03aee2c42f38e027ad086a5981618e519597a00d4798aec625dbc2d38f45435",
+    "status": 200,
+  },
+]
+`;
+
+exports[`/api/overlay/refresh > refreshes one channel's overlays 1`] = `
+[
+  {
+    "body": "{"target":{"platform":"twitch","channel":"gxufy","at":1795662000000}}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "69",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""14u5yo1nzd21x"",
+    },
+    "sha256": "d9a67fa082ae91b4d0bbf90989f2a23d4d27ee6a203569f8b93b032c3bf6d4ac",
+    "status": 200,
+  },
+  {
+    "body": "{"target":{"platform":"any","channel":"xqc","at":1795662000000}}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "64",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""vxjoq2mgd61s"",
+    },
+    "sha256": "5cf5c76aaee3b8991f62addd28499e0a619e00202888da35147ada2dc9901576",
+    "status": 200,
+  },
+  {
+    "body": "{"token":0,"now":1795662000000,"targets":[{"platform":"twitch","channel":"gxufy","at":1795662000000},{"platform":"any","channel":"xqc","at":1795662000000}],"commands":[]}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "170",
+      "content-type": "application/json; charset=utf-8",
+      "etag": ""2blpecap9w4q"",
+    },
+    "sha256": "3cb9c89f4dfe2b3e9add79f46e5a02ceea967c4ee097a522d2a96c7185025486",
+    "status": 200,
+  },
+]
+`;
+
+exports[`/api/overlay/refresh > refuses a DELETE 1`] = `
+{
+  "body": "{"error":"Method not allowed."}",
+  "cookies": [],
+  "headers": {
+    "allow": "GET, POST",
+    "cache-control": "no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""q7enjxdx0kv"",
+  },
+  "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+  "status": 405,
+}
+`;
+
+exports[`/api/overlay/refresh > refuses a channel that is not a name 1`] = `
+{
+  "body": "{"error":"Enter a valid channel name."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "39",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""15hofxf0lt913"",
+  },
+  "sha256": "e70a2fca3d9c782a68046c5b56e6d9c05e3dd7cefa5c36872d57788c91f155f3",
+  "status": 400,
+}
+`;
+
+exports[`/api/overlay/refresh > refuses a command only streamers may run 1`] = `
+{
+  "body": "{"error":"Pick a command from the list."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "41",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""yt96zzqf9x15"",
+  },
+  "sha256": "55751032012c8d76de0b5cd42dcf62cc833ec715ca7ba844eda0ac94a4d98dbd",
+  "status": 400,
+}
+`;
+
+exports[`/api/overlay/refresh > refuses a command that is not one 1`] = `
+{
+  "body": "{"error":"Pick a command from the list."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "41",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""yt96zzqf9x15"",
+  },
+  "sha256": "55751032012c8d76de0b5cd42dcf62cc833ec715ca7ba844eda0ac94a4d98dbd",
+  "status": 400,
+}
+`;
+
+exports[`/api/overlay/refresh > refuses a viewer 1`] = `
+{
+  "body": "{"error":"Forbidden."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""j2wskt68ihm"",
+  },
+  "sha256": "71b94782dbdc7e128da28a8fca4409cb51bb589733b993ab14f9b1a88b829557",
+  "status": 403,
+}
+`;
+
+exports[`/api/overlay/refresh > refuses an unknown platform 1`] = `
+{
+  "body": "{"error":"Enter a valid channel name."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "39",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""15hofxf0lt913"",
+  },
+  "sha256": "e70a2fca3d9c782a68046c5b56e6d9c05e3dd7cefa5c36872d57788c91f155f3",
+  "status": 400,
+}
+`;
+
+exports[`/api/overlay/refresh > refuses someone signed out 1`] = `
+{
+  "body": "{"error":"Forbidden."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""j2wskt68ihm"",
+  },
+  "sha256": "71b94782dbdc7e128da28a8fca4409cb51bb589733b993ab14f9b1a88b829557",
+  "status": 403,
+}
+`;
+
+exports[`/api/overlay/refresh > refuses the owner from another site 1`] = `
+{
+  "body": "{"error":"Forbidden."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""j2wskt68ihm"",
+  },
+  "sha256": "71b94782dbdc7e128da28a8fca4409cb51bb589733b993ab14f9b1a88b829557",
+  "status": 403,
+}
+`;
+
+exports[`/api/overlay/refresh > refuses the owner with no Origin 1`] = `
+{
+  "body": "{"error":"Forbidden."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "no-store",
+    "content-length": "22",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""j2wskt68ihm"",
+  },
+  "sha256": "71b94782dbdc7e128da28a8fca4409cb51bb589733b993ab14f9b1a88b829557",
+  "status": 403,
+}
+`;
+
+exports[`/api/overlay/refresh > sends a command to one channel only 1`] = `
+[
+  {
+    "body": "{"command":{"id":"ID","platform":"twitch","channel":"gxufy","text":"reload","at":1795662000000}}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "130",
+      "content-type": "application/json; charset=utf-8",
+    },
+    "sha256": "",
+    "status": 200,
+  },
+  {
+    "body": "{"token":0,"now":1795662000000,"targets":[],"commands":[{"id":"ID","platform":"twitch","channel":"gxufy","text":"reload","at":1795662000000}]}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "176",
+      "content-type": "application/json; charset=utf-8",
+    },
+    "sha256": "",
+    "status": 200,
+  },
+  {
+    "body": "{"token":0,"now":1795662000000,"targets":[],"commands":[]}",
+    "cookies": [],
+    "headers": {
+      "cache-control": "no-store",
+      "content-length": "58",
+      "content-type": "application/json; charset=utf-8",
+    },
+    "sha256": "",
+    "status": 200,
+  },
+]
+`;
+
+exports[`/api/tts > answers StreamElements down, Streamlabs speaking 1`] = `
+{
+  "body": "(audio)",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "6",
+    "content-type": "audio/mpeg",
+    "etag": ""a9n7zti6cr1b"",
+    "x-content-type-options": "nosniff",
+  },
+  "sha256": "bfd1a4920d01581eb40bfbc5089aed128cc7927bd41ea79cdc4e560042080ad4",
+  "status": 200,
+}
+`;
+
+exports[`/api/tts > answers StreamElements sending a web page 1`] = `
+{
+  "body": "{"error":"TTS unavailable."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "28",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""76a81y7c2s"",
+    "x-content-type-options": "nosniff",
+  },
+  "sha256": "0a4330c25e7425d6b75f5d53132791aea2df3ba43f5df25e6ccf8bc9d22c27a6",
+  "status": 503,
+}
+`;
+
+exports[`/api/tts > answers StreamElements speaking 1`] = `
+{
+  "body": "(audio)",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "260",
+    "content-type": "audio/mpeg",
+    "etag": ""434cqag9ygqk"",
+    "x-content-type-options": "nosniff",
+  },
+  "sha256": "be4fcb647a1036806e1313c94b96df8f2aac5d6a1a2f40350ede4a3aa65fcabd",
+  "status": 200,
+}
+`;
+
+exports[`/api/tts > answers Streamlabs pointing somewhere untrusted 1`] = `
+{
+  "body": "{"error":"TTS unavailable."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "28",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""76a81y7c2s"",
+    "x-content-type-options": "nosniff",
+  },
+  "sha256": "0a4330c25e7425d6b75f5d53132791aea2df3ba43f5df25e6ccf8bc9d22c27a6",
+  "status": 503,
+}
+`;
+
+exports[`/api/tts > answers both out of reach 1`] = `
+{
+  "body": "{"error":"TTS unavailable."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "28",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""76a81y7c2s"",
+    "x-content-type-options": "nosniff",
+  },
+  "sha256": "0a4330c25e7425d6b75f5d53132791aea2df3ba43f5df25e6ccf8bc9d22c27a6",
+  "status": 503,
+}
+`;
+
+exports[`/api/tts > refuses ?text= 1`] = `
+{
+  "body": "{"error":"Invalid TTS request."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "32",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""v51asftzzcw"",
+    "x-content-type-options": "nosniff",
+  },
+  "sha256": "7cab060d69fa6c7549f353e4d73b2749203e898f57265d827620f882e3db29e2",
+  "status": 400,
+}
+`;
+
+exports[`/api/tts > refuses ?text=%20%20 1`] = `
+{
+  "body": "{"error":"Invalid TTS request."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "32",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""v51asftzzcw"",
+    "x-content-type-options": "nosniff",
+  },
+  "sha256": "7cab060d69fa6c7549f353e4d73b2749203e898f57265d827620f882e3db29e2",
+  "status": 400,
+}
+`;
+
+exports[`/api/tts > refuses ?text=a&text=b 1`] = `
+{
+  "body": "{"error":"Invalid TTS request."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "32",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""v51asftzzcw"",
+    "x-content-type-options": "nosniff",
+  },
+  "sha256": "7cab060d69fa6c7549f353e4d73b2749203e898f57265d827620f882e3db29e2",
+  "status": 400,
+}
+`;
+
+exports[`/api/tts > refuses ?text=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 1`] = `
+{
+  "body": "{"error":"Invalid TTS request."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "32",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""v51asftzzcw"",
+    "x-content-type-options": "nosniff",
+  },
+  "sha256": "7cab060d69fa6c7549f353e4d73b2749203e898f57265d827620f882e3db29e2",
+  "status": 400,
+}
+`;
+
+exports[`/api/tts > refuses ?text=hi&voice=a&voice=b 1`] = `
+{
+  "body": "{"error":"Invalid TTS request."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "32",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""v51asftzzcw"",
+    "x-content-type-options": "nosniff",
+  },
+  "sha256": "7cab060d69fa6c7549f353e4d73b2749203e898f57265d827620f882e3db29e2",
+  "status": 400,
+}
+`;
+
+exports[`/api/tts > refuses ?text=hi&voice=bad%20voice 1`] = `
+{
+  "body": "{"error":"Invalid TTS request."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "32",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""v51asftzzcw"",
+    "x-content-type-options": "nosniff",
+  },
+  "sha256": "7cab060d69fa6c7549f353e4d73b2749203e898f57265d827620f882e3db29e2",
+  "status": 400,
+}
+`;
+
+exports[`/api/tts > refuses POST 1`] = `
+{
+  "body": "{"error":"Method not allowed."}",
+  "cookies": [],
+  "headers": {
+    "allow": "GET",
+    "cache-control": "private, no-store",
+    "content-length": "31",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""q7enjxdx0kv"",
+    "x-content-type-options": "nosniff",
+  },
+  "sha256": "7aec1e6251805037cf79d94948312d720501acf5ba79d347736ac633acee7aef",
+  "status": 405,
+}
+`;
+
+exports[`/api/tts > refuses no query 1`] = `
+{
+  "body": "{"error":"Invalid TTS request."}",
+  "cookies": [],
+  "headers": {
+    "cache-control": "private, no-store",
+    "content-length": "32",
+    "content-type": "application/json; charset=utf-8",
+    "etag": ""v51asftzzcw"",
+    "x-content-type-options": "nosniff",
+  },
+  "sha256": "7cab060d69fa6c7549f353e4d73b2749203e898f57265d827620f882e3db29e2",
+  "status": 400,
+}
+`;

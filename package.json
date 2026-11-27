@@ -1,0 +1,26 @@
+{
+  "name": "multichat-gxufy",
+  "version": "2.0.0",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "test": "cd app && vitest --config vitest.config.mts run",
+    "test:watch": "cd app && vitest --config vitest.config.mts",
+    "typecheck": "tsc -p app/tsconfig.json --noEmit",
+    "check": "npm run typecheck && npm run test"
+  },
+  "dependencies": {
+    "@twemoji/api": "17.0.3",
+    "motion": "^14.14.0",
+    "piratetok-live-js": "0.3.0",
+    "ws": "8.23.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "jsdom": "^31.0.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.4.0",
+    "vitest": "^5.1.2"
+  }
+}

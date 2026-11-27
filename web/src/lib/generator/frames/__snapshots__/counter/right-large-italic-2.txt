@@ -1,0 +1,14 @@
+<div style="padding: 8px; box-sizing: border-box; width: 100%;">
+  <style>
+    "\n@font-face { font-family: 'DejaVu Sans'; src: url('/fonts/DejaVuSans-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }\n@keyframes vcIn { from { opacity: 0; transform: translateX(-8px) scale(0.85); } to { opacity: 1; transform: none; } }\n"
+  <div style="display: flex; gap: 21px; flex-wrap: wrap; justify-content: flex-end; width: 100%; box-sizing: border-box;">
+    <div style="display: inline-flex; align-items: center; gap: 12px; font-family: &quot;DejaVu Sans&quot;, sans-serif; font-weight: 700; font-style: italic; text-transform: uppercase; color: rgb(255, 255, 255); filter: drop-shadow(black 2px 2px 0.5rem); transition: 400ms;">
+      <span style="height: 38px; width: 38px; display: inline-flex; align-items: center; justify-content: center; animation: 400ms ease 0s 1 normal none running vcIn;">
+        <img alt="" draggable="false" src="/platform-twitch.png" style="height: 100%; width: auto;">
+      <span style="font-size: 42px; font-variant-numeric: tabular-nums;">
+        "7,856"
+    <div style="display: inline-flex; align-items: center; gap: 12px; font-family: &quot;DejaVu Sans&quot;, sans-serif; font-weight: 700; font-style: italic; text-transform: uppercase; color: rgb(255, 255, 255); filter: drop-shadow(black 2px 2px 0.5rem); transition: 400ms;">
+      <span style="height: 38px; width: 38px; display: inline-flex; align-items: center; justify-content: center; animation: 400ms ease 0s 1 normal none running vcIn;">
+        <img alt="" draggable="false" src="/platform-tiktok.png" style="height: 100%; width: auto;">
+      <span style="font-size: 42px; font-variant-numeric: tabular-nums;">
+        "9"

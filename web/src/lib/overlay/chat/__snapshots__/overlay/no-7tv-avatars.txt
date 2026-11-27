@@ -1,0 +1,740 @@
+<div id="chat_container" style="width: 100%; padding: 10px; position: absolute; bottom: 0px; overflow: hidden; background: transparent; color: white; font-weight: 800; word-break: break-word; font-family: &quot;Open Sans&quot;, Arial, system-ui, sans-serif; font-size: 34px;">
+  <div>
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+          <span style="display: inline;">
+            <span class="ck-bw">
+              <img alt="broadcaster" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/3" title="broadcaster" width="72" style="display: none;">
+              <img alt="subscriber" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3" title="subscriber" width="72" style="display: none;">
+            <span class="ck-name ck-chat-name" style="color: rgb(169, 112, 255); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="purplereign:">
+                <span class="gx-reference-glyph-foreground">
+                  "purplereign:"
+          <span class="ck-body ck-chat-body">
+            <span class="gx-reference-glyph" data-gx-glyph="clip">
+              <span class="gx-reference-glyph-foreground">
+                "clip"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="that">
+              <span class="gx-reference-glyph-foreground">
+                "that"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="OMEGALUL">
+              <span class="gx-reference-glyph-foreground">
+                "OMEGALUL"
+            " "
+            <img alt="Kappa" class="ck-emote ck-native-emote ck-native-twitch" decoding="async" height="112" loading="eager" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22n%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220.4%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23efeaf8%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23b9b0d0%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%221.6%22%20y%3D%221.6%22%20width%3D%2220.8%22%20height%3D%2220.8%22%20rx%3D%225%22%20fill%3D%22url(%23n)%22%20stroke%3D%22%234a4266%22%20stroke-width%3D%220.7%22%2F%3E%3Cellipse%20cx%3D%228.4%22%20cy%3D%226.6%22%20rx%3D%223.4%22%20ry%3D%221.5%22%20fill%3D%22%23fff%22%20opacity%3D%220.5%22%2F%3E%3Cellipse%20cx%3D%229%22%20cy%3D%2210.2%22%20rx%3D%221.5%22%20ry%3D%221.7%22%20fill%3D%22%232e2842%22%2F%3E%3Cellipse%20cx%3D%2215%22%20cy%3D%2210.2%22%20rx%3D%221.5%22%20ry%3D%221.7%22%20fill%3D%22%232e2842%22%2F%3E%3Ccircle%20cx%3D%229.5%22%20cy%3D%229.6%22%20r%3D%220.5%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%2215.5%22%20cy%3D%229.6%22%20r%3D%220.5%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22%232e2842%22%20stroke-width%3D%221.3%22%20stroke-linecap%3D%22round%22%20d%3D%22M8.2%2015.4c2%201.5%205.6%201.5%207.6%200%22%2F%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22%234a4266%22%20stroke-width%3D%220.9%22%20stroke-linecap%3D%22round%22%20d%3D%22M6.4%207.4c1-.9%202.4-.9%203.4-.2m4.4-.2c1-.7%202.4-.7%203.4.2%22%2F%3E%3C%2Fsvg%3E" width="112">
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="kick" style="display: none;">
+          <span style="display: inline;">
+            <span class="ck-bw">
+              <img alt="moderator" class="ck-badge-img" decoding="async" height="72" src="/badges/moderator.svg" width="72">
+              <img alt="subscriber" class="ck-badge-img" decoding="async" height="72" src="/badges/subscriber.svg" width="72">
+            <span class="ck-name ck-chat-name" style="color: rgb(182, 255, 111); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="emotefiend:">
+                <span class="gx-reference-glyph-foreground">
+                  "emotefiend:"
+          <span class="ck-body ck-chat-body">
+            <span class="gx-reference-glyph" data-gx-glyph="no">
+              <span class="gx-reference-glyph-foreground">
+                "no"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="chance">
+              <span class="gx-reference-glyph-foreground">
+                "chance"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="OMEGALUL">
+              <span class="gx-reference-glyph-foreground">
+                "OMEGALUL"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="RainTime">
+              <span class="gx-reference-glyph-foreground">
+                "RainTime"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="KEKW">
+              <span class="gx-reference-glyph-foreground">
+                "KEKW"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="catJAM">
+              <span class="gx-reference-glyph-foreground">
+                "catJAM"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="PepeLaugh">
+              <span class="gx-reference-glyph-foreground">
+                "PepeLaugh"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+          <span style="display: inline;">
+            <span class="ck-bw">
+              <img alt="moderator" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/3" title="moderator" width="72" style="display: none;">
+              <img alt="founder" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/511b78a9-ab37-472f-9569-457753bbe7d3/3" title="founder" width="72" style="display: none;">
+              <img alt="subscriber" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3" title="subscriber" width="72" style="display: none;">
+            <span class="ck-name ck-chat-name" style="color: rgb(255, 123, 84); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="emberwatch:">
+                <span class="gx-reference-glyph-foreground">
+                  "emberwatch:"
+          <span class="ck-body ck-chat-body">
+            <span class="gx-reference-glyph" data-gx-glyph="two">
+              <span class="gx-reference-glyph-foreground">
+                "two"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="years">
+              <span class="gx-reference-glyph-foreground">
+                "years"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="now">
+              <span class="gx-reference-glyph-foreground">
+                "now"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="youtube" style="display: none;">
+          <img alt="" loading="lazy" referrerpolicy="no-referrer" src="https://yt3.ggpht.com/sample-mod=s64-c-k-c0x00ffffff-no-rj" style="width: 1.5em; height: 1.5em; min-width: 1.5em; border-radius: 9999px; object-fit: cover; margin-right: 0.4em; vertical-align: -0.32em; display: none;">
+          <span style="display: inline;">
+            <span class="ck-bw">
+              <img alt="verified" class="ck-badge-img" decoding="async" height="72" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2211%22%20fill%3D%22%23999999%22%2F%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22m7.1%2012.1%203.1%203.1%206.8-7.1%201.5%201.5-8.3%208.6-4.6-4.6%201.5-1.5Z%22%2F%3E%3C%2Fsvg%3E" width="72">
+              <img alt="moderator" class="ck-badge-img" decoding="async" height="72" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%233ea6ff%22%20d%3D%22M12%201%202%204.8v6.6c0%205.8%204.2%2010.6%2010%2012.1%205.8-1.5%2010-6.3%2010-12.1V4.8L12%201Zm5.8%206.2-7.4%207.9-4.2-3.9%201.7-1.8%202.5%202.3%205.7-6.1%201.7%201.6Z%22%2F%3E%3C%2Fsvg%3E" width="72">
+            <span class="ck-name ck-chat-name" style="color: rgb(224, 122, 95); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="RedButtonRadio:">
+                <span class="gx-reference-glyph-foreground">
+                  "RedButtonRadio:"
+          <span class="ck-body ck-chat-body">
+            <span class="gx-reference-glyph" data-gx-glyph="welcome">
+              <span class="gx-reference-glyph-foreground">
+                "welcome"
+            " "
+            <strong style="color: rgb(169, 112, 255); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="@purplereign">
+                <span class="gx-reference-glyph-foreground">
+                  "@purplereign"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="tiktok" style="display: none;">
+          <img alt="" loading="lazy" referrerpolicy="no-referrer" src="https://p16-sign-va.tiktokcdn.com/sample-avatar~c5_100x100.jpeg" style="width: 1.5em; height: 1.5em; min-width: 1.5em; border-radius: 9999px; object-fit: cover; margin-right: 0.4em; vertical-align: -0.32em; display: none;">
+          <span style="display: inline;">
+            <span class="ck-bw">
+              <img alt="moderator" class="ck-badge-img ck-badge-wide" decoding="async" height="72" src="/badges/moderator.svg" width="72">
+              <img alt="subscriber" class="ck-badge-img ck-badge-wide" decoding="async" height="72" src="/badges/subscriber.svg" width="72">
+            <span class="ck-name ck-chat-name" style="color: rgb(37, 244, 238); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="tiktokmod:">
+                <span class="gx-reference-glyph-foreground">
+                  "tiktokmod:"
+          <span class="ck-body ck-chat-body">
+            <span class="gx-reference-glyph" data-gx-glyph="keep">
+              <span class="gx-reference-glyph-foreground">
+                "keep"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="it">
+              <span class="gx-reference-glyph-foreground">
+                "it"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="civil">
+              <span class="gx-reference-glyph-foreground">
+                "civil"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="in">
+              <span class="gx-reference-glyph-foreground">
+                "in"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="here">
+              <span class="gx-reference-glyph-foreground">
+                "here"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="please">
+              <span class="gx-reference-glyph-foreground">
+                "please"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+          <span style="display: inline;">
+            <span class="ck-bw">
+              <img alt="vip" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/3" title="vip" width="72" style="display: none;">
+              <img alt="subscriber" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3" title="subscriber" width="72" style="display: none;">
+            <span class="ck-name ck-chat-name" style="color: rgb(255, 255, 255); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="paintedname:">
+                <span class="gx-reference-glyph-foreground">
+                  "paintedname:"
+          <span class="ck-body ck-chat-body">
+            <span class="gx-reference-glyph" data-gx-glyph="that">
+              <span class="gx-reference-glyph-foreground">
+                "that"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="transition">
+              <span class="gx-reference-glyph-foreground">
+                "transition"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="is">
+              <span class="gx-reference-glyph-foreground">
+                "is"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="so">
+              <span class="gx-reference-glyph-foreground">
+                "so"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="clean">
+              <span class="gx-reference-glyph-foreground">
+                "clean"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="kick" style="display: none;">
+          <span style="display: inline;">
+            <span class="ck-name ck-chat-name" style="color: rgb(83, 252, 24); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="greenscreen:">
+                <span class="gx-reference-glyph-foreground">
+                  "greenscreen:"
+          <span class="ck-body ck-chat-body">
+            <span class="gx-reference-glyph" data-gx-glyph="first">
+              <span class="gx-reference-glyph-foreground">
+                "first"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="time">
+              <span class="gx-reference-glyph-foreground">
+                "time"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="catching">
+              <span class="gx-reference-glyph-foreground">
+                "catching"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="the">
+              <span class="gx-reference-glyph-foreground">
+                "the"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="stream">
+              <span class="gx-reference-glyph-foreground">
+                "stream"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="live,">
+              <span class="gx-reference-glyph-foreground">
+                "live,"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="this">
+              <span class="gx-reference-glyph-foreground">
+                "this"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="is">
+              <span class="gx-reference-glyph-foreground">
+                "is"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="sick">
+              <span class="gx-reference-glyph-foreground">
+                "sick"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+          <span style="display: inline;">
+            <span class="ck-bw">
+              <img alt="moderator" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/3" title="moderator" width="72" style="display: none;">
+            <span class="ck-name ck-chat-name" style="color: rgb(143, 143, 157); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="overlaybot:">
+                <span class="gx-reference-glyph-foreground">
+                  "overlaybot:"
+          <span class="ck-body ck-chat-body">
+            <span class="gx-reference-glyph" data-gx-glyph="!setup">
+              <span class="gx-reference-glyph-foreground">
+                "!setup"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="—">
+              <span class="gx-reference-glyph-foreground">
+                "—"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="one">
+              <span class="gx-reference-glyph-foreground">
+                "one"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="browser">
+              <span class="gx-reference-glyph-foreground">
+                "browser"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="source">
+              <span class="gx-reference-glyph-foreground">
+                "source"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="for">
+              <span class="gx-reference-glyph-foreground">
+                "for"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="chat">
+              <span class="gx-reference-glyph-foreground">
+                "chat"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="and">
+              <span class="gx-reference-glyph-foreground">
+                "and"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="a">
+              <span class="gx-reference-glyph-foreground">
+                "a"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="second">
+              <span class="gx-reference-glyph-foreground">
+                "second"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="for">
+              <span class="gx-reference-glyph-foreground">
+                "for"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="the">
+              <span class="gx-reference-glyph-foreground">
+                "the"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="counter,">
+              <span class="gx-reference-glyph-foreground">
+                "counter,"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="both">
+              <span class="gx-reference-glyph-foreground">
+                "both"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="sized">
+              <span class="gx-reference-glyph-foreground">
+                "sized"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="to">
+              <span class="gx-reference-glyph-foreground">
+                "to"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="the">
+              <span class="gx-reference-glyph-foreground">
+                "the"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="scene,">
+              <span class="gx-reference-glyph-foreground">
+                "scene,"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="so">
+              <span class="gx-reference-glyph-foreground">
+                "so"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="they">
+              <span class="gx-reference-glyph-foreground">
+                "they"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="move">
+              <span class="gx-reference-glyph-foreground">
+                "move"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="independently">
+              <span class="gx-reference-glyph-foreground">
+                "independently"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="and">
+              <span class="gx-reference-glyph-foreground">
+                "and"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="the">
+              <span class="gx-reference-glyph-foreground">
+                "the"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="counter">
+              <span class="gx-reference-glyph-foreground">
+                "counter"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="never">
+              <span class="gx-reference-glyph-foreground">
+                "never"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="inherits">
+              <span class="gx-reference-glyph-foreground">
+                "inherits"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="the">
+              <span class="gx-reference-glyph-foreground">
+                "the"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="chat">
+              <span class="gx-reference-glyph-foreground">
+                "chat"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="font">
+              <span class="gx-reference-glyph-foreground">
+                "font"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: flex-start; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="youtube" style="display: none;">
+          <div class="gx-event-strip gx-event-bits" data-event-category="cheer" data-event-platform="youtube" data-testid="system-event-row" style="--gx-event-accent: #ff0000;">
+            <span aria-hidden="true" class="gx-event-icon">
+              <span class="gx-event-icon-fallback">
+                "💰"
+            <span class="gx-event-copy">
+              <span class="gx-event-header">
+                <span class="gx-event-name" style="color: rgb(255, 79, 79); font-weight: 800;">
+                  <span class="gx-reference-glyph" data-gx-glyph="GoldTierViewer">
+                    <span class="gx-reference-glyph-foreground">
+                      "GoldTierViewer"
+                <span class="gx-event-generic-text ck-body">
+                  <span class="gx-reference-glyph" data-gx-glyph="sent">
+                    <span class="gx-reference-glyph-foreground">
+                      "sent"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="a">
+                    <span class="gx-reference-glyph-foreground">
+                      "a"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="$20.00">
+                    <span class="gx-reference-glyph-foreground">
+                      "$20.00"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="Super">
+                    <span class="gx-reference-glyph-foreground">
+                      "Super"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="Chat">
+                    <span class="gx-reference-glyph-foreground">
+                      "Chat"
+    <div class="gx-message-row" style="margin: 0px 30px 0px 10px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word; display: flex; align-items: flex-start; gap: 0.3em;">
+          <span style="flex-shrink: 0;">
+            <span aria-hidden="true" data-chat-platform="tiktok" style="display: none;">
+          <div class="gx-event-strip gx-event-gift" data-event-category="gift" data-event-platform="tiktok" data-testid="system-event-row" style="--gx-event-accent: #00f2ea;">
+            <span aria-hidden="true" class="gx-event-icon">
+              <span class="gx-event-icon-fallback">
+                "🎁"
+            <span class="gx-event-copy">
+              <span class="gx-event-header">
+                <span class="gx-event-name" style="color: rgb(37, 244, 238); font-weight: 800;">
+                  <span class="gx-reference-glyph" data-gx-glyph="giftgiver">
+                    <span class="gx-reference-glyph-foreground">
+                      "giftgiver"
+                <span class="gx-event-generic-text ck-body">
+                  <span class="gx-reference-glyph" data-gx-glyph="sent">
+                    <span class="gx-reference-glyph-foreground">
+                      "sent"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="Rose">
+                    <span class="gx-reference-glyph-foreground">
+                      "Rose"
+                  " "
+                  <span class="gx-reference-glyph" data-gx-glyph="×10">
+                    <span class="gx-reference-glyph-foreground">
+                      "×10"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="youtube" style="display: none;">
+          <img alt="" loading="lazy" referrerpolicy="no-referrer" src="https://yt3.ggpht.com/sample-owner=s64-c-k-c0x00ffffff-no-rj" style="width: 1.5em; height: 1.5em; min-width: 1.5em; border-radius: 9999px; object-fit: cover; margin-right: 0.4em; vertical-align: -0.32em; display: none;">
+          <span style="display: inline;">
+            <span class="ck-name ck-chat-name ck-name-pill" style="background: rgb(255, 214, 0); color: rgb(17, 17, 17); border-radius: 0.4em; padding: 0px 0.35em; -webkit-text-stroke: 0px; text-shadow: none; font-weight: 800;">
+              "StreamOwner:"
+          <span class="ck-body ck-chat-body">
+            <span class="gx-reference-glyph" data-gx-glyph="welcome">
+              <span class="gx-reference-glyph-foreground">
+                "welcome"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="in,">
+              <span class="gx-reference-glyph-foreground">
+                "in,"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="plenty">
+              <span class="gx-reference-glyph-foreground">
+                "plenty"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="of">
+              <span class="gx-reference-glyph-foreground">
+                "of"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="clips">
+              <span class="gx-reference-glyph-foreground">
+                "clips"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="to">
+              <span class="gx-reference-glyph-foreground">
+                "to"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="get">
+              <span class="gx-reference-glyph-foreground">
+                "get"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="through">
+              <span class="gx-reference-glyph-foreground">
+                "through"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="today">
+              <span class="gx-reference-glyph-foreground">
+                "today"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+          <span style="display: inline;">
+            <span class="ck-bw">
+              <img alt="premium" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/bbbe0db0-a598-423e-86d0-f9fb98ca1933/3" title="premium" width="72" style="display: none;">
+            <span class="ck-name ck-chat-name" style="color: rgb(255, 158, 219); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="ユキ_yuki:">
+                <span class="gx-reference-glyph-foreground">
+                  "ユキ_yuki:"
+          <span class="ck-body ck-chat-body">
+            <span class="gx-reference-glyph" data-gx-glyph="ありがとう!">
+              <span class="gx-reference-glyph-foreground">
+                "ありがとう!"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="спасибо!">
+              <span class="gx-reference-glyph-foreground">
+                "спасибо!"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="شكرا!">
+              <span class="gx-reference-glyph-foreground">
+                "شكرا!"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="¡qué">
+              <span class="gx-reference-glyph-foreground">
+                "¡qué"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="buena">
+              <span class="gx-reference-glyph-foreground">
+                "buena"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="racha!">
+              <span class="gx-reference-glyph-foreground">
+                "racha!"
+            " "
+            <span class="ck-emote-wrap ck-twemoji-wrap">
+              "🎉"
+            <span class="ck-emote-wrap ck-twemoji-wrap">
+              "🐉"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="é">
+              <span class="gx-reference-glyph-foreground">
+                "é"
+            " "
+            <img alt="Kappa" class="ck-emote ck-native-emote ck-native-twitch" decoding="async" height="112" loading="eager" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22n%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220.4%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23efeaf8%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23b9b0d0%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%221.6%22%20y%3D%221.6%22%20width%3D%2220.8%22%20height%3D%2220.8%22%20rx%3D%225%22%20fill%3D%22url(%23n)%22%20stroke%3D%22%234a4266%22%20stroke-width%3D%220.7%22%2F%3E%3Cellipse%20cx%3D%228.4%22%20cy%3D%226.6%22%20rx%3D%223.4%22%20ry%3D%221.5%22%20fill%3D%22%23fff%22%20opacity%3D%220.5%22%2F%3E%3Cellipse%20cx%3D%229%22%20cy%3D%2210.2%22%20rx%3D%221.5%22%20ry%3D%221.7%22%20fill%3D%22%232e2842%22%2F%3E%3Cellipse%20cx%3D%2215%22%20cy%3D%2210.2%22%20rx%3D%221.5%22%20ry%3D%221.7%22%20fill%3D%22%232e2842%22%2F%3E%3Ccircle%20cx%3D%229.5%22%20cy%3D%229.6%22%20r%3D%220.5%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%2215.5%22%20cy%3D%229.6%22%20r%3D%220.5%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22%232e2842%22%20stroke-width%3D%221.3%22%20stroke-linecap%3D%22round%22%20d%3D%22M8.2%2015.4c2%201.5%205.6%201.5%207.6%200%22%2F%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22%234a4266%22%20stroke-width%3D%220.9%22%20stroke-linecap%3D%22round%22%20d%3D%22M6.4%207.4c1-.9%202.4-.9%203.4-.2m4.4-.2c1-.7%202.4-.7%203.4.2%22%2F%3E%3C%2Fsvg%3E" width="112">
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+          <span style="display: inline;">
+            <span class="ck-name ck-chat-name" style="color: rgb(156, 76, 231); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="PaintedPal:">
+                <span class="gx-reference-glyph-foreground">
+                  "PaintedPal:"
+          <span class="ck-body ck-chat-body">
+            <span class="gx-reference-glyph" data-gx-glyph="hi">
+              <span class="gx-reference-glyph-foreground">
+                "hi"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="OMEGALUL">
+              <span class="gx-reference-glyph-foreground">
+                "OMEGALUL"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="ffzSpin">
+              <span class="gx-reference-glyph-foreground">
+                "ffzSpin"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="and">
+              <span class="gx-reference-glyph-foreground">
+                "and"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="w!">
+              <span class="gx-reference-glyph-foreground">
+                "w!"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="OMEGALUL">
+              <span class="gx-reference-glyph-foreground">
+                "OMEGALUL"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+          <span style="display: inline;">
+            <span class="ck-name ck-chat-name" style="color: rgb(156, 76, 231); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="user_x2:">
+                <span class="gx-reference-glyph-foreground">
+                  "user_x2:"
+          <span class="ck-body ck-chat-body">
+            <strong style="color: rgb(156, 76, 231); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="@PaintedPal">
+                <span class="gx-reference-glyph-foreground">
+                  "@PaintedPal"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="@user_x1,">
+              <span class="gx-reference-glyph-foreground">
+                "@user_x1,"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="@nobody">
+              <span class="gx-reference-glyph-foreground">
+                "@nobody"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="look">
+              <span class="gx-reference-glyph-foreground">
+                "look"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="OMEGALUL">
+              <span class="gx-reference-glyph-foreground">
+                "OMEGALUL"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="RainTime">
+              <span class="gx-reference-glyph-foreground">
+                "RainTime"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="RainTime">
+              <span class="gx-reference-glyph-foreground">
+                "RainTime"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="end">
+              <span class="gx-reference-glyph-foreground">
+                "end"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+          <span style="display: inline;">
+            <span class="ck-name ck-chat-name" style="color: rgb(156, 76, 231); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="user_x3:">
+                <span class="gx-reference-glyph-foreground">
+                  "user_x3:"
+          <span class="ck-body ck-chat-body">
+            <img alt="Kappa" class="ck-emote ck-native-emote ck-native-twitch" data-asset-failed="true" decoding="async" height="112" loading="eager" src="https://static-cdn.jtvnw.net/emoticons/v2/25/default/dark/3.0" width="112" style="display: none;">
+            " "
+            <img alt="Kappa" class="ck-emote ck-native-emote ck-native-twitch" data-asset-failed="true" decoding="async" height="112" loading="eager" src="https://static-cdn.jtvnw.net/emoticons/v2/25/default/dark/3.0" width="112" style="display: none;">
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="and">
+              <span class="gx-reference-glyph-foreground">
+                "and"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="OMEGALUL">
+              <span class="gx-reference-glyph-foreground">
+                "OMEGALUL"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="kick" style="display: none;">
+          <span style="display: inline;">
+            <span class="ck-bw">
+              <img alt="gifter" class="ck-badge-img" decoding="async" height="72" src="/badges/gift_250-299.svg" width="72">
+              <img alt="subscriber" class="ck-badge-img" decoding="async" height="72" src="/badges/subscriber.svg" width="72">
+              <img alt="moderator" class="ck-badge-img" decoding="async" height="72" src="/badges/moderator.svg" width="72">
+            <span class="ck-name ck-chat-name" style="color: rgb(255, 255, 255); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="user_x4:">
+                <span class="gx-reference-glyph-foreground">
+                  "user_x4:"
+          <span class="ck-body ck-chat-body">
+            <img alt="a" class="ck-emote ck-native-emote ck-native-kick" data-asset-failed="true" decoding="async" height="112" loading="eager" src="https://files.kick.com/emotes/1/fullsize" width="112" style="display: none;">
+            " "
+            <img alt="b" class="ck-emote ck-native-emote ck-native-kick" data-asset-failed="true" decoding="async" height="112" loading="eager" src="https://files.kick.com/emotes/2/fullsize" width="112" style="display: none;">
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="hey">
+              <span class="gx-reference-glyph-foreground">
+                "hey"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="youtube" style="display: none;">
+          <span style="display: inline;">
+            <span class="ck-bw">
+              <img alt="verified" class="ck-badge-img" decoding="async" height="72" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2211%22%20fill%3D%22%23999999%22%2F%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22m7.1%2012.1%203.1%203.1%206.8-7.1%201.5%201.5-8.3%208.6-4.6-4.6%201.5-1.5Z%22%2F%3E%3C%2Fsvg%3E" width="72">
+              <img alt="moderator" class="ck-badge-img" decoding="async" height="72" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%233ea6ff%22%20d%3D%22M12%201%202%204.8v6.6c0%205.8%204.2%2010.6%2010%2012.1%205.8-1.5%2010-6.3%2010-12.1V4.8L12%201Zm5.8%206.2-7.4%207.9-4.2-3.9%201.7-1.8%202.5%202.3%205.7-6.1%201.7%201.6Z%22%2F%3E%3C%2Fsvg%3E" width="72">
+            <span class="ck-name ck-chat-name ck-name-pill" style="background: rgb(255, 214, 0); color: rgb(17, 17, 17); border-radius: 0.4em; padding: 0px 0.35em; -webkit-text-stroke: 0px; text-shadow: none; font-weight: 800;">
+              "OwnerPerson:"
+          <span class="ck-body ck-chat-body">
+            <span class="gx-reference-glyph" data-gx-glyph="owner">
+              <span class="gx-reference-glyph-foreground">
+                "owner"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="here">
+              <span class="gx-reference-glyph-foreground">
+                "here"
+            " "
+            <span class="ck-emote-wrap ck-twemoji-wrap">
+              "🎉"
+            " "
+            <span class="ck-emote-wrap ck-twemoji-wrap">
+              "✨"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div>
+          <div style="font-size: 0.6em; line-height: 1.35; opacity: 0.68; margin-left: 0.35em; padding-left: 0.45em; border-left: 2px solid rgba(255, 255, 255, 0.28); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <span class="ck-body">
+              <span aria-hidden="true">
+                <span class="gx-reference-glyph" data-gx-glyph="↪">
+                  <span class="gx-reference-glyph-foreground">
+                    "↪"
+                " "
+              <strong style="font-weight: 800;">
+                <span class="gx-reference-glyph" data-gx-glyph="PaintedPal">
+                  <span class="gx-reference-glyph-foreground">
+                    "PaintedPal"
+              " "
+              <span class="gx-reference-glyph" data-gx-glyph="original">
+                <span class="gx-reference-glyph-foreground">
+                  "original"
+              " "
+              <span class="gx-reference-glyph" data-gx-glyph="OMEGALUL">
+                <span class="gx-reference-glyph-foreground">
+                  "OMEGALUL"
+              " "
+              <span class="gx-reference-glyph" data-gx-glyph="words">
+                <span class="gx-reference-glyph-foreground">
+                  "words"
+          <div style="line-height: 58px; word-break: break-word;">
+            <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+            <span style="display: inline;">
+              <span class="ck-name ck-chat-name" style="color: rgb(156, 76, 231); font-weight: 800;">
+                <span class="gx-reference-glyph" data-gx-glyph="user_x6:">
+                  <span class="gx-reference-glyph-foreground">
+                    "user_x6:"
+            <span class="ck-body ck-chat-body">
+              <strong style="color: rgb(156, 76, 231); font-weight: 800;">
+                <span class="gx-reference-glyph" data-gx-glyph="@PaintedPal">
+                  <span class="gx-reference-glyph-foreground">
+                    "@PaintedPal"
+              " "
+              <span class="gx-reference-glyph" data-gx-glyph="right">
+                <span class="gx-reference-glyph-foreground">
+                  "right"
+              " "
+              <span class="gx-reference-glyph" data-gx-glyph="OMEGALUL">
+                <span class="gx-reference-glyph-foreground">
+                  "OMEGALUL"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="tiktok" style="display: none;">
+          <span style="display: inline;">
+            <span class="ck-name ck-chat-name" style="color: rgb(255, 111, 174); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="user_x7:">
+                <span class="gx-reference-glyph-foreground">
+                  "user_x7:"
+          <span class="ck-body ck-chat-body">
+            <span class="gx-reference-glyph" data-gx-glyph="tiktok">
+              <span class="gx-reference-glyph-foreground">
+                "tiktok"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="viewer">
+              <span class="gx-reference-glyph-foreground">
+                "viewer"
+            " "
+            <span class="ck-emote-wrap ck-twemoji-wrap">
+              "😂"
+    <div class="gx-message-row" style="margin: 0px -6px 0px 2px; display: grid; grid-template-rows: 1fr; opacity: 1; transform-origin: center top; transition: grid-template-rows 700ms cubic-bezier(0.4, 0, 0.2, 1), opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1);">
+      <div class="gx-message-row-inner" style="min-height: 0px; overflow: hidden;">
+        <div style="line-height: 58px; word-break: break-word;">
+          <span aria-hidden="true" data-chat-platform="twitch" style="display: none;">
+          <span style="display: inline;">
+            <span class="ck-bw">
+              <img alt="broadcaster" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/3" title="broadcaster" width="72" style="display: none;">
+              <img alt="subscriber" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3" title="subscriber" width="72" style="display: none;">
+              <img alt="moderator" class="ck-badge-img" data-asset-failed="true" decoding="async" height="72" src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/3" title="moderator" width="72" style="display: none;">
+            <span class="ck-name ck-chat-name" style="color: rgb(156, 76, 231); font-weight: 800;">
+              <span class="gx-reference-glyph" data-gx-glyph="user_x8:">
+                <span class="gx-reference-glyph-foreground">
+                  "user_x8:"
+          <span class="ck-body ck-chat-body">
+            <span class="gx-reference-glyph" data-gx-glyph="subbed">
+              <span class="gx-reference-glyph-foreground">
+                "subbed"
+            " "
+            <span class="gx-reference-glyph" data-gx-glyph="badges">
+              <span class="gx-reference-glyph-foreground">
+                "badges"
